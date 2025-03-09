@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 import OfflineProgressModal from '@/components/OfflineProgressModal.vue'
+import PWAUpdateNotification from '@/components/PWAUpdateNotification.vue'
 import { useSaveSystem } from '@/stores/saveSystem'
 
 const saveSystem = useSaveSystem()
@@ -24,4 +25,7 @@ const handleCloseOfflineModal = () => {
   <OfflineProgressModal :is-visible="saveSystem.isCalculatingOfflineProgress"
     :total-ticks="saveSystem.offlineProgressTotalTicks" :ticks-processed="saveSystem.offlineProgressTicksProcessed"
     :elapsed-time="saveSystem.offlineProgressElapsedTime" @close="handleCloseOfflineModal" />
+
+  <!-- PWA Update Notification -->
+  <PWAUpdateNotification />
 </template>
