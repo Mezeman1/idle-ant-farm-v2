@@ -1,0 +1,113 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useGeneratorStore } from '@/stores/generatorStore'
+import GeneratorItem from '@/components/GeneratorItem.vue'
+
+const generatorStore = useGeneratorStore()
+
+// Get all generators, including locked ones
+const allGenerators = computed(() => generatorStore.generators)
+
+// Get unlocked generators
+const unlockedGenerators = computed(() => generatorStore.unlockedGenerators)
+
+// Check if a generator is the next to be unlocked
+const isNextToUnlock = (tier: number) => {
+    // Find the highest unlocked tier
+    const highestUnlockedTier = Math.max(...unlockedGenerators.value.map(g => g.tier))
+
+    // The next tier to unlock is the highest unlocked tier + 1
+    return tier === highestUnlockedTier + 1
+}
+</script>
+
+<template>
+    <div class="space-y-6">
+        <!-- Colony Overview -->
+        <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <span class="i-heroicons-building-storefront text-amber-700 mr-2"></span>
+                Colony Overview
+            </h2>
+
+            <p class="text-sm text-amber-800 mb-4">
+                Manage your ant colony by purchasing and upgrading different types of structures.
+                Each tier produces units of the tier below it.
+            </p>
+
+            <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+                <div class="text-sm font-medium mb-2">Colony Hierarchy</div>
+                <div class="text-xs text-amber-800 space-y-1">
+                    <div class="flex items-center">
+                        <span class="i-heroicons-building-storefront text-amber-600 mr-1.5"></span>
+                        <span>Colonies produce Queen Chambers</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="i-heroicons-crown text-amber-600 mr-1.5"></span>
+                        <span>Queen Chambers produce Nurseries</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="i-heroicons-home-modern text-amber-600 mr-1.5"></span>
+                        <span>Nurseries produce Worker Ants</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="i-heroicons-bug-ant text-amber-600 mr-1.5"></span>
+                        <span>Worker Ants produce Food</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Unlocked Generators -->
+        <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <span class="i-heroicons-check-circle text-amber-700 mr-2"></span>
+                Available Structures
+            </h2>
+
+            <div class="space-y-4">
+                <GeneratorItem v-for="generator in unlockedGenerators" :key="generator.id" :generator="generator" />
+            </div>
+        </section>
+
+        <!-- Locked Generators -->
+        <section v-if="allGenerators.length > unlockedGenerators.length"
+            class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <span class="i-heroicons-lock-closed text-amber-700 mr-2"></span>
+                Locked Structures
+            </h2>
+
+            <div class="space-y-4">
+                <div v-for="generator in allGenerators.filter(g => !g.unlocked)" :key="generator.id"
+                    class="bg-white rounded-lg shadow-md overflow-hidden border border-amber-200 opacity-80">
+                    <!-- Generator header -->
+                    <div
+                        class="bg-gradient-to-r from-gray-500 to-gray-400 p-3 flex items-center justify-between text-white">
+                        <div class="flex items-center">
+                            <span :class="[generator.icon, 'text-2xl mr-2 text-gray-300']"></span>
+                            <h3 class="font-bold">{{ generator.name }}</h3>
+                        </div>
+                        <div class="text-sm font-medium bg-gray-600/30 px-2 py-0.5 rounded">
+                            Locked
+                        </div>
+                    </div>
+
+                    <!-- Generator details -->
+                    <div class="p-3 text-gray-700">
+                        <p class="text-sm mb-2">{{ generator.description }}</p>
+
+                        <div v-if="isNextToUnlock(generator.tier)"
+                            class="text-xs bg-amber-100 p-2 rounded border border-amber-200">
+                            <p class="flex items-center">
+                                <span class="i-heroicons-information-circle text-amber-600 mr-1.5"></span>
+                                <span>Unlock by purchasing 10 {{allGenerators.find(g => g.tier === generator.tier -
+                                    1)?.name }}s</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</template>

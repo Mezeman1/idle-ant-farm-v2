@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useGameStore } from './gameStore'
+import { useGeneratorStore } from './generatorStore'
 import { createDecimal } from '@/utils/decimalUtils'
 
 // Save key for localStorage
@@ -29,6 +30,7 @@ export const useSaveSystem = defineStore('saveSystem', () => {
   const getStores = () => {
     return {
       gameStore: useGameStore(),
+      generatorStore: useGeneratorStore(),
     }
   }
 
@@ -37,10 +39,8 @@ export const useSaveSystem = defineStore('saveSystem', () => {
     const stores = getStores()
     const state = {
       saveTime: Date.now(),
-      gameStore: {
-        totalTicks: stores.gameStore.totalTicks.toString(),
-      },
-      // Add more stores as they are created
+      gameStore: stores.gameStore.getState(),
+      generatorStore: stores.generatorStore.getState(),
     }
 
     return state
@@ -55,12 +55,13 @@ export const useSaveSystem = defineStore('saveSystem', () => {
 
       // Load game store state
       if (state.gameStore) {
-        if (state.gameStore.totalTicks) {
-          stores.gameStore.totalTicks = createDecimal(state.gameStore.totalTicks)
-        }
+        stores.gameStore.loadState(state.gameStore)
       }
 
-      // Add more stores as they are created
+      // Load generator store state
+      if (state.generatorStore) {
+        stores.generatorStore.loadState(state.generatorStore)
+      }
 
       // Update load time
       lastLoadTime.value = Date.now()
@@ -113,6 +114,11 @@ export const useSaveSystem = defineStore('saveSystem', () => {
         // If there are more ticks to process, schedule the next batch
         if (ticksProcessed < offlineTicks) {
           setTimeout(processBatch, 10) // Small delay to allow UI updates
+        } else {
+          // All ticks processed
+          setTimeout(() => {
+            isCalculatingOfflineProgress.value = false
+          }, 500) // Keep the modal visible for a moment after completion
         }
       }
 

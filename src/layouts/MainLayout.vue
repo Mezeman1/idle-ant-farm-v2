@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useGameStore } from '@/stores/gameStore'
+import { useGeneratorStore } from '@/stores/generatorStore'
 
 // Navigation items for the footer
 const navItems = ref([
@@ -13,6 +14,7 @@ const navItems = ref([
 
 // Game store for progress tracking
 const gameStore = useGameStore()
+const generatorStore = useGeneratorStore()
 
 // Animation frame handling for smooth progress updates
 let animationFrameId: number | null = null
@@ -26,6 +28,12 @@ const updateGameLoop = () => {
 // Start and stop the game loop with component lifecycle
 onMounted(() => {
   animationFrameId = requestAnimationFrame(updateGameLoop)
+})
+
+onUnmounted(() => {
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId)
+  }
 })
 </script>
 
@@ -47,10 +55,16 @@ onMounted(() => {
           </span>
         </div>
 
-        <!-- Game status indicator -->
-        <div class="flex items-center">
-          <span class="i-heroicons-clock-circle text-amber-300 animate-pulse"></span>
-          <span class="ml-1 text-xs font-medium">Auto-running</span>
+        <!-- Resource display -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center bg-amber-900/20 rounded-full px-3 py-1">
+            <span class="i-heroicons-cake text-amber-300 mr-1.5"></span>
+            <span class="text-sm font-medium">{{ generatorStore.formatFood() }}</span>
+          </div>
+          <div class="flex items-center bg-amber-900/20 rounded-full px-3 py-1">
+            <span class="i-heroicons-bug-ant text-amber-300 mr-1.5"></span>
+            <span class="text-sm font-medium">{{ generatorStore.formatGeneratorCount('worker') }}</span>
+          </div>
         </div>
       </div>
     </header>

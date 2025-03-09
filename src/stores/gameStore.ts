@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
+import { useGeneratorStore } from './generatorStore'
 
 export const useGameStore = defineStore('game', () => {
   // Progress tracking
@@ -31,8 +32,9 @@ export const useGameStore = defineStore('game', () => {
     // Increment total ticks using Decimal addition
     totalTicks.value = totalTicks.value.add(1)
 
-    // This will later call other store tick functions
-    // e.g. resourceStore.tick(), colonyStore.tick(), etc.
+    // Call the generator store's tick function
+    const generatorStore = useGeneratorStore()
+    generatorStore.tick()
 
     // Reset progress after tick
     tickProgress.value = 0
@@ -66,6 +68,20 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  // Get state for saving
+  const getState = () => {
+    return {
+      totalTicks: totalTicks.value.toString(),
+    }
+  }
+
+  // Load state
+  const loadState = (state: any) => {
+    if (state.totalTicks) {
+      totalTicks.value = createDecimal(state.totalTicks)
+    }
+  }
+
   return {
     tickDuration,
     tickProgress,
@@ -76,6 +92,8 @@ export const useGameStore = defineStore('game', () => {
     timeRemaining,
     tick,
     updateProgress,
-    toggleRunning
+    toggleRunning,
+    getState,
+    loadState,
   }
 })

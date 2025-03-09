@@ -2,23 +2,33 @@
 // Home page for the idle ant farm game
 import { computed } from 'vue'
 import { useGameStore } from '@/stores/gameStore'
+import { useGeneratorStore } from '@/stores/generatorStore'
+import GeneratorItem from '@/components/GeneratorItem.vue'
 
 const gameStore = useGameStore()
+const generatorStore = useGeneratorStore()
 
-// Computed property to check if any ticks have occurred
-const hasTicksOccurred = computed(() => !gameStore.totalTicks.eq(0))
-const hasMultipleTicksOccurred = computed(() => gameStore.totalTicks.gt(1))
-const additionalTicks = computed(() => gameStore.totalTicks.sub(1).toString())
+// Get unlocked generators
+const unlockedGenerators = computed(() => generatorStore.unlockedGenerators)
+
+// Food per second
+const foodPerSecond = computed(() => generatorStore.foodPerSecond)
+
+// Manual food collection
+const collectFood = () => {
+  generatorStore.food = generatorStore.food.add(1)
+}
 </script>
 
 <template>
   <div class="space-y-6">
+    <!-- Welcome Section -->
     <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
       <h2 class="text-lg font-bold mb-2">Welcome to your Ant Colony!</h2>
       <p class="text-sm text-amber-800">Tap to collect food and grow your colony of industrious ants.</p>
 
       <div class="mt-6 flex justify-center">
-        <button
+        <button @click="collectFood"
           class="bg-gradient-to-br from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white font-bold py-4 px-6 rounded-full shadow-lg transform transition-all active:scale-95 active:shadow-md flex items-center">
           <span class="i-heroicons-hand-raised text-2xl mr-2"></span>
           Tap to Collect
@@ -26,51 +36,58 @@ const additionalTicks = computed(() => gameStore.totalTicks.sub(1).toString())
       </div>
     </section>
 
-    <!-- Game Tick Information -->
+    <!-- Colony Status -->
     <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
       <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-clock-circle text-amber-700 mr-2"></span>
-        Game Cycle
+        <span class="i-heroicons-chart-bar text-amber-700 mr-2"></span>
+        Colony Status
       </h2>
-      <div class="space-y-3">
-        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-          <div class="text-sm text-amber-800">Tick Duration:</div>
-          <div class="font-medium">{{ gameStore.tickDuration }} seconds</div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-xs text-amber-700 font-medium">Food</div>
+          <div class="text-lg font-bold flex items-center">
+            <span class="i-heroicons-cake text-amber-600 mr-2 text-sm"></span>
+            {{ generatorStore.formatFood() }}
+          </div>
         </div>
-        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-          <div class="text-sm text-amber-800">Current Progress:</div>
-          <div class="font-medium">{{ gameStore.progressPercentage }}%</div>
+
+        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-xs text-amber-700 font-medium">Food per Tick</div>
+          <div class="text-lg font-bold flex items-center">
+            <span class="i-heroicons-arrow-trending-up text-amber-600 mr-2 text-sm"></span>
+            {{ foodPerSecond }}
+          </div>
         </div>
-        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-          <div class="text-sm text-amber-800">Time Until Next Tick:</div>
-          <div class="font-medium">{{ gameStore.timeRemaining }} seconds</div>
+
+        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-xs text-amber-700 font-medium">Worker Ants</div>
+          <div class="text-lg font-bold flex items-center">
+            <span class="i-heroicons-bug-ant text-amber-600 mr-2 text-sm"></span>
+            {{ generatorStore.formatGeneratorCount('worker') }}
+          </div>
         </div>
-        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-          <div class="text-sm text-amber-800">Total Ticks:</div>
-          <div class="font-medium">{{ gameStore.formattedTotalTicks }}</div>
+
+        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-xs text-amber-700 font-medium">Total Ticks</div>
+          <div class="text-lg font-bold flex items-center">
+            <span class="i-heroicons-clock text-amber-600 mr-2 text-sm"></span>
+            {{ gameStore.formattedTotalTicks }}
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- Generators -->
     <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
       <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-clock text-amber-700 mr-2"></span>
-        Recent Activities
+        <span class="i-heroicons-building-storefront text-amber-700 mr-2"></span>
+        Expand Your Colony
       </h2>
-      <ul class="space-y-2.5">
-        <li class="text-sm border-b border-amber-200 pb-2.5 flex items-start">
-          <span class="i-heroicons-plus-circle text-green-600 mr-2 mt-0.5"></span>
-          <span>Game started</span>
-        </li>
-        <li v-if="hasTicksOccurred" class="text-sm border-b border-amber-200 pb-2.5 flex items-start">
-          <span class="i-heroicons-plus-circle text-green-600 mr-2 mt-0.5"></span>
-          <span>First game tick completed</span>
-        </li>
-        <li v-if="hasMultipleTicksOccurred" class="text-sm flex items-start">
-          <span class="i-heroicons-plus-circle text-green-600 mr-2 mt-0.5"></span>
-          <span>{{ additionalTicks }} additional ticks completed</span>
-        </li>
-      </ul>
+
+      <div class="space-y-4">
+        <GeneratorItem v-for="generator in unlockedGenerators" :key="generator.id" :generator="generator" />
+      </div>
     </section>
   </div>
 </template>

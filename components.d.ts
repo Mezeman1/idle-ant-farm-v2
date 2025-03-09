@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    GeneratorItem: typeof import('./src/components/GeneratorItem.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     OfflineProgressModal: typeof import('./src/components/OfflineProgressModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
