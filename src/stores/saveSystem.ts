@@ -85,13 +85,25 @@ export const useSaveSystem = defineStore('saveSystem', () => {
     }
   }
 
-  // Calculate offline progress
-  const calculateOfflineProgress = (lastSaveTime: number) => {
+  /**
+   * Calculate and apply offline progress
+   * @param timeParam Either a timestamp (Date.now()) or elapsed time in seconds
+   * @param isElapsedTime Whether the timeParam is already an elapsed time in seconds
+   */
+  const calculateOfflineProgress = (timeParam: number, isElapsedTime = false) => {
     if (!offlineProgressEnabled.value) return
 
-    const now = Date.now()
-    const elapsedMs = now - lastSaveTime
-    const elapsedSeconds = elapsedMs / 1000
+    let elapsedSeconds: number
+
+    if (isElapsedTime) {
+      // If timeParam is already elapsed time in seconds
+      elapsedSeconds = timeParam
+    } else {
+      // If timeParam is a timestamp
+      const now = Date.now()
+      const elapsedMs = now - timeParam
+      elapsedSeconds = elapsedMs / 1000
+    }
 
     if (elapsedSeconds < 10) return // Don't calculate for very short periods
 

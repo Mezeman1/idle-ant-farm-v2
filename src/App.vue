@@ -3,9 +3,14 @@ import { onMounted } from 'vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 import OfflineProgressModal from '@/components/OfflineProgressModal.vue'
 import PWAUpdateNotification from '@/components/PWAUpdateNotification.vue'
+import PWAInstallButton from '@/components/PWAInstallButton.vue'
 import { useSaveSystem } from '@/stores/saveSystem'
+import { useVisibilityState } from '@/composables/useVisibilityState'
 
 const saveSystem = useSaveSystem()
+
+// Initialize visibility state tracking
+const { isVisible } = useVisibilityState()
 
 // Handle closing the offline progress modal
 const handleCloseOfflineModal = () => {
@@ -28,4 +33,7 @@ const handleCloseOfflineModal = () => {
 
   <!-- PWA Update Notification -->
   <PWAUpdateNotification />
+
+  <!-- PWA Install Button -->
+  <PWAInstallButton />
 </template>

@@ -13,6 +13,7 @@ declare module 'vue' {
     GeneratorLevelCard: typeof import('./src/components/GeneratorLevelCard.vue')['default']
     GeneratorUpgradeItem: typeof import('./src/components/GeneratorUpgradeItem.vue')['default']
     OfflineProgressModal: typeof import('./src/components/OfflineProgressModal.vue')['default']
+    PWAInstallButton: typeof import('./src/components/PWAInstallButton.vue')['default']
     PWAUpdateNotification: typeof import('./src/components/PWAUpdateNotification.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
