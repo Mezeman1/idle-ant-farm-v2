@@ -87,6 +87,7 @@ export const useGeneratorStore = defineStore('generator', () => {
     let multiplier = createDecimal(1)
     try {
       const prestigeStore = usePrestigeStore()
+      const generatorUpgradeStore = useGeneratorUpgradeStore()
 
       // Apply food processing multiplier
       multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('foodProcessing'))
@@ -96,9 +97,14 @@ export const useGeneratorStore = defineStore('generator', () => {
 
       // Apply stronger soldiers multiplier (general efficiency)
       multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
+
+      // Apply worker efficiency upgrades
+      multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEfficiency'))
+      multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerForaging'))
+      multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEndurance'))
     } catch (error) {
-      // Prestige store might not be initialized yet
-      console.error('Error applying prestige multipliers:', error)
+      // Stores might not be initialized yet
+      console.error('Error applying multipliers:', error)
     }
 
     return workerAnts.count.mul(workerAnts.baseProduction).mul(multiplier)
@@ -130,7 +136,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       } else if (id === 'nursery') {
         costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('nurseryExpansion')
       } else if (id === 'queenChamber') {
-        costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('queenLongevity')
+        costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('queenChamberLongevity')
       } else if (id === 'colony') {
         costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('colonyExpansion')
       }
@@ -227,7 +233,9 @@ export const useGeneratorStore = defineStore('generator', () => {
           generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('nurseryEfficiency'))
         } else if (generator.id === 'queenChamber') {
           // Apply queen efficiency multiplier
-          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('queenEfficiency'))
+          generalMultiplier = generalMultiplier.mul(
+            generatorUpgradeStore.getUpgradeMultiplier('queenChamberEfficiency')
+          )
         } else if (generator.id === 'colony') {
           // Apply colony efficiency multiplier
           generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('colonyEfficiency'))
@@ -282,7 +290,7 @@ export const useGeneratorStore = defineStore('generator', () => {
           }
           // Queen fertility
           else if (generator.id === 'queenChamber') {
-            const fertilityChance = generatorUpgradeStore.getUpgradeMultiplier('queenFertility')
+            const fertilityChance = generatorUpgradeStore.getUpgradeMultiplier('queenChamberFertility')
             if (fertilityChance.gt(0) && Math.random() < fertilityChance.toNumber()) {
               addGeneratorAuto('queenChamber', createDecimal(1))
             }
