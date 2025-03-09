@@ -31,7 +31,6 @@ pnpm-debug.log*
 *.local
 LOCAL_NOTES.md
 /playwright/.cache
-package-lock.json
 *.tsbuildinfo
 .vscode/starter.code-workspace
 test-results/
