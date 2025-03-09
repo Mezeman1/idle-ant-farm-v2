@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import Decimal from 'break_infinity.js'
-import { createDecimal, formatDecimal, calculateCost } from '@/utils/decimalUtils'
+import { createDecimal, formatDecimal, calculateCost, calculateGeneratorCost } from '@/utils/decimalUtils'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 
@@ -138,11 +138,11 @@ export const useGeneratorStore = defineStore('generator', () => {
       console.error('Error applying cost reduction:', error)
     }
 
-    // Base cost on manual purchases, not total count
-    const baseCost = calculateCost(generator.baseCost, generator.costGrowth, generator.manualPurchases)
+    // Use the new tier-based cost calculation
+    const cost = calculateGeneratorCost(generator.tier, generator.manualPurchases)
 
     // Apply cost multiplier (reduction)
-    return baseCost.mul(costMultiplier)
+    return cost.mul(costMultiplier)
   }
 
   // Buy a generator

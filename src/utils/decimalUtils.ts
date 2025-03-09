@@ -62,6 +62,143 @@ export function calculateCost(baseCost: Decimal, growthRate: Decimal, currentLev
 }
 
 /**
+ * Calculates the cost of a Mk1 generator based on the formula:
+ * 3*(1.065+0.004x)^(x*(1+max(x-999,0)/1000))
+ */
+export function calculateMk1Cost(count: Decimal): Decimal {
+  const x = count
+  const base = createDecimal(3)
+  const growthBase = createDecimal(1.065).add(createDecimal(0.004).mul(x))
+
+  const exponentBase = x
+  const exponentBonus = x.sub(999).max(0).div(1000)
+  const exponent = exponentBase.mul(createDecimal(1).add(exponentBonus))
+
+  return base.mul(growthBase.pow(exponent))
+}
+
+/**
+ * Calculates the cost of a Mk2 generator based on the formula:
+ * 2e3*(2.9+0.3x)^(x*(1+max(x-199,0)/500))
+ */
+export function calculateMk2Cost(count: Decimal): Decimal {
+  const x = count
+  const base = createDecimal(2e3)
+  const growthBase = createDecimal(2.9).add(createDecimal(0.3).mul(x))
+
+  const exponentBase = x
+  const exponentBonus = x.sub(199).max(0).div(500)
+  const exponent = exponentBase.mul(createDecimal(1).add(exponentBonus))
+
+  return base.mul(growthBase.pow(exponent))
+}
+
+/**
+ * Calculates the cost of a Mk3 generator based on the formula:
+ * 1e8*(20+10x)^(x*(1+max(x-99,0)/(1000/3)))
+ */
+export function calculateMk3Cost(count: Decimal): Decimal {
+  const x = count
+  const base = createDecimal(1e8)
+  const growthBase = createDecimal(20).add(createDecimal(10).mul(x))
+
+  const exponentBase = x
+  const exponentBonus = x.sub(99).max(0).div(createDecimal(1000).div(3))
+  const exponent = exponentBase.mul(createDecimal(1).add(exponentBonus))
+
+  return base.mul(growthBase.pow(exponent))
+}
+
+/**
+ * Calculates the cost of a Mk4 generator based on the formula:
+ * 4e18*(50+30x)^(x*(1+max(x-74,0)/200))
+ */
+export function calculateMk4Cost(count: Decimal): Decimal {
+  const x = count
+  const base = createDecimal(4e18)
+  const growthBase = createDecimal(50).add(createDecimal(30).mul(x))
+
+  const exponentBase = x
+  const exponentBonus = x.sub(74).max(0).div(200)
+  const exponent = exponentBase.mul(createDecimal(1).add(exponentBonus))
+
+  return base.mul(growthBase.pow(exponent))
+}
+
+/**
+ * Calculates the cost of a Mk5 generator based on the formula:
+ * 5e46*(220+80x)^(x(1+max(x-49,0)/200))
+ */
+export function calculateMk5Cost(count: Decimal): Decimal {
+  const x = count
+  const base = createDecimal('5e46')
+  const growthBase = createDecimal(220).add(createDecimal(80).mul(x))
+
+  const exponentBase = x
+  const exponentBonus = x.sub(49).max(0).div(200)
+  const exponent = exponentBase.mul(createDecimal(1).add(exponentBonus))
+
+  return base.mul(growthBase.pow(exponent))
+}
+
+/**
+ * Calculates the cost of a Mk6 generator based on the formula:
+ * 6e200*(6e5+6e5*x)^(x*(1+x/(500/3)))
+ */
+export function calculateMk6Cost(count: Decimal): Decimal {
+  const x = count
+  const base = createDecimal('6e200')
+  const growthBase = createDecimal('6e5').add(createDecimal('6e5').mul(x))
+
+  const exponentBase = x
+  const exponentBonus = x.div(createDecimal(500).div(3))
+  const exponent = exponentBase.mul(createDecimal(1).add(exponentBonus))
+
+  return base.mul(growthBase.pow(exponent))
+}
+
+/**
+ * Calculates the cost of a Mk7 generator based on the formula:
+ * 7e500*(7e7+7e7*x)^(x*(1+x/50))
+ */
+export function calculateMk7Cost(count: Decimal): Decimal {
+  const x = count
+  const base = createDecimal('7e500')
+  const growthBase = createDecimal('7e7').add(createDecimal('7e7').mul(x))
+
+  const exponentBase = x
+  const exponentBonus = x.div(50)
+  const exponent = exponentBase.mul(createDecimal(1).add(exponentBonus))
+
+  return base.mul(growthBase.pow(exponent))
+}
+
+/**
+ * Calculates generator cost based on tier and count
+ */
+export function calculateGeneratorCost(tier: number, count: Decimal): Decimal {
+  switch (tier) {
+    case 1:
+      return calculateMk1Cost(count)
+    case 2:
+      return calculateMk2Cost(count)
+    case 3:
+      return calculateMk3Cost(count)
+    case 4:
+      return calculateMk4Cost(count)
+    case 5:
+      return calculateMk5Cost(count)
+    case 6:
+      return calculateMk6Cost(count)
+    case 7:
+      return calculateMk7Cost(count)
+    default:
+      // Fallback to original formula if tier is not recognized
+      return createDecimal(10).mul(createDecimal(1.1).pow(count))
+  }
+}
+
+/**
  * Converts a Decimal to a plain number (for cases where a number is required)
  * Warning: This may lose precision for very large numbers
  */

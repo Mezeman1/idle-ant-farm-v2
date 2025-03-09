@@ -21,16 +21,31 @@ const formattedFoodPerSecond = computed(() => {
 })
 
 // Selected generator for upgrades
-const selectedGenerator = ref('worker')
+const selectedGenerator = ref('')
 
 // Get upgrades for selected generator
 const selectedGeneratorUpgrades = computed(() => {
   return generatorUpgradeStore.getUpgradesForGenerator(selectedGenerator.value)
 })
 
-// Change selected generator
-const selectGenerator = (generatorId: string) => {
+// Show/hide upgrade modal
+const showUpgradeModal = ref(false)
+const isClosing = ref(false)
+
+// Open upgrade modal for a specific generator
+const openUpgradeModal = (generatorId: string) => {
   selectedGenerator.value = generatorId
+  isClosing.value = false
+  showUpgradeModal.value = true
+}
+
+// Close upgrade modal with animation
+const closeUpgradeModal = () => {
+  isClosing.value = true
+  setTimeout(() => {
+    showUpgradeModal.value = false
+    isClosing.value = false
+  }, 250) // Match this with the animation duration
 }
 
 // Get total points available
@@ -47,46 +62,54 @@ const showGeneratorInfo = ref(false)
 const toggleGeneratorInfo = () => {
   showGeneratorInfo.value = !showGeneratorInfo.value
 }
+
+// Generator names and icons mapping
+const generatorInfo = {
+  worker: { name: 'Worker Ants', icon: 'i-heroicons-bug-ant' },
+  nursery: { name: 'Nursery', icon: 'i-heroicons-home-modern' },
+  queenChamber: { name: 'Queen Chamber', icon: 'i-heroicons-crown' },
+  colony: { name: 'Colony', icon: 'i-heroicons-building-office-2' }
+}
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-4">
     <!-- Colony Overview -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
+    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md">
+      <h2 class="text-base font-bold mb-2 flex items-center">
         <span class="i-heroicons-home text-amber-700 mr-2"></span>
         Colony Overview
       </h2>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200">
           <div class="text-xs text-amber-700 font-medium">Food</div>
-          <div class="text-lg font-bold flex items-center">
-            <span class="i-heroicons-cake text-amber-600 mr-2 text-sm"></span>
+          <div class="text-sm font-bold flex items-center">
+            <span class="i-heroicons-cake text-amber-600 mr-1 text-xs"></span>
             {{ generatorStore.formatFood() }}
           </div>
         </div>
 
-        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200">
           <div class="text-xs text-amber-700 font-medium">Food per Foraging Trip</div>
-          <div class="text-lg font-bold flex items-center">
-            <span class="i-heroicons-arrow-trending-up text-amber-600 mr-2 text-sm"></span>
+          <div class="text-sm font-bold flex items-center">
+            <span class="i-heroicons-arrow-trending-up text-amber-600 mr-1 text-xs"></span>
             {{ formattedFoodPerSecond }}
           </div>
         </div>
 
-        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200">
           <div class="text-xs text-amber-700 font-medium">Total Adaptation Points</div>
-          <div class="text-lg font-bold flex items-center">
-            <span class="i-heroicons-star text-amber-600 mr-2 text-sm"></span>
+          <div class="text-sm font-bold flex items-center">
+            <span class="i-heroicons-star text-amber-600 mr-1 text-xs"></span>
             {{ totalPointsAvailable }}
           </div>
         </div>
 
-        <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200">
           <div class="text-xs text-amber-700 font-medium">Ant Types</div>
-          <div class="text-lg font-bold flex items-center">
-            <span class="i-heroicons-building-storefront text-amber-600 mr-2 text-sm"></span>
+          <div class="text-sm font-bold flex items-center">
+            <span class="i-heroicons-building-storefront text-amber-600 mr-1 text-xs"></span>
             {{ unlockedGenerators.length }}
           </div>
         </div>
@@ -94,117 +117,178 @@ const toggleGeneratorInfo = () => {
     </section>
 
     <!-- Generator Levels -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-star text-amber-700 mr-2"></span>
-        Ant Specialization Levels
+    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md">
+      <h2 class="text-base font-bold mb-2 flex items-center justify-between">
+        <div class="flex items-center">
+          <span class="i-heroicons-star text-amber-700 mr-2"></span>
+          Ant Specialization Levels
+        </div>
+        <button @click="toggleGeneratorInfo"
+          class="w-5 h-5 rounded-full bg-amber-200 hover:bg-amber-300 flex items-center justify-center text-amber-700 transition-colors">
+          <span class="i-heroicons-question-mark-circle text-base"></span>
+        </button>
       </h2>
 
-      <div class="grid grid-cols-2 gap-4">
-        <GeneratorLevelCard generatorId="worker" />
-        <GeneratorLevelCard generatorId="nursery" />
-        <GeneratorLevelCard generatorId="queenChamber" />
-        <GeneratorLevelCard generatorId="colony" />
-      </div>
-    </section>
+      <div class="grid grid-cols-2 gap-3">
+        <button @click="openUpgradeModal('worker')"
+          class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center">
+              <span class="i-heroicons-bug-ant text-amber-600 mr-1.5 text-base"></span>
+              <span class="text-sm font-medium">Worker Ants</span>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
+              Lvl {{ generatorUpgradeStore.generatorLevels.worker.toNumber() }}
+            </span>
+          </div>
+          <div class="mt-1.5">
+            <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
+                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('worker')}%` }"></div>
+            </div>
+            <div class="flex justify-between mt-0.5 text-xs text-amber-700">
+              <span>{{ generatorUpgradeStore.formatPoints('worker') }} points</span>
+              <span>{{ generatorUpgradeStore.formatProgressPercentage('worker') }}%</span>
+            </div>
+          </div>
+          <div class="mt-2 flex justify-end">
+            <span class="text-xs bg-amber-600 text-white px-2 py-1 rounded-md flex items-center">
+              <span class="i-heroicons-arrow-up-circle text-xs mr-1"></span>
+              Upgrade
+            </span>
+          </div>
+        </button>
 
-    <!-- Worker Upgrades -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-bug-ant text-amber-700 mr-2"></span>
-        Worker Ant Adaptations
-      </h2>
+        <button @click="openUpgradeModal('nursery')"
+          class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center">
+              <span class="i-heroicons-home-modern text-amber-600 mr-1.5 text-base"></span>
+              <span class="text-sm font-medium">Nursery</span>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
+              Lvl {{ generatorUpgradeStore.generatorLevels.nursery.toNumber() }}
+            </span>
+          </div>
+          <div class="mt-1.5">
+            <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
+                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('nursery')}%` }"></div>
+            </div>
+            <div class="flex justify-between mt-0.5 text-xs text-amber-700">
+              <span>{{ generatorUpgradeStore.formatPoints('nursery') }} points</span>
+              <span>{{ generatorUpgradeStore.formatProgressPercentage('nursery') }}%</span>
+            </div>
+          </div>
+          <div class="mt-2 flex justify-end">
+            <span class="text-xs bg-amber-600 text-white px-2 py-1 rounded-md flex items-center">
+              <span class="i-heroicons-arrow-up-circle text-xs mr-1"></span>
+              Upgrade
+            </span>
+          </div>
+        </button>
 
-      <div class="space-y-4">
-        <GeneratorUpgradeItem upgradeId="workerEfficiency" />
-        <GeneratorUpgradeItem upgradeId="workerTraining" />
-        <GeneratorUpgradeItem upgradeId="workerReproduction" />
-      </div>
-    </section>
+        <button @click="openUpgradeModal('queenChamber')"
+          class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center">
+              <span class="i-heroicons-crown text-amber-600 mr-1.5 text-base"></span>
+              <span class="text-sm font-medium">Queen Chamber</span>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
+              Lvl {{ generatorUpgradeStore.generatorLevels.queenChamber.toNumber() }}
+            </span>
+          </div>
+          <div class="mt-1.5">
+            <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
+                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('queenChamber')}%` }"></div>
+            </div>
+            <div class="flex justify-between mt-0.5 text-xs text-amber-700">
+              <span>{{ generatorUpgradeStore.formatPoints('queenChamber') }} points</span>
+              <span>{{ generatorUpgradeStore.formatProgressPercentage('queenChamber') }}%</span>
+            </div>
+          </div>
+          <div class="mt-2 flex justify-end">
+            <span class="text-xs bg-amber-600 text-white px-2 py-1 rounded-md flex items-center">
+              <span class="i-heroicons-arrow-up-circle text-xs mr-1"></span>
+              Upgrade
+            </span>
+          </div>
+        </button>
 
-    <!-- Nursery Upgrades -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-home-modern text-amber-700 mr-2"></span>
-        Nursery Adaptations
-      </h2>
-
-      <div class="space-y-4">
-        <GeneratorUpgradeItem upgradeId="nurseryEfficiency" />
-        <GeneratorUpgradeItem upgradeId="nurseryExpansion" />
-        <GeneratorUpgradeItem upgradeId="nurseryAutomation" />
-      </div>
-    </section>
-
-    <!-- Queen Chamber Upgrades -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-crown text-amber-700 mr-2"></span>
-        Queen Chamber Adaptations
-      </h2>
-
-      <div class="space-y-4">
-        <GeneratorUpgradeItem upgradeId="queenChamberEfficiency" />
-        <GeneratorUpgradeItem upgradeId="queenChamberLongevity" />
-        <GeneratorUpgradeItem upgradeId="queenChamberFertility" />
-      </div>
-    </section>
-
-    <!-- Colony Upgrades -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-building-office-2 text-amber-700 mr-2"></span>
-        Colony Adaptations
-      </h2>
-
-      <div class="space-y-4">
-        <GeneratorUpgradeItem upgradeId="colonyEfficiency" />
-        <GeneratorUpgradeItem upgradeId="colonyExpansion" />
-        <GeneratorUpgradeItem upgradeId="colonyDominance" />
+        <button @click="openUpgradeModal('colony')"
+          class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center">
+              <span class="i-heroicons-building-office-2 text-amber-600 mr-1.5 text-base"></span>
+              <span class="text-sm font-medium">Colony</span>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
+              Lvl {{ generatorUpgradeStore.generatorLevels.colony.toNumber() }}
+            </span>
+          </div>
+          <div class="mt-1.5">
+            <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
+                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('colony')}%` }"></div>
+            </div>
+            <div class="flex justify-between mt-0.5 text-xs text-amber-700">
+              <span>{{ generatorUpgradeStore.formatPoints('colony') }} points</span>
+              <span>{{ generatorUpgradeStore.formatProgressPercentage('colony') }}%</span>
+            </div>
+          </div>
+          <div class="mt-2 flex justify-end">
+            <span class="text-xs bg-amber-600 text-white px-2 py-1 rounded-md flex items-center">
+              <span class="i-heroicons-arrow-up-circle text-xs mr-1"></span>
+              Upgrade
+            </span>
+          </div>
+        </button>
       </div>
     </section>
 
     <!-- Ant Types -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
+    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md">
+      <h2 class="text-base font-bold mb-2 flex items-center">
         <span class="i-heroicons-building-storefront text-amber-700 mr-2"></span>
         Expand Your Colony
       </h2>
 
-      <div class="space-y-4">
+      <div class="space-y-3">
         <GeneratorItem v-for="generator in unlockedGenerators" :key="generator.id" :generator="generator" />
       </div>
     </section>
 
     <!-- Generator Info Dialog -->
     <div v-if="showGeneratorInfo" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-5 mx-auto max-h-[80vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold flex items-center text-amber-800">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-4 mx-auto max-h-[80vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-base font-bold flex items-center text-amber-800">
             <span class="i-heroicons-information-circle text-amber-600 mr-2"></span>
             About Ant Specialization
           </h3>
           <button @click="toggleGeneratorInfo" class="text-gray-500 hover:text-gray-700">
-            <span class="i-heroicons-x-mark text-xl"></span>
+            <span class="i-heroicons-x-mark text-lg"></span>
           </button>
         </div>
 
-        <div class="space-y-4">
-          <div class="bg-amber-50 p-4 rounded-lg">
-            <p class="text-sm text-amber-800 mb-2">
+        <div class="space-y-3">
+          <div class="bg-amber-50 p-3 rounded-lg">
+            <p class="text-xs text-amber-800 mb-1">
               <strong>How Ant Specialization Works:</strong>
             </p>
 
-            <ul class="text-sm text-amber-800 list-disc pl-5 space-y-1">
+            <ul class="text-xs text-amber-800 list-disc pl-4 space-y-0.5">
               <li>Each ant type has its own specialization level that increases based on different metrics:</li>
-              <li class="ml-4"><strong>Worker Ants:</strong> Level up based on foraging trips in current evolution (50%
+              <li class="ml-3"><strong>Worker Ants:</strong> Level up based on foraging trips in current evolution (50%
                 increase
                 per level)</li>
-              <li class="ml-4"><strong>Nurseries:</strong> Level up based on amount of food gathered (100% increase per
+              <li class="ml-3"><strong>Nurseries:</strong> Level up based on amount of food gathered (100% increase per
                 level)</li>
-              <li class="ml-4"><strong>Queen Chambers:</strong> Level up based on total manual purchases (30% increase
+              <li class="ml-3"><strong>Queen Chambers:</strong> Level up based on total manual purchases (30% increase
                 per level)</li>
-              <li class="ml-4"><strong>Colonies:</strong> Level up based on amount of adaptations developed (20%
+              <li class="ml-3"><strong>Colonies:</strong> Level up based on amount of adaptations developed (20%
                 increase
                 per level)</li>
               <li>Each level-up awards 1 adaptation point for that ant type</li>
@@ -213,12 +297,12 @@ const toggleGeneratorInfo = () => {
             </ul>
           </div>
 
-          <div class="bg-amber-50 p-4 rounded-lg">
-            <p class="text-sm text-amber-800 mb-2">
+          <div class="bg-amber-50 p-3 rounded-lg">
+            <p class="text-xs text-amber-800 mb-1">
               <strong>Types of Ant Adaptations:</strong>
             </p>
 
-            <ul class="text-sm text-amber-800 list-disc pl-5 space-y-1">
+            <ul class="text-xs text-amber-800 list-disc pl-4 space-y-0.5">
               <li><strong>Efficiency Adaptations:</strong> Increase production (+20% per level)</li>
               <li><strong>Resource Adaptations:</strong> Decrease resource requirements (-5% per level)</li>
               <li><strong>Special Adaptations:</strong> Add a chance for ants to reproduce themselves</li>
@@ -226,13 +310,171 @@ const toggleGeneratorInfo = () => {
           </div>
         </div>
 
-        <div class="mt-4 flex justify-end">
+        <div class="mt-3 flex justify-end">
           <button @click="toggleGeneratorInfo"
-            class="py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium">
+            class="py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-xs font-medium">
             Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generator Upgrade Modal -->
+    <div v-if="showUpgradeModal" class="fixed inset-0 z-50">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-black/70 animate-fadeIn" :class="{ 'animate-fadeOut': isClosing }"></div>
+
+      <!-- Modal Content -->
+      <div class="relative w-full h-full flex flex-col overflow-hidden animate-slideUp"
+        :class="{ 'animate-slideDown': isClosing }">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-amber-600 to-amber-500 p-3 shadow-md flex justify-between items-center">
+          <h3 class="text-lg font-bold flex items-center text-white">
+            <span :class="[generatorInfo[selectedGenerator]?.icon, 'text-white mr-2 text-xl']"></span>
+            {{ generatorInfo[selectedGenerator]?.name }} Adaptations
+          </h3>
+          <button @click="closeUpgradeModal" class="text-white hover:text-amber-200 transition-colors p-2">
+            <span class="i-heroicons-x-mark text-xl"></span>
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-grow overflow-y-auto bg-amber-50/95 p-4">
+          <!-- Stats Card -->
+          <div
+            class="bg-white rounded-lg shadow-md border border-amber-200 p-3 mb-4 animate-fadeIn animation-delay-100">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-sm text-amber-800 font-medium">Current Level</div>
+                <div class="text-xl font-bold text-amber-800 flex items-center">
+                  <span class="i-heroicons-star text-amber-500 mr-1"></span>
+                  Level {{ generatorUpgradeStore.generatorLevels[selectedGenerator]?.toNumber() }}
+                </div>
+              </div>
+              <div>
+                <div class="text-sm text-amber-800 font-medium">Available Points</div>
+                <div class="text-xl font-bold text-amber-800 flex items-center">
+                  <span class="i-heroicons-bolt text-amber-500 mr-1"></span>
+                  {{ generatorUpgradeStore.formatPoints(selectedGenerator) }} points
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <div class="text-sm text-amber-800 font-medium mb-1 flex justify-between">
+                <span>Progress to Next Level</span>
+                <span>{{ generatorUpgradeStore.formatProgressPercentage(selectedGenerator) }}%</span>
+              </div>
+              <div class="h-2.5 bg-amber-100 rounded-full overflow-hidden">
+                <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
+                  :style="{ width: `${generatorUpgradeStore.formatProgressPercentage(selectedGenerator)}%` }"></div>
+              </div>
+              <div class="flex justify-between mt-1 text-xs text-amber-700">
+                <span>Current: {{ generatorUpgradeStore.levelProgress[selectedGenerator]?.toFixed(0) }}</span>
+                <span>Next: {{ generatorUpgradeStore.formatNextLevelRequirement(selectedGenerator) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upgrades -->
+          <h4 class="text-base font-bold text-amber-800 mb-3 flex items-center animate-fadeIn animation-delay-100">
+            <span class="i-heroicons-adjustments-horizontal text-amber-600 mr-2"></span>
+            Available Adaptations
+          </h4>
+
+          <div class="space-y-3 animate-fadeIn animation-delay-150">
+            <GeneratorUpgradeItem v-for="upgrade in selectedGeneratorUpgrades" :key="upgrade.id"
+              :upgradeId="upgrade.id" />
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-white p-3 shadow-md flex justify-end">
+          <button @click="closeUpgradeModal"
+            class="py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium flex items-center transition-all duration-200 active:scale-95">
+            <span class="i-heroicons-arrow-left text-base mr-1"></span>
+            Return to Colony
           </button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(15px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(15px);
+    opacity: 0;
+  }
+}
+
+/* Animation classes */
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeOut {
+  animation: fadeOut 0.25s ease-out forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Animation delays */
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-150 {
+  animation-delay: 150ms;
+}
+
+/* Scale effect for buttons */
+.active\:scale-98:active {
+  transform: scale(0.98);
+}
+</style>

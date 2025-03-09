@@ -114,6 +114,30 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
       icon: 'i-heroicons-heart',
       unlocked: true,
     },
+    {
+      id: 'workerForaging',
+      generatorId: 'worker',
+      name: 'Advanced Foraging',
+      description: 'Workers find higher quality food sources',
+      cost: createDecimal(2),
+      level: createDecimal(0),
+      maxLevel: createDecimal(8),
+      effect: level => createDecimal(1).add(level.mul(0.15)), // +15% per level
+      icon: 'i-heroicons-map',
+      unlocked: true,
+    },
+    {
+      id: 'workerEndurance',
+      generatorId: 'worker',
+      name: 'Worker Endurance',
+      description: 'Workers can carry more food per trip',
+      cost: createDecimal(2),
+      level: createDecimal(0),
+      maxLevel: createDecimal(7),
+      effect: level => createDecimal(1).add(level.mul(0.1)), // +10% per level
+      icon: 'i-heroicons-battery-100',
+      unlocked: true,
+    },
 
     // Nursery Upgrades
     {
@@ -152,10 +176,34 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
       icon: 'i-heroicons-cog',
       unlocked: true,
     },
+    {
+      id: 'nurseryNutrition',
+      generatorId: 'nursery',
+      name: 'Larval Nutrition',
+      description: 'Better nutrition leads to faster worker development',
+      cost: createDecimal(2),
+      level: createDecimal(0),
+      maxLevel: createDecimal(8),
+      effect: level => createDecimal(1).add(level.mul(0.12)), // +12% per level
+      icon: 'i-heroicons-beaker',
+      unlocked: true,
+    },
+    {
+      id: 'nurseryCapacity',
+      generatorId: 'nursery',
+      name: 'Nursery Capacity',
+      description: 'Nurseries can care for more larvae simultaneously',
+      cost: createDecimal(2),
+      level: createDecimal(0),
+      maxLevel: createDecimal(6),
+      effect: level => createDecimal(1).add(level.mul(0.15)), // +15% per level
+      icon: 'i-heroicons-cube',
+      unlocked: true,
+    },
 
     // Queen Chamber Upgrades
     {
-      id: 'queenEfficiency',
+      id: 'queenChamberEfficiency',
       generatorId: 'queenChamber',
       name: 'Queen Efficiency',
       description: 'Increases nursery production of queen chambers',
@@ -167,7 +215,7 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
       unlocked: true,
     },
     {
-      id: 'queenLongevity',
+      id: 'queenChamberLongevity',
       generatorId: 'queenChamber',
       name: 'Queen Longevity',
       description: 'Decreases the cost of queen chambers',
@@ -179,7 +227,7 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
       unlocked: true,
     },
     {
-      id: 'queenFertility',
+      id: 'queenChamberFertility',
       generatorId: 'queenChamber',
       name: 'Queen Fertility',
       description: 'Queen chambers occasionally create new queens',
@@ -188,6 +236,30 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
       maxLevel: createDecimal(5),
       effect: level => createDecimal(level.mul(0.005)), // 0.5% chance per level to generate a free queen chamber per tick
       icon: 'i-heroicons-heart',
+      unlocked: true,
+    },
+    {
+      id: 'queenChamberRoyalJelly',
+      generatorId: 'queenChamber',
+      name: 'Royal Jelly',
+      description: 'Special food increases queen egg production',
+      cost: createDecimal(2),
+      level: createDecimal(0),
+      maxLevel: createDecimal(7),
+      effect: level => createDecimal(1).add(level.mul(0.15)), // +15% per level
+      icon: 'i-heroicons-fire',
+      unlocked: true,
+    },
+    {
+      id: 'queenChamberGuards',
+      generatorId: 'queenChamber',
+      name: 'Royal Guards',
+      description: 'Special guards protect the queen, increasing productivity',
+      cost: createDecimal(2),
+      level: createDecimal(0),
+      maxLevel: createDecimal(6),
+      effect: level => createDecimal(1).add(level.mul(0.1)), // +10% per level
+      icon: 'i-heroicons-shield-check',
       unlocked: true,
     },
 
@@ -228,6 +300,42 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
       icon: 'i-heroicons-globe-alt',
       unlocked: true,
     },
+    {
+      id: 'colonyNetworking',
+      generatorId: 'colony',
+      name: 'Colony Networking',
+      description: 'Improved communication between colonies increases productivity',
+      cost: createDecimal(2),
+      level: createDecimal(0),
+      maxLevel: createDecimal(8),
+      effect: level => createDecimal(1).add(level.mul(0.12)), // +12% per level
+      icon: 'i-heroicons-signal',
+      unlocked: true,
+    },
+    {
+      id: 'colonyWarfare',
+      generatorId: 'colony',
+      name: 'Territorial Expansion',
+      description: 'Colonies can claim territory from other insects',
+      cost: createDecimal(3),
+      level: createDecimal(0),
+      maxLevel: createDecimal(6),
+      effect: level => createDecimal(1).add(level.mul(0.18)), // +18% per level
+      icon: 'i-heroicons-flag',
+      unlocked: true,
+    },
+    {
+      id: 'colonySymbiosis',
+      generatorId: 'colony',
+      name: 'Fungal Symbiosis',
+      description: 'Colonies cultivate fungi for additional food production',
+      cost: createDecimal(4),
+      level: createDecimal(0),
+      maxLevel: createDecimal(5),
+      effect: level => createDecimal(1).add(level.mul(0.25)), // +25% per level
+      icon: 'i-heroicons-sparkles',
+      unlocked: true,
+    },
   ])
 
   // Get upgrades for a specific generator
@@ -249,7 +357,7 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
 
   // Get all multipliers for a generator
   const getMultipliersForGenerator = (generatorId: string) => {
-    const upgrades = getUpgradesForGenerator(generatorId)
+    const upgrades = generatorUpgrades.value.filter(upgrade => upgrade.generatorId === generatorId)
     const multipliers = {}
 
     upgrades.forEach(upgrade => {
