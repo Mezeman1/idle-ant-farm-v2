@@ -48,20 +48,6 @@ const loopProgressPercentage = computed(() => {
 
 <template>
   <div class="space-y-6">
-    <!-- Welcome Section -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-2">Welcome to your Ant Colony!</h2>
-      <p class="text-sm text-amber-800">Tap to collect food and grow your colony of industrious ants.</p>
-
-      <div class="mt-6 flex justify-center">
-        <button @click="collectFood"
-          class="bg-gradient-to-br from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white font-bold py-4 px-6 rounded-full shadow-lg transform transition-all active:scale-95 active:shadow-md flex items-center">
-          <span class="i-heroicons-hand-raised text-2xl mr-2"></span>
-          Tap to Collect
-        </button>
-      </div>
-    </section>
-
     <!-- Colony Status -->
     <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
       <h2 class="text-lg font-bold mb-3 flex items-center">
@@ -142,6 +128,20 @@ const loopProgressPercentage = computed(() => {
       </div>
     </section>
 
+
+
+    <!-- Generators -->
+    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+      <h2 class="text-lg font-bold mb-3 flex items-center">
+        <span class="i-heroicons-building-storefront text-amber-700 mr-2"></span>
+        Expand Your Colony
+      </h2>
+
+      <div class="space-y-4">
+        <GeneratorItem v-for="generator in unlockedGenerators" :key="generator.id" :generator="generator" />
+      </div>
+    </section>
+
     <!-- Evolution Status -->
     <section class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-5 shadow-md">
       <h2 class="text-lg font-bold mb-3 flex items-center">
@@ -199,18 +199,6 @@ const loopProgressPercentage = computed(() => {
           class="inline-block px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md text-sm font-medium">
           View Evolution Upgrades
         </router-link>
-      </div>
-    </section>
-
-    <!-- Generators -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
-      <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-building-storefront text-amber-700 mr-2"></span>
-        Expand Your Colony
-      </h2>
-
-      <div class="space-y-4">
-        <GeneratorItem v-for="generator in unlockedGenerators" :key="generator.id" :generator="generator" />
       </div>
     </section>
   </div>

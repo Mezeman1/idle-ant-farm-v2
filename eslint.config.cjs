@@ -29,7 +29,6 @@ module.exports = [
   },
 
   ...pluginVue.configs['flat/recommended'],
-  ...vueTsEslintConfig(),
 
   {
     ...pluginVitest.configs.recommended,

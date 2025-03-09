@@ -10,7 +10,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     EvolutionUpgradeItem: typeof import('./src/components/EvolutionUpgradeItem.vue')['default']
     GeneratorItem: typeof import('./src/components/GeneratorItem.vue')['default']
-    HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    GeneratorLevelCard: typeof import('./src/components/GeneratorLevelCard.vue')['default']
+    GeneratorUpgradeItem: typeof import('./src/components/GeneratorUpgradeItem.vue')['default']
     OfflineProgressModal: typeof import('./src/components/OfflineProgressModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

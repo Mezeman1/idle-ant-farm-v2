@@ -7,7 +7,7 @@ import { useGeneratorStore } from '@/stores/generatorStore'
 const navItems = ref([
   { name: 'Home', icon: 'i-heroicons-home', route: '/' },
   { name: 'Colony', icon: 'i-heroicons-building-storefront', route: '/colony' },
-  { name: 'Upgrades', icon: 'i-heroicons-arrow-trending-up', route: '/upgrades' },
+  { name: 'Upgrades', icon: 'i-heroicons-sparkles', route: '/upgrades' },
   { name: 'Stats', icon: 'i-heroicons-chart-bar', route: '/stats' },
   { name: 'Settings', icon: 'i-heroicons-cog-6-tooth', route: '/settings' },
 ])

@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useGameStore } from './gameStore'
 import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
+import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 import { createDecimal } from '@/utils/decimalUtils'
 
 // Save key for localStorage
@@ -33,6 +34,7 @@ export const useSaveSystem = defineStore('saveSystem', () => {
       gameStore: useGameStore(),
       generatorStore: useGeneratorStore(),
       prestigeStore: usePrestigeStore(),
+      generatorUpgradeStore: useGeneratorUpgradeStore(),
     }
   }
 
@@ -44,34 +46,37 @@ export const useSaveSystem = defineStore('saveSystem', () => {
       gameStore: stores.gameStore.getState(),
       generatorStore: stores.generatorStore.getState(),
       prestigeStore: stores.prestigeStore.getState(),
+      generatorUpgradeStore: stores.generatorUpgradeStore.getState(),
     }
 
     return state
   }
 
-  // Apply state to all stores
+  // Apply saved state to all stores
   const applyState = (state: any) => {
     if (!state) return false
 
     try {
       const stores = getStores()
 
-      // Load game store state
+      // Apply state to each store
       if (state.gameStore) {
         stores.gameStore.loadState(state.gameStore)
       }
 
-      // Load generator store state
       if (state.generatorStore) {
         stores.generatorStore.loadState(state.generatorStore)
       }
 
-      // Load prestige store state
       if (state.prestigeStore) {
         stores.prestigeStore.loadState(state.prestigeStore)
       }
 
-      // Update load time
+      if (state.generatorUpgradeStore) {
+        stores.generatorUpgradeStore.loadState(state.generatorUpgradeStore)
+      }
+
+      // Update last load time
       lastLoadTime.value = Date.now()
       return true
     } catch (error) {

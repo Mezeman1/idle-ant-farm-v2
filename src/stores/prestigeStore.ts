@@ -4,6 +4,7 @@ import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
 import { useGeneratorStore } from './generatorStore'
 import { useGameStore } from './gameStore'
+import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 
 // Evolution upgrade interface
 export interface EvolutionUpgrade {
@@ -340,6 +341,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
   const resetProgress = () => {
     const generatorStore = useGeneratorStore()
     const gameStore = useGameStore()
+    const generatorUpgradeStore = useGeneratorUpgradeStore()
 
     // Reset generators
     generatorStore.generators.forEach(generator => {
@@ -360,6 +362,9 @@ export const usePrestigeStore = defineStore('prestige', () => {
     loopsCompleted.value = createDecimal(0)
     ticksPerLoop.value = createDecimal(3) // Reset to base requirement
     foodForNextLoop.value = createDecimal(1000) // Reset to base requirement
+
+    // Reset generator upgrades
+    generatorUpgradeStore.resetProgress()
 
     // Don't reset total ticks in gameStore
   }

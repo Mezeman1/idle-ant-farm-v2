@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal, calculateCost } from '@/utils/decimalUtils'
 import { usePrestigeStore } from './prestigeStore'
+import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 
 // Generator types
 export interface Generator {
@@ -118,8 +119,30 @@ export const useGeneratorStore = defineStore('generator', () => {
     const generator = getGenerator(id)
     if (!generator) return createDecimal(0)
 
+    // Apply cost reduction from generator upgrades
+    let costMultiplier = createDecimal(1)
+    try {
+      const generatorUpgradeStore = useGeneratorUpgradeStore()
+
+      // Apply specific cost reduction upgrades based on generator type
+      if (id === 'worker') {
+        costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('workerTraining')
+      } else if (id === 'nursery') {
+        costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('nurseryExpansion')
+      } else if (id === 'queenChamber') {
+        costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('queenLongevity')
+      } else if (id === 'colony') {
+        costMultiplier = generatorUpgradeStore.getUpgradeMultiplier('colonyExpansion')
+      }
+    } catch (error) {
+      console.error('Error applying cost reduction:', error)
+    }
+
     // Base cost on manual purchases, not total count
-    return calculateCost(generator.baseCost, generator.costGrowth, generator.manualPurchases)
+    const baseCost = calculateCost(generator.baseCost, generator.costGrowth, generator.manualPurchases)
+
+    // Apply cost multiplier (reduction)
+    return baseCost.mul(costMultiplier)
   }
 
   // Buy a generator
@@ -136,6 +159,14 @@ export const useGeneratorStore = defineStore('generator', () => {
 
       // Check for unlocking next tier
       unlockNextTier(generator.tier)
+
+      // Update queen chamber progress for manual purchases
+      try {
+        const generatorUpgradeStore = useGeneratorUpgradeStore()
+        generatorUpgradeStore.updateQueenChamberProgress(amount)
+      } catch (error) {
+        console.error('Error updating queen chamber progress:', error)
+      }
 
       return true
     }
@@ -178,16 +209,37 @@ export const useGeneratorStore = defineStore('generator', () => {
 
     try {
       const prestigeStore = usePrestigeStore()
+      const generatorUpgradeStore = useGeneratorUpgradeStore()
 
       // Apply stronger soldiers multiplier (general efficiency)
       generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
 
       // Apply efficient queens multiplier
       queenMultiplier = queenMultiplier.mul(prestigeStore.getUpgradeMultiplier('efficientQueens'))
+
+      // Apply generator-specific upgrade multipliers
+      for (const generator of generators.value) {
+        if (generator.id === 'worker') {
+          // Apply worker efficiency multiplier
+          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEfficiency'))
+        } else if (generator.id === 'nursery') {
+          // Apply nursery efficiency multiplier
+          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('nurseryEfficiency'))
+        } else if (generator.id === 'queenChamber') {
+          // Apply queen efficiency multiplier
+          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('queenEfficiency'))
+        } else if (generator.id === 'colony') {
+          // Apply colony efficiency multiplier
+          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('colonyEfficiency'))
+        }
+      }
     } catch (error) {
-      // Prestige store might not be initialized yet
-      console.error('Error applying prestige multipliers:', error)
+      // Stores might not be initialized yet
+      console.error('Error applying multipliers:', error)
     }
+
+    // Track food gained in this tick for nursery progress
+    let foodGained = createDecimal(0)
 
     // Process production from highest tier to lowest
     // Each tier produces units of the tier below it
@@ -202,23 +254,69 @@ export const useGeneratorStore = defineStore('generator', () => {
         // Apply general multiplier
         production = production.mul(generalMultiplier)
 
-        // Apply queen-specific multiplier for queen chambers
+        // Apply queen multiplier for queen chambers
         if (generator.id === 'queenChamber') {
           production = production.mul(queenMultiplier)
         }
 
-        // Add to the target generator's count (automatic, not manual)
+        // Add the produced units to the target generator
         addGeneratorAuto(targetGenerator.id, production)
+
+        // Check for auto-generation of generators based on upgrades
+        try {
+          const generatorUpgradeStore = useGeneratorUpgradeStore()
+
+          // Worker reproduction
+          if (generator.id === 'worker') {
+            const reproductionChance = generatorUpgradeStore.getUpgradeMultiplier('workerReproduction')
+            if (reproductionChance.gt(0) && Math.random() < reproductionChance.toNumber()) {
+              addGeneratorAuto('worker', createDecimal(1))
+            }
+          }
+          // Nursery automation
+          else if (generator.id === 'nursery') {
+            const automationChance = generatorUpgradeStore.getUpgradeMultiplier('nurseryAutomation')
+            if (automationChance.gt(0) && Math.random() < automationChance.toNumber()) {
+              addGeneratorAuto('nursery', createDecimal(1))
+            }
+          }
+          // Queen fertility
+          else if (generator.id === 'queenChamber') {
+            const fertilityChance = generatorUpgradeStore.getUpgradeMultiplier('queenFertility')
+            if (fertilityChance.gt(0) && Math.random() < fertilityChance.toNumber()) {
+              addGeneratorAuto('queenChamber', createDecimal(1))
+            }
+          }
+          // Colony dominance
+          else if (generator.id === 'colony') {
+            const dominanceChance = generatorUpgradeStore.getUpgradeMultiplier('colonyDominance')
+            if (dominanceChance.gt(0) && Math.random() < dominanceChance.toNumber()) {
+              addGeneratorAuto('colony', createDecimal(1))
+            }
+          }
+        } catch (error) {
+          console.error('Error applying generator auto-generation:', error)
+        }
       }
     }
 
-    // Worker ants (tier 1) produce food
+    // Worker ants produce food
     const workerAnts = generators.value[0]
-    if (workerAnts.count.gt(0)) {
-      // Food production is handled by foodPerSecond computed property
-      // which already includes prestige multipliers
-      const foodProduction = foodPerSecond.value
+    if (workerAnts.unlocked && workerAnts.count.gt(0)) {
+      // Calculate food production
+      let foodProduction = foodPerSecond.value
+
+      // Add food
       food.value = food.value.add(foodProduction)
+      foodGained = foodProduction
+
+      // Update nursery progress based on food gained
+      try {
+        const generatorUpgradeStore = useGeneratorUpgradeStore()
+        generatorUpgradeStore.updateNurseryProgress(foodGained)
+      } catch (error) {
+        console.error('Error updating nursery progress:', error)
+      }
     }
   }
 

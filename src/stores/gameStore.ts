@@ -4,6 +4,7 @@ import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
 import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
+import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 
 export const useGameStore = defineStore('game', () => {
   // Progress tracking
@@ -40,6 +41,10 @@ export const useGameStore = defineStore('game', () => {
     // Update prestige loop progress
     const prestigeStore = usePrestigeStore()
     prestigeStore.updateLoopProgress(1) // Full tick = 1 unit of progress
+
+    // Update generator upgrade progress
+    const generatorUpgradeStore = useGeneratorUpgradeStore()
+    generatorUpgradeStore.updateWorkerProgress(1) // 1 tick of progress for worker level
 
     // Reset progress after tick
     tickProgress.value = 0
