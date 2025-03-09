@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useGameStore } from './gameStore'
 import { useGeneratorStore } from './generatorStore'
+import { usePrestigeStore } from './prestigeStore'
 import { createDecimal } from '@/utils/decimalUtils'
 
 // Save key for localStorage
@@ -31,6 +32,7 @@ export const useSaveSystem = defineStore('saveSystem', () => {
     return {
       gameStore: useGameStore(),
       generatorStore: useGeneratorStore(),
+      prestigeStore: usePrestigeStore(),
     }
   }
 
@@ -41,6 +43,7 @@ export const useSaveSystem = defineStore('saveSystem', () => {
       saveTime: Date.now(),
       gameStore: stores.gameStore.getState(),
       generatorStore: stores.generatorStore.getState(),
+      prestigeStore: stores.prestigeStore.getState(),
     }
 
     return state
@@ -61,6 +64,11 @@ export const useSaveSystem = defineStore('saveSystem', () => {
       // Load generator store state
       if (state.generatorStore) {
         stores.generatorStore.loadState(state.generatorStore)
+      }
+
+      // Load prestige store state
+      if (state.prestigeStore) {
+        stores.prestigeStore.loadState(state.prestigeStore)
       }
 
       // Update load time

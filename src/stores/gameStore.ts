@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
 import { useGeneratorStore } from './generatorStore'
+import { usePrestigeStore } from './prestigeStore'
 
 export const useGameStore = defineStore('game', () => {
   // Progress tracking
@@ -35,6 +36,10 @@ export const useGameStore = defineStore('game', () => {
     // Call the generator store's tick function
     const generatorStore = useGeneratorStore()
     generatorStore.tick()
+
+    // Update prestige loop progress
+    const prestigeStore = usePrestigeStore()
+    prestigeStore.updateLoopProgress(1) // Full tick = 1 unit of progress
 
     // Reset progress after tick
     tickProgress.value = 0

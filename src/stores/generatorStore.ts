@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal, calculateCost } from '@/utils/decimalUtils'
+import { usePrestigeStore } from './prestigeStore'
 
 // Generator types
 export interface Generator {
@@ -30,7 +31,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       manualPurchases: createDecimal(0),
       baseCost: createDecimal(10),
       costGrowth: createDecimal(1.1),
-      baseProduction: createDecimal(1),
+      baseProduction: createDecimal(10),
       unlocked: true,
       icon: 'i-heroicons-bug-ant',
     },
@@ -79,7 +80,27 @@ export const useGeneratorStore = defineStore('generator', () => {
   const food = ref(createDecimal(10))
   const foodPerSecond = computed(() => {
     // Worker ants produce food directly
-    return generators.value[0].count.mul(generators.value[0].baseProduction)
+    const workerAnts = generators.value[0]
+
+    // Apply prestige multipliers
+    let multiplier = createDecimal(1)
+    try {
+      const prestigeStore = usePrestigeStore()
+
+      // Apply food processing multiplier
+      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('foodProcessing'))
+
+      // Apply mutated workers multiplier
+      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('mutatedWorkers'))
+
+      // Apply stronger soldiers multiplier (general efficiency)
+      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
+    } catch (error) {
+      // Prestige store might not be initialized yet
+      console.error('Error applying prestige multipliers:', error)
+    }
+
+    return workerAnts.count.mul(workerAnts.baseProduction).mul(multiplier)
   })
 
   // Get a specific generator by ID
@@ -98,11 +119,7 @@ export const useGeneratorStore = defineStore('generator', () => {
     if (!generator) return createDecimal(0)
 
     // Base cost on manual purchases, not total count
-    return calculateCost(
-      generator.baseCost,
-      generator.costGrowth,
-      generator.manualPurchases
-    )
+    return calculateCost(generator.baseCost, generator.costGrowth, generator.manualPurchases)
   }
 
   // Buy a generator
@@ -155,6 +172,23 @@ export const useGeneratorStore = defineStore('generator', () => {
 
   // Process generator production for a tick
   const tick = () => {
+    // Get prestige multipliers
+    let generalMultiplier = createDecimal(1)
+    let queenMultiplier = createDecimal(1)
+
+    try {
+      const prestigeStore = usePrestigeStore()
+
+      // Apply stronger soldiers multiplier (general efficiency)
+      generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
+
+      // Apply efficient queens multiplier
+      queenMultiplier = queenMultiplier.mul(prestigeStore.getUpgradeMultiplier('efficientQueens'))
+    } catch (error) {
+      // Prestige store might not be initialized yet
+      console.error('Error applying prestige multipliers:', error)
+    }
+
     // Process production from highest tier to lowest
     // Each tier produces units of the tier below it
     for (let i = generators.value.length - 1; i > 0; i--) {
@@ -163,7 +197,15 @@ export const useGeneratorStore = defineStore('generator', () => {
 
       if (generator.unlocked && generator.count.gt(0)) {
         // Each generator produces units of the tier below it
-        const production = generator.count.mul(generator.baseProduction)
+        let production = generator.count.mul(generator.baseProduction)
+
+        // Apply general multiplier
+        production = production.mul(generalMultiplier)
+
+        // Apply queen-specific multiplier for queen chambers
+        if (generator.id === 'queenChamber') {
+          production = production.mul(queenMultiplier)
+        }
 
         // Add to the target generator's count (automatic, not manual)
         addGeneratorAuto(targetGenerator.id, production)
@@ -173,7 +215,9 @@ export const useGeneratorStore = defineStore('generator', () => {
     // Worker ants (tier 1) produce food
     const workerAnts = generators.value[0]
     if (workerAnts.count.gt(0)) {
-      const foodProduction = workerAnts.count.mul(workerAnts.baseProduction)
+      // Food production is handled by foodPerSecond computed property
+      // which already includes prestige multipliers
+      const foodProduction = foodPerSecond.value
       food.value = food.value.add(foodProduction)
     }
   }
@@ -206,9 +250,9 @@ export const useGeneratorStore = defineStore('generator', () => {
         id: g.id,
         count: g.count.toString(),
         manualPurchases: g.manualPurchases.toString(),
-        unlocked: g.unlocked
+        unlocked: g.unlocked,
       })),
-      food: food.value.toString()
+      food: food.value.toString(),
     }
   }
 
@@ -252,6 +296,6 @@ export const useGeneratorStore = defineStore('generator', () => {
     formatManualPurchases,
     formatFood,
     getState,
-    loadState
+    loadState,
   }
 })
