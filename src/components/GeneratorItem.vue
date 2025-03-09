@@ -73,7 +73,7 @@ const buyGenerator = () => {
         <div class="flex justify-between">
           <span>Production:</span>
           <span>{{ formattedProduction }} {{ generator.tier === 1 ? 'food' : generator.tier === 2 ? 'worker ants' :
-            generator.tier === 3 ? 'nurseries' : 'queen chambers' }} per tick</span>
+            generator.tier === 3 ? 'nurseries' : 'queen chambers' }} per foraging trip</span>
         </div>
 
         <div class="flex justify-between">

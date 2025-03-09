@@ -111,7 +111,7 @@ const purchase = () => {
         :class="canPurchase ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
         :disabled="!canPurchase">
         <span v-if="upgrade.maxLevel === null || upgrade.level.lt(upgrade.maxLevel)">
-          Upgrade ({{ formatDecimal(upgrade.cost, 0) }} pts)
+          Adapt ({{ formatDecimal(upgrade.cost, 0) }} pts)
         </span>
         <span v-else>Maxed</span>
       </button>

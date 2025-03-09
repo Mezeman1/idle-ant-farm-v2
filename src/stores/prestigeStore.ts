@@ -25,32 +25,32 @@ export const usePrestigeStore = defineStore('prestige', () => {
   const evolutionCount = ref(createDecimal(0))
   const currentLoopProgress = ref(0) // 0 to 1
   const loopsCompleted = ref(createDecimal(0))
-  const ticksPerLoop = ref(createDecimal(3)) // Base requirement: 3 ticks per loop
-  const foodForNextLoop = ref(createDecimal(1000)) // Base requirement: 1000 food for first loop
+  const ticksPerLoop = ref(createDecimal(3)) // Base requirement: 3 trips per cycle
+  const foodForNextLoop = ref(createDecimal(1000)) // Base requirement: 1000 food for first cycle
 
   // Evolution requirements
   const requiredLoops = computed(() => {
-    // Scaling loop requirement based on evolution count (CIFI pattern)
+    // Scaling cycle requirement based on evolution count (CIFI pattern)
     const evolutionCountNum = evolutionCount.value.toNumber()
-    let requirement = 3 // Base requirement is 3 loops
+    let requirement = 3 // Base requirement is 3 cycles
 
     if (evolutionCountNum <= 100) {
-      // Resets 1-100: +0.95 loops per evolution
+      // Resets 1-100: +0.95 cycles per evolution
       requirement += evolutionCountNum * 0.95
     } else if (evolutionCountNum <= 150) {
-      // Resets 101-150: +1.35 loops per evolution
+      // Resets 101-150: +1.35 cycles per evolution
       requirement = 3 + 100 * 0.95 + (evolutionCountNum - 100) * 1.35
     } else if (evolutionCountNum <= 200) {
-      // Resets 151-200: +1.95 loops per evolution
+      // Resets 151-200: +1.95 cycles per evolution
       requirement = 3 + 100 * 0.95 + 50 * 1.35 + (evolutionCountNum - 150) * 1.95
     } else if (evolutionCountNum <= 250) {
-      // Resets 201-250: +2.55 loops per evolution
+      // Resets 201-250: +2.55 cycles per evolution
       requirement = 3 + 100 * 0.95 + 50 * 1.35 + 50 * 1.95 + (evolutionCountNum - 200) * 2.55
     } else if (evolutionCountNum <= 300) {
-      // Resets 251-300: +3.25 loops per evolution
+      // Resets 251-300: +3.25 cycles per evolution
       requirement = 3 + 100 * 0.95 + 50 * 1.35 + 50 * 1.95 + 50 * 2.55 + (evolutionCountNum - 250) * 3.25
     } else {
-      // Resets 301+: +4.05 loops per evolution
+      // Resets 301+: +4.05 cycles per evolution
       requirement = 3 + 100 * 0.95 + 50 * 1.35 + 50 * 1.95 + 50 * 2.55 + 50 * 3.25 + (evolutionCountNum - 300) * 4.05
     }
 
@@ -83,8 +83,8 @@ export const usePrestigeStore = defineStore('prestige', () => {
     },
     {
       id: 'shorterLoops',
-      name: 'Shorter Loop Duration',
-      description: 'Reduces loop completion time by 5% per level',
+      name: 'Shorter Cycle Duration',
+      description: 'Reduces cycle completion time by 5% per level',
       cost: createDecimal(3),
       level: createDecimal(0),
       maxLevel: createDecimal(10),
@@ -137,31 +137,31 @@ export const usePrestigeStore = defineStore('prestige', () => {
 
   // Check if evolution is possible
   const canEvolve = computed(() => {
-    // Check if we have enough loops
+    // Check if we have enough cycles
     return loopsCompleted.value.gte(requiredLoops.value)
   })
 
   // Calculate EP gain for evolution
   const calculateEvolutionPointsGain = () => {
-    // Base EP gain is based on the number of loops completed
-    // Each loop completed contributes to the total EP gain
+    // Base EP gain is based on the number of cycles completed
+    // Each cycle completed contributes to the total EP gain
 
-    // Base points per loop (starts at 1)
-    const basePointsPerLoop = createDecimal(1)
+    // Base points per cycle (starts at 1)
+    const basePointsPerCycle = createDecimal(1)
 
-    // Calculate total EP from all completed loops using a mathematical formula
+    // Calculate total EP from all completed cycles using a mathematical formula
     // For an arithmetic progression with first term a=1 and common difference d=0.1:
-    // Sum = n/2 * (2a + (n-1)d) where n is the number of loops
+    // Sum = n/2 * (2a + (n-1)d) where n is the number of cycles
     const loopsCompletedNum = loopsCompleted.value.toNumber()
 
-    // If no loops completed, return 0
+    // If no cycles completed, return 0
     if (loopsCompletedNum <= 0) return createDecimal(0)
 
     // Calculate sum using the formula for arithmetic progression
     // Sum = n * a + n(n-1)/2 * d
-    // Where a = 1 (base points) and d = 0.1 (increment per loop)
+    // Where a = 1 (base points) and d = 0.1 (increment per cycle)
     const n = createDecimal(loopsCompletedNum)
-    const a = basePointsPerLoop
+    const a = basePointsPerCycle
     const d = createDecimal(0.1)
 
     // n * a = n (since a = 1)
@@ -177,45 +177,45 @@ export const usePrestigeStore = defineStore('prestige', () => {
     return totalEP.mul(evolutionMultiplier)
   }
 
-  // Complete a loop and update requirements
+  // Complete a foraging cycle and update requirements
   const completeLoop = () => {
-    // Increment loops completed
+    // Increment foraging cycles completed
     loopsCompleted.value = loopsCompleted.value.add(1)
 
-    // Increase ticks required for next loop (by 0.5 ticks per loop)
+    // Increase foraging trips required for next cycle (by 0.5 trips per cycle)
     ticksPerLoop.value = ticksPerLoop.value.add(0.5)
 
-    // Increase food required for next loop (exponential growth: ^1.1)
+    // Increase food required for next cycle (exponential growth: ^1.1)
     foodForNextLoop.value = foodForNextLoop.value.pow(1.1)
 
-    // Reset loop progress (keep remainder for tick-based progress)
+    // Reset cycle progress (keep remainder for activity-based progress)
     currentLoopProgress.value = currentLoopProgress.value % 1
   }
 
-  // Update loop progress based on ticks and check food-based completion
+  // Update foraging cycle progress based on activity and check food-based completion
   const updateLoopProgress = (tickProgress: number) => {
-    // Get loop speed multiplier from upgrades
+    // Get foraging efficiency multiplier from adaptations
     const loopSpeedMultiplier = getUpgradeMultiplier('shorterLoops')
 
     // Apply multiplier to progress
     const adjustedProgress = tickProgress * toNumber(loopSpeedMultiplier)
 
-    // Calculate progress as a fraction of ticksPerLoop
+    // Calculate progress as a fraction of required foraging trips
     const progressIncrement = adjustedProgress / toNumber(ticksPerLoop.value)
 
-    // Update loop progress
+    // Update foraging cycle progress
     currentLoopProgress.value += progressIncrement
 
-    // Check if loop completed via ticks
+    // Check if foraging cycle completed via activity
     if (currentLoopProgress.value >= 1) {
       completeLoop()
     }
 
-    // Check if loop completed via food
+    // Check if foraging cycle completed via food
     const generatorStore = useGeneratorStore()
 
     if (generatorStore.food.gte(foodForNextLoop.value)) {
-      // Complete loop via food (even if tick progress isn't complete)
+      // Complete foraging cycle via food (even if activity progress isn't complete)
       // Consume the food
       generatorStore.food = generatorStore.food.sub(foodForNextLoop.value)
       completeLoop()
@@ -237,12 +237,12 @@ export const usePrestigeStore = defineStore('prestige', () => {
     return formatDecimal(evolutionCount.value, 0)
   }
 
-  // Format loops completed for display
+  // Format cycles completed for display
   const formatLoopsCompleted = () => {
     return formatDecimal(loopsCompleted.value, 0)
   }
 
-  // Format required loops for display
+  // Format required cycles for display
   const formatRequiredLoops = () => {
     return formatDecimal(requiredLoops.value, 0)
   }
@@ -253,12 +253,12 @@ export const usePrestigeStore = defineStore('prestige', () => {
     return formatDecimal(epGain, 2)
   }
 
-  // Format ticks per loop for display
+  // Format trips per cycle for display
   const formatTicksPerLoop = () => {
     return formatDecimal(ticksPerLoop.value, 1)
   }
 
-  // Format food for next loop for display
+  // Format food for next cycle for display
   const formatFoodForNextLoop = () => {
     return formatDecimal(foodForNextLoop.value, 0)
   }
@@ -357,7 +357,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
     // Reset food
     generatorStore.food = createDecimal(10) // Start with 10 food
 
-    // Reset loop progress
+    // Reset cycle progress
     currentLoopProgress.value = 0
     loopsCompleted.value = createDecimal(0)
     ticksPerLoop.value = createDecimal(3) // Reset to base requirement
@@ -366,7 +366,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
     // Reset generator upgrades
     generatorUpgradeStore.resetProgress()
 
-    // Don't reset total ticks in gameStore
+    // Don't reset total trips in gameStore
   }
 
   // Purchase an evolution upgrade

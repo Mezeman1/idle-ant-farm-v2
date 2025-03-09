@@ -51,7 +51,7 @@ const purchaseUpgrade = () => {
 <template>
     <div class="bg-white rounded-lg shadow-md overflow-hidden border border-amber-200 transition-all duration-200"
         :class="{ 'opacity-75': !canAfford || isMaxLevel }">
-        <!-- Upgrade header -->
+        <!-- Adaptation header -->
         <div class="bg-gradient-to-r from-purple-600 to-purple-500 p-3 flex items-center justify-between text-white">
             <div class="flex items-center">
                 <span :class="[upgrade.icon, 'text-2xl mr-2 text-purple-200']"></span>
@@ -62,7 +62,7 @@ const purchaseUpgrade = () => {
             </div>
         </div>
 
-        <!-- Upgrade details -->
+        <!-- Adaptation details -->
         <div class="p-3 text-purple-900">
             <p class="text-sm mb-2">{{ upgrade.description }}</p>
 
@@ -81,7 +81,7 @@ const purchaseUpgrade = () => {
                 <span v-if="isMaxLevel">Max Level</span>
                 <template v-else>
                     <span class="i-heroicons-sparkles text-lg mr-1.5"></span>
-                    Upgrade for {{ formattedCost }} EP
+                    Adapt for {{ formattedCost }} EP
                 </template>
             </button>
         </div>

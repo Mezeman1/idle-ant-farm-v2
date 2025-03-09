@@ -173,147 +173,185 @@ onMounted(() => {
             </div>
         </section>
 
-        <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+        <section class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl p-5 shadow-md">
             <h2 class="text-lg font-bold mb-3 flex items-center">
-                <span class="i-heroicons-cog-6-tooth text-amber-700 mr-2"></span>
-                Game Settings
+                <span class="i-heroicons-cog-6-tooth text-gray-700 mr-2"></span>
+                Colony Settings
             </h2>
 
             <div class="space-y-4">
-                <!-- Auto-save toggle -->
-                <div
-                    class="flex items-center justify-between bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div>
-                        <div class="font-medium">Auto-Save</div>
-                        <div class="text-xs text-amber-700">Game saves automatically every minute</div>
+                <!-- Auto-save -->
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-medium">Pheromone Trail Preservation</div>
+                            <div class="text-xs text-gray-600 mt-1">Automatically save your colony progress every minute
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" v-model="saveSystem.autoSaveEnabled" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                            </div>
+                        </label>
                     </div>
-                    <button @click="saveSystem.toggleAutoSave" class="px-3 py-1.5 rounded-md text-sm font-medium"
-                        :class="saveSystem.autoSaveEnabled ?
-                            'bg-green-100 text-green-800 border border-green-300' :
-                            'bg-gray-100 text-gray-800 border border-gray-300'">
-                        {{ saveSystem.autoSaveEnabled ? 'Enabled' : 'Disabled' }}
-                    </button>
                 </div>
 
-                <!-- Offline progress toggle -->
-                <div
-                    class="flex items-center justify-between bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div>
-                        <div class="font-medium">Offline Progress</div>
-                        <div class="text-xs text-amber-700">Continue earning resources while away</div>
+                <!-- Offline progress -->
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-medium">Hibernation Progress</div>
+                            <div class="text-xs text-gray-600 mt-1">Calculate colony progress while you're away</div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" v-model="saveSystem.offlineProgressEnabled" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                            </div>
+                        </label>
                     </div>
-                    <button @click="saveSystem.toggleOfflineProgress" class="px-3 py-1.5 rounded-md text-sm font-medium"
-                        :class="saveSystem.offlineProgressEnabled ?
-                            'bg-green-100 text-green-800 border border-green-300' :
-                            'bg-gray-100 text-gray-800 border border-gray-300'">
-                        {{ saveSystem.offlineProgressEnabled ? 'Enabled' : 'Disabled' }}
-                    </button>
                 </div>
 
-                <!-- Last save info -->
-                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div class="text-sm text-amber-800">Last saved:</div>
-                    <div class="font-medium">{{ saveSystem.timeSinceLastSave }} seconds ago</div>
+                <!-- Game speed -->
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-gray-200">
+                    <div>
+                        <div class="font-medium">Colony Activity Speed</div>
+                        <div class="text-xs text-gray-600 mt-1">Adjust how quickly your colony operates</div>
+                    </div>
+                    <div class="mt-3 flex items-center space-x-2">
+                        <span class="text-xs text-gray-600">Slow</span>
+                        <input type="range" min="5" max="20" step="1" v-model="gameStore.tickDuration"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <span class="text-xs text-gray-600">Fast</span>
+                    </div>
+                    <div class="text-xs text-gray-600 mt-1 text-center">
+                        {{ gameStore.tickDuration }} seconds per foraging trip
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+        <section class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl p-5 shadow-md">
             <h2 class="text-lg font-bold mb-3 flex items-center">
-                <span class="i-heroicons-document-arrow-down text-amber-700 mr-2"></span>
-                Save & Load
+                <span class="i-heroicons-document-text text-gray-700 mr-2"></span>
+                Colony Memory Management
             </h2>
 
             <div class="space-y-4">
-                <!-- Manual save/load buttons -->
-                <div class="flex gap-3">
+                <!-- Manual save/load -->
+                <div class="grid grid-cols-2 gap-4">
                     <button @click="handleManualSave"
-                        class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 rounded-md shadow flex items-center justify-center">
+                        class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium flex items-center justify-center">
                         <span class="i-heroicons-document-arrow-down text-lg mr-1.5"></span>
-                        Save Game
-                        <span v-if="saveSuccess" class="ml-1.5 text-xs bg-white/20 px-1.5 py-0.5 rounded">Saved!</span>
+                        Save Colony
                     </button>
 
                     <button @click="handleManualLoad"
-                        class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 rounded-md shadow flex items-center justify-center">
+                        class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium flex items-center justify-center">
                         <span class="i-heroicons-document-arrow-up text-lg mr-1.5"></span>
-                        Load Game
-                        <span v-if="loadSuccess" class="ml-1.5 text-xs bg-white/20 px-1.5 py-0.5 rounded">Loaded!</span>
+                        Load Colony
                     </button>
                 </div>
 
-                <!-- Export save -->
-                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div class="font-medium mb-2">Export Save</div>
-                    <div class="text-xs text-amber-700 mb-2">Copy this code to backup your game or transfer to another
-                        device</div>
+                <!-- Success messages -->
+                <div v-if="saveSuccess || loadSuccess" class="bg-green-100 p-3 rounded-lg border border-green-200">
+                    <p class="text-sm text-green-800 flex items-center">
+                        <span class="i-heroicons-check-circle text-green-600 mr-1.5"></span>
+                        <span>{{ saveSuccess ? 'Colony saved successfully!' : 'Colony loaded successfully!' }}</span>
+                    </p>
+                </div>
 
-                    <div class="flex gap-2">
+                <!-- Export/Import -->
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-gray-200">
+                    <div class="font-medium mb-2">Export/Import Colony Data</div>
+
+                    <!-- Export -->
+                    <div class="mb-3">
                         <button @click="handleExportSave"
-                            class="bg-amber-600 hover:bg-amber-700 text-white font-medium py-1.5 px-3 rounded-md shadow text-sm">
-                            Generate Code
+                            class="w-full py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm font-medium flex items-center justify-center">
+                            <span class="i-heroicons-arrow-down-tray text-lg mr-1.5"></span>
+                            Export Colony Data
                         </button>
 
-                        <button v-if="exportedSave" @click="copyToClipboard"
-                            class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium py-1.5 px-3 rounded-md shadow text-sm border border-amber-300">
-                            Copy to Clipboard
-                        </button>
+                        <div v-if="exportedSave" class="mt-2">
+                            <div class="text-xs text-gray-600 mb-1">Copy this code to save your colony data:</div>
+                            <textarea readonly
+                                class="w-full p-2 text-xs bg-gray-100 border border-gray-300 rounded-md h-20 font-mono"
+                                v-model="exportedSave"></textarea>
+                            <div v-if="exportSuccess" class="text-xs text-green-600 mt-1">
+                                Colony data exported successfully!
+                            </div>
+                        </div>
                     </div>
 
-                    <div v-if="exportedSave" class="mt-2">
-                        <textarea v-model="exportedSave" readonly
-                            class="w-full h-20 p-2 text-xs bg-gray-50 border border-amber-200 rounded-md"></textarea>
-                        <div v-if="exportSuccess" class="text-xs text-green-600 mt-1">Save code generated successfully!
+                    <!-- Import -->
+                    <div>
+                        <div class="text-xs text-gray-600 mb-1">Paste your colony data here:</div>
+                        <textarea
+                            class="w-full p-2 text-xs bg-gray-100 border border-gray-300 rounded-md h-20 font-mono mb-2"
+                            v-model="importSave" placeholder="Paste your colony data here..."></textarea>
+
+                        <button @click="handleImportSave"
+                            class="w-full py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm font-medium flex items-center justify-center">
+                            <span class="i-heroicons-arrow-up-tray text-lg mr-1.5"></span>
+                            Import Colony Data
+                        </button>
+
+                        <div v-if="importError" class="text-xs text-red-600 mt-1">
+                            {{ importError }}
+                        </div>
+
+                        <div v-if="importSuccess" class="text-xs text-green-600 mt-1">
+                            Colony data imported successfully!
                         </div>
                     </div>
                 </div>
 
-                <!-- Import save -->
-                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div class="font-medium mb-2">Import Save</div>
-                    <div class="text-xs text-amber-700 mb-2">Paste a save code to restore your game</div>
-
-                    <textarea v-model="importSave" placeholder="Paste save code here..."
-                        class="w-full h-20 p-2 text-xs bg-gray-50 border border-amber-200 rounded-md"></textarea>
-
-                    <div class="mt-2">
-                        <button @click="handleImportSave"
-                            class="bg-amber-600 hover:bg-amber-700 text-white font-medium py-1.5 px-3 rounded-md shadow text-sm">
-                            Import Save
-                        </button>
-                        <div v-if="importError" class="text-xs text-red-600 mt-1">{{ importError }}</div>
-                        <div v-if="importSuccess" class="text-xs text-green-600 mt-1">Save imported successfully!</div>
-                    </div>
-                </div>
-
                 <!-- Reset game -->
-                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div class="font-medium mb-2">Reset Game</div>
-                    <div class="text-xs text-amber-700 mb-2">This will delete all progress and start a new game</div>
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-gray-200">
+                    <div class="font-medium mb-2">Reset Colony</div>
+                    <p class="text-xs text-gray-600 mb-3">
+                        This will completely reset your colony progress. This action cannot be undone.
+                    </p>
 
-                    <button @click="handleResetGame"
-                        class="bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded-md shadow text-sm"
-                        :class="{ 'animate-pulse': resetConfirm }">
-                        {{ resetConfirm ? 'Click again to confirm' : 'Reset Game' }}
+                    <button v-if="!resetConfirm" @click="resetConfirm = true"
+                        class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium flex items-center justify-center">
+                        <span class="i-heroicons-trash text-lg mr-1.5"></span>
+                        Reset Colony
                     </button>
+
+                    <div v-else class="space-y-2">
+                        <p class="text-sm text-red-600 font-medium">Are you sure you want to reset your colony?</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button @click="resetConfirm = false"
+                                class="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-sm font-medium">
+                                Cancel
+                            </button>
+                            <button @click="handleResetGame"
+                                class="py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium">
+                                Yes, Reset
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+        <section class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl p-5 shadow-md">
             <h2 class="text-lg font-bold mb-3 flex items-center">
-                <span class="i-heroicons-information-circle text-amber-700 mr-2"></span>
+                <span class="i-heroicons-information-circle text-gray-700 mr-2"></span>
                 Game Information
             </h2>
 
             <div class="space-y-3">
-                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div class="text-sm text-amber-800">Game Version:</div>
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-gray-200">
+                    <div class="text-sm text-gray-800">Game Version:</div>
                     <div class="font-medium">v0.1.0</div>
                 </div>
 
-                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-                    <div class="text-sm text-amber-800">Total Ticks:</div>
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-gray-200">
+                    <div class="text-sm text-gray-800">Total Ticks:</div>
                     <div class="font-medium">{{ gameStore.formattedTotalTicks }}</div>
                 </div>
             </div>

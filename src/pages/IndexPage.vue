@@ -65,7 +65,7 @@ const loopProgressPercentage = computed(() => {
         </div>
 
         <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-          <div class="text-xs text-amber-700 font-medium">Food per Tick</div>
+          <div class="text-xs text-amber-700 font-medium">Food per Foraging Trip</div>
           <div class="text-lg font-bold flex items-center">
             <span class="i-heroicons-arrow-trending-up text-amber-600 mr-2 text-sm"></span>
             {{ formattedFoodPerSecond }}
@@ -84,31 +84,31 @@ const loopProgressPercentage = computed(() => {
         </div>
 
         <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-          <div class="text-xs text-amber-700 font-medium">Loop Progress</div>
+          <div class="text-xs text-amber-700 font-medium">Foraging Cycle Progress</div>
           <div class="text-lg font-bold flex items-center">
             <span class="i-heroicons-arrow-path-rounded-square text-amber-600 mr-2 text-sm"></span>
             {{ loopProgressPercentage }}%
           </div>
 
-          <!-- Loop progress bar -->
+          <!-- Foraging cycle progress bar -->
           <div class="h-1.5 bg-amber-100 rounded-full mt-2 overflow-hidden">
             <div class="h-full bg-amber-500 transition-all duration-300 ease-out"
               :style="{ width: `${loopProgressPercentage}%` }"></div>
           </div>
           <div class="text-xs text-amber-600 mt-1">
             {{ Math.round(prestigeStore.currentLoopProgress * prestigeStore.ticksPerLoop.toNumber() * 10) / 10 }} / {{
-              formatDecimal(prestigeStore.ticksPerLoop, 1) }} ticks
+              formatDecimal(prestigeStore.ticksPerLoop, 1) }} foraging trips
           </div>
         </div>
 
         <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
-          <div class="text-xs text-amber-700 font-medium">Food for Next Loop</div>
+          <div class="text-xs text-amber-700 font-medium">Food for Next Cycle</div>
           <div class="text-lg font-bold flex items-center">
             <span class="i-heroicons-cake text-amber-600 mr-2 text-sm"></span>
             {{ generatorStore.formatFood() }} / {{ formatDecimal(prestigeStore.foodForNextLoop, 0) }}
           </div>
           <div class="text-xs text-amber-600 mt-1">
-            Need {{ formatDecimal(prestigeStore.foodForNextLoop, 0) }} food to complete a loop
+            Need {{ formatDecimal(prestigeStore.foodForNextLoop, 0) }} food to complete a foraging cycle
           </div>
 
           <!-- Food progress bar -->
@@ -126,15 +126,20 @@ const loopProgressPercentage = computed(() => {
           <span>Prices are based only on manual purchases. Auto-generated units don't increase costs!</span>
         </p>
       </div>
+
+      <!-- Manual food collection button -->
+      <button @click="collectFood"
+        class="mt-4 w-full py-3 px-4 bg-amber-600 hover:bg-amber-700 rounded-lg text-white font-bold transition-colors duration-200 flex items-center justify-center">
+        <span class="i-heroicons-hand-raised text-xl mr-2"></span>
+        Collect Food Manually
+      </button>
     </section>
-
-
 
     <!-- Generators -->
     <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
       <h2 class="text-lg font-bold mb-3 flex items-center">
-        <span class="i-heroicons-building-storefront text-amber-700 mr-2"></span>
-        Expand Your Colony
+        <span class="i-heroicons-cog-6-tooth text-amber-700 mr-2"></span>
+        Ant Hierarchy
       </h2>
 
       <div class="space-y-4">
@@ -146,12 +151,12 @@ const loopProgressPercentage = computed(() => {
     <section class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-5 shadow-md">
       <h2 class="text-lg font-bold mb-3 flex items-center">
         <span class="i-heroicons-sparkles text-purple-700 mr-2"></span>
-        Evolution Progress
+        Metamorphosis Progress
       </h2>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Evolution Count</div>
+          <div class="text-xs text-purple-700 font-medium">Metamorphosis Count</div>
           <div class="text-lg font-bold flex items-center">
             <span class="i-heroicons-sparkles text-purple-600 mr-2 text-sm"></span>
             {{ prestigeStore.formatEvolutionCount() }}
@@ -167,13 +172,13 @@ const loopProgressPercentage = computed(() => {
         </div>
 
         <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Loops Completed</div>
+          <div class="text-xs text-purple-700 font-medium">Foraging Cycles Completed</div>
           <div class="text-lg font-bold flex items-center">
             <span class="i-heroicons-arrow-path-rounded-square text-purple-600 mr-2 text-sm"></span>
             {{ prestigeStore.formatLoopsCompleted() }} / {{ formatDecimal(prestigeStore.requiredLoops, 1) }}
           </div>
 
-          <!-- Loops completed progress bar -->
+          <!-- Cycles completed progress bar -->
           <div class="h-1.5 bg-purple-100 rounded-full mt-2 overflow-hidden">
             <div class="h-full bg-purple-500 transition-all duration-300 ease-out"
               :style="{ width: `${Math.min(100, (prestigeStore.loopsCompleted.div(prestigeStore.requiredLoops).toNumber() * 100))}%` }">
@@ -182,10 +187,10 @@ const loopProgressPercentage = computed(() => {
         </div>
 
         <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Loop Requirements</div>
+          <div class="text-xs text-purple-700 font-medium">Cycle Requirements</div>
           <div class="text-sm font-medium flex items-center mt-1">
             <span class="i-heroicons-clock text-purple-600 mr-1.5 text-xs"></span>
-            {{ formatDecimal(prestigeStore.ticksPerLoop, 1) }} ticks
+            {{ formatDecimal(prestigeStore.ticksPerLoop, 1) }} foraging trips
           </div>
           <div class="text-sm font-medium flex items-center mt-1">
             <span class="i-heroicons-cake text-purple-600 mr-1.5 text-xs"></span>
@@ -197,7 +202,7 @@ const loopProgressPercentage = computed(() => {
       <div class="mt-3 text-center">
         <router-link to="/upgrades"
           class="inline-block px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md text-sm font-medium">
-          View Evolution Upgrades
+          View Evolutionary Adaptations
         </router-link>
       </div>
     </section>
