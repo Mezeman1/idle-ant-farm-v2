@@ -27,16 +27,10 @@ const updateGameLoop = () => {
 onMounted(() => {
   animationFrameId = requestAnimationFrame(updateGameLoop)
 })
-
-onUnmounted(() => {
-  if (animationFrameId !== null) {
-    cancelAnimationFrame(animationFrameId)
-  }
-})
 </script>
 
 <template>
-  <div class="flex flex-col h-screen bg-amber-50 text-amber-900 font-sans">
+  <div class="flex flex-col h-screen bg-amber-50 text-amber-900 font-sans w-full">
     <!-- Header -->
     <header class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 p-4 shadow-lg">
       <!-- Progress Bar -->
@@ -70,7 +64,7 @@ onUnmounted(() => {
     <footer class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
       <nav class="flex justify-around items-center">
         <router-link v-for="item in navItems" :key="item.name" :to="item.route"
-          class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200" :class="{
+          class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200 select-none" :class="{
             'text-amber-300 border-t-2 border-amber-300 bg-amber-900/20': $route.path === item.route,
             'hover:bg-amber-900/10': $route.path !== item.route
           }">
@@ -83,15 +77,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* Ensure the layout takes up the full viewport height */
-:deep(html),
-:deep(body) {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
 /* Custom scrollbar for the main content */
 main::-webkit-scrollbar {
   width: 6px;

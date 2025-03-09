@@ -113,11 +113,6 @@ export const useSaveSystem = defineStore('saveSystem', () => {
         // If there are more ticks to process, schedule the next batch
         if (ticksProcessed < offlineTicks) {
           setTimeout(processBatch, 10) // Small delay to allow UI updates
-        } else {
-          // All ticks processed
-          setTimeout(() => {
-            isCalculatingOfflineProgress.value = false
-          }, 500) // Keep the modal visible for a moment after completion
         }
       }
 

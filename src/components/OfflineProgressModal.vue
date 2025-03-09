@@ -36,10 +36,21 @@ const formatDuration = (seconds: number) => {
 const handleClose = () => {
     emit('close')
 }
+
+// Prevent touch events from propagating when modal is visible
+const preventTouchMove = (e: TouchEvent) => {
+    if (props.isVisible) {
+        e.preventDefault()
+        e.stopPropagation()
+    }
+}
 </script>
 
 <template>
-    <div v-if="isVisible" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+    <div v-if="isVisible"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 touch-none"
+        @touchmove.prevent
+    >
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
             <!-- Header -->
             <div class="bg-gradient-to-r from-amber-700 to-amber-600 p-4 text-white">
@@ -84,7 +95,7 @@ const handleClose = () => {
             <!-- Footer -->
             <div class="bg-gray-50 p-4 flex justify-end border-t border-gray-200">
                 <button @click="handleClose" :disabled="ticksProcessed < totalTicks"
-                    class="px-4 py-2 rounded-md font-medium text-sm transition-colors" :class="ticksProcessed < totalTicks ?
+                    class="px-4 py-2 rounded-md font-medium text-sm transition-colors select-none" :class="ticksProcessed < totalTicks ?
                         'bg-gray-200 text-gray-500 cursor-not-allowed' :
                         'bg-amber-600 hover:bg-amber-700 text-white'">
                     {{ ticksProcessed < totalTicks ? 'Processing...' : 'Continue' }} </button>
