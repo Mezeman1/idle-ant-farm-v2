@@ -10,6 +10,7 @@ export interface Generator {
   description: string
   tier: number
   count: Decimal
+  manualPurchases: Decimal // Track manually purchased units separately
   baseCost: Decimal
   costGrowth: Decimal
   baseProduction: Decimal
@@ -26,6 +27,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       description: 'Gathers food and materials for the colony',
       tier: 1,
       count: createDecimal(0),
+      manualPurchases: createDecimal(0),
       baseCost: createDecimal(10),
       costGrowth: createDecimal(1.1),
       baseProduction: createDecimal(1),
@@ -38,6 +40,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       description: 'Produces worker ants',
       tier: 2,
       count: createDecimal(0),
+      manualPurchases: createDecimal(0),
       baseCost: createDecimal(100),
       costGrowth: createDecimal(1.15),
       baseProduction: createDecimal(1),
@@ -50,6 +53,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       description: 'Nurtures new queens',
       tier: 3,
       count: createDecimal(0),
+      manualPurchases: createDecimal(0),
       baseCost: createDecimal(1000),
       costGrowth: createDecimal(1.2),
       baseProduction: createDecimal(1),
@@ -62,6 +66,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       description: 'Expands your ant empire',
       tier: 4,
       count: createDecimal(0),
+      manualPurchases: createDecimal(0),
       baseCost: createDecimal(10000),
       costGrowth: createDecimal(1.25),
       baseProduction: createDecimal(1),
@@ -92,7 +97,12 @@ export const useGeneratorStore = defineStore('generator', () => {
     const generator = getGenerator(id)
     if (!generator) return createDecimal(0)
 
-    return calculateCost(generator.baseCost, generator.costGrowth, generator.count)
+    // Base cost on manual purchases, not total count
+    return calculateCost(
+      generator.baseCost,
+      generator.costGrowth,
+      generator.manualPurchases
+    )
   }
 
   // Buy a generator
@@ -105,6 +115,7 @@ export const useGeneratorStore = defineStore('generator', () => {
     if (food.value.gte(cost)) {
       food.value = food.value.sub(cost)
       generator.count = generator.count.add(amount)
+      generator.manualPurchases = generator.manualPurchases.add(amount)
 
       // Check for unlocking next tier
       unlockNextTier(generator.tier)
@@ -113,6 +124,20 @@ export const useGeneratorStore = defineStore('generator', () => {
     }
 
     return false
+  }
+
+  // Add generators automatically (from production)
+  const addGeneratorAuto = (id: string, amount: Decimal) => {
+    const generator = getGenerator(id)
+    if (!generator) return
+
+    // Only increase count, not manual purchases
+    generator.count = generator.count.add(amount)
+
+    // Check for unlocking next tier
+    if (generator.count.gte(10)) {
+      unlockNextTier(generator.tier)
+    }
   }
 
   // Unlock the next tier of generators if conditions are met
@@ -139,7 +164,9 @@ export const useGeneratorStore = defineStore('generator', () => {
       if (generator.unlocked && generator.count.gt(0)) {
         // Each generator produces units of the tier below it
         const production = generator.count.mul(generator.baseProduction)
-        targetGenerator.count = targetGenerator.count.add(production)
+
+        // Add to the target generator's count (automatic, not manual)
+        addGeneratorAuto(targetGenerator.id, production)
       }
     }
 
@@ -159,6 +186,14 @@ export const useGeneratorStore = defineStore('generator', () => {
     return formatDecimal(generator.count, 0)
   }
 
+  // Format manual purchases for display
+  const formatManualPurchases = (id: string) => {
+    const generator = getGenerator(id)
+    if (!generator) return '0'
+
+    return formatDecimal(generator.manualPurchases, 0)
+  }
+
   // Format food amount for display
   const formatFood = () => {
     return formatDecimal(food.value, 0)
@@ -170,9 +205,10 @@ export const useGeneratorStore = defineStore('generator', () => {
       generators: generators.value.map(g => ({
         id: g.id,
         count: g.count.toString(),
-        unlocked: g.unlocked,
+        manualPurchases: g.manualPurchases.toString(),
+        unlocked: g.unlocked
       })),
-      food: food.value.toString(),
+      food: food.value.toString()
     }
   }
 
@@ -187,6 +223,15 @@ export const useGeneratorStore = defineStore('generator', () => {
         const generator = getGenerator(savedGen.id)
         if (generator) {
           generator.count = createDecimal(savedGen.count)
+
+          // Handle loading manual purchases (for backward compatibility)
+          if (savedGen.manualPurchases) {
+            generator.manualPurchases = createDecimal(savedGen.manualPurchases)
+          } else {
+            // If no manual purchases in save, assume all were manual
+            generator.manualPurchases = createDecimal(savedGen.count)
+          }
+
           generator.unlocked = savedGen.unlocked
         }
       })
@@ -201,10 +246,12 @@ export const useGeneratorStore = defineStore('generator', () => {
     getGenerator,
     getGeneratorCost,
     buyGenerator,
+    addGeneratorAuto,
     tick,
     formatGeneratorCount,
+    formatManualPurchases,
     formatFood,
     getState,
-    loadState,
+    loadState
   }
 })
