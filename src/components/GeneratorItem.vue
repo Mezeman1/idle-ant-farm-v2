@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useGeneratorStore } from '@/stores/generatorStore'
 import type { Generator } from '@/stores/generatorStore'
 import { formatDecimal } from '@/utils/decimalUtils'
+import HoldableButton from '@/components/HoldableButton.vue'
 
 const props = defineProps<{
   generator: Generator
@@ -106,14 +107,14 @@ const productionType = computed(() => {
           </div>
         </div>
 
-        <!-- Buy button -->
-        <button @click="buyGenerator"
-          class="w-full py-1.5 px-3 rounded text-xs font-medium transition-colors duration-200 flex items-center justify-center"
-          :class="canAfford ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
-          :disabled="!canAfford">
+        <!-- Buy button - replaced with HoldableButton -->
+        <HoldableButton @action="buyGenerator" :disabled="!canAfford" :class="canAfford
+          ? 'w-full py-1.5 px-3 rounded text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white'
+          : 'w-full py-1.5 px-3 rounded text-xs font-medium bg-gray-200 text-gray-500 cursor-not-allowed'"
+          :initial-delay="400" :repeat-interval="150" :accelerate="true" :min-interval="30">
           <span class="i-heroicons-shopping-cart text-sm mr-1"></span>
           Buy for {{ formattedCost }} food
-        </button>
+        </HoldableButton>
       </div>
     </div>
   </div>

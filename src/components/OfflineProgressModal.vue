@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import HoldableButton from '@/components/HoldableButton.vue'
 
 // Props for the modal
 const props = defineProps<{
@@ -73,10 +74,14 @@ const preventTouchMove = (e: TouchEvent) => {
             </div>
 
             <div class="flex justify-end">
-                <button @click="handleClose"
-                    class="py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium">
+                <HoldableButton
+                    @action="handleClose"
+                    :class="'py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium'"
+                    :initial-delay="300"
+                    :repeat-interval="100"
+                >
                     Continue
-                </button>
+                </HoldableButton>
             </div>
         </div>
     </div>

@@ -127,11 +127,11 @@ const loopProgressPercentage = computed(() => {
             Prices are based only on manual purchases. Auto-generated units don't increase costs!
           </div>
 
-          <button @click="collectFood"
+          <HoldableButton @action="collectFood"
             class="px-3 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-white font-medium transition-colors duration-200 flex items-center justify-center whitespace-nowrap">
             <span class="i-heroicons-hand-raised text-base mr-1"></span>
             Collect Food
-          </button>
+          </HoldableButton>
         </div>
       </section>
 

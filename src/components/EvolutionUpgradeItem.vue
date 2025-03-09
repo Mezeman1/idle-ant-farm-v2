@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { usePrestigeStore } from '@/stores/prestigeStore'
 import type { EvolutionUpgrade } from '@/stores/prestigeStore'
 import { formatDecimal } from '@/utils/decimalUtils'
+import HoldableButton from '@/components/HoldableButton.vue'
 
 const props = defineProps<{
     upgrade: EvolutionUpgrade
@@ -73,17 +74,24 @@ const purchaseUpgrade = () => {
                 </div>
             </div>
 
-            <!-- Buy button -->
-            <button @click="purchaseUpgrade"
-                class="w-full py-2 px-4 rounded text-sm font-medium transition-colors duration-200 flex items-center justify-center"
-                :class="canAfford && !isMaxLevel ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
-                :disabled="!canAfford || isMaxLevel">
+            <!-- Buy button - replaced with HoldableButton -->
+            <HoldableButton
+                @action="purchaseUpgrade"
+                :disabled="!canAfford || isMaxLevel"
+                :class="canAfford && !isMaxLevel
+                    ? 'w-full py-2 px-4 rounded text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white'
+                    : 'w-full py-2 px-4 rounded text-sm font-medium bg-gray-200 text-gray-500 cursor-not-allowed'"
+                :initial-delay="400"
+                :repeat-interval="200"
+                :accelerate="true"
+                :min-interval="50"
+            >
                 <span v-if="isMaxLevel">Max Level</span>
                 <template v-else>
                     <span class="i-heroicons-sparkles text-lg mr-1.5"></span>
                     Adapt for {{ formattedCost }} EP
                 </template>
-            </button>
+            </HoldableButton>
         </div>
     </div>
 </template>

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useGeneratorUpgradeStore } from '@/stores/generatorUpgradeStore'
+import type { GeneratorUpgrade } from '@/stores/generatorUpgradeStore'
 import { formatDecimal } from '@/utils/decimalUtils'
+import HoldableButton from '@/components/HoldableButton.vue'
 
 const props = defineProps({
   upgradeId: {
@@ -107,14 +109,15 @@ const purchase = () => {
         <span v-else class="text-green-600 font-medium">MAX LEVEL</span>
       </div>
 
-      <button @click="purchase" class="px-3 py-1 text-xs rounded-md font-medium transition-colors"
-        :class="canPurchase ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
-        :disabled="!canPurchase">
+      <HoldableButton @action="purchase" :disabled="!canPurchase" :class="canPurchase
+        ? 'px-3 py-1 text-xs rounded-md font-medium bg-amber-500 hover:bg-amber-600 text-white'
+        : 'px-3 py-1 text-xs rounded-md font-medium bg-gray-200 text-gray-500 cursor-not-allowed'"
+        :initial-delay="400" :repeat-interval="200" :accelerate="true">
         <span v-if="upgrade.maxLevel === null || upgrade.level.lt(upgrade.maxLevel)">
           Adapt ({{ formatDecimal(upgrade.cost, 0) }} pts)
         </span>
         <span v-else>Maxed</span>
-      </button>
+      </HoldableButton>
     </div>
   </div>
 </template>
