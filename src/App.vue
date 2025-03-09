@@ -1,21 +1,27 @@
 <script setup lang="ts">
-// See vite.config.ts for details about automatic imports
-const route = useRoute()
+import { onMounted } from 'vue'
+import MainLayout from '@/layouts/MainLayout.vue'
+import OfflineProgressModal from '@/components/OfflineProgressModal.vue'
+import { useSaveSystem } from '@/stores/saveSystem'
 
-useHead({
-  title: () => route.meta.title || 'Vite + Vue Template',
-  meta: [
-    {
-      property: 'og:title',
-      content: () => route.meta.title,
-    },
-    {
-      name: 'twitter:title',
-      content: () => route.meta.title,
-    },
-  ],
-})
+const saveSystem = useSaveSystem()
+
+// Handle closing the offline progress modal
+const handleCloseOfflineModal = () => {
+  // Only allow closing if calculation is complete
+  if (saveSystem.offlineProgressTicksProcessed >= saveSystem.offlineProgressTotalTicks) {
+    saveSystem.isCalculatingOfflineProgress = false
+  }
+}
 </script>
+
 <template>
-  <router-view />
+  <MainLayout>
+    <router-view />
+  </MainLayout>
+
+  <!-- Offline Progress Modal -->
+  <OfflineProgressModal :is-visible="saveSystem.isCalculatingOfflineProgress"
+    :total-ticks="saveSystem.offlineProgressTotalTicks" :ticks-processed="saveSystem.offlineProgressTicksProcessed"
+    :elapsed-time="saveSystem.offlineProgressElapsedTime" @close="handleCloseOfflineModal" />
 </template>

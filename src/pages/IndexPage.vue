@@ -1,97 +1,76 @@
 <script setup lang="ts">
-// See vite.config.ts for details about automatic imports
-const store = useStore()
+// Home page for the idle ant farm game
+import { computed } from 'vue'
+import { useGameStore } from '@/stores/gameStore'
+
+const gameStore = useGameStore()
+
+// Computed property to check if any ticks have occurred
+const hasTicksOccurred = computed(() => !gameStore.totalTicks.eq(0))
+const hasMultipleTicksOccurred = computed(() => gameStore.totalTicks.gt(1))
+const additionalTicks = computed(() => gameStore.totalTicks.sub(1).toString())
 </script>
+
 <template>
-  <header>
-    <h1>Vite + Vue 3 + TypeScript + Tailwind + Playwright Starter Template v{{ store.appMeta.version }}</h1>
-    <p>
-      Opinionated, production ready template for Vite and Vue 3. MIT licensed,
-      <a href="https://github.com/Uninen/vite-ts-tailwind-starter">available on GitHub</a>.
-    </p>
-  </header>
+  <div class="space-y-6">
+    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+      <h2 class="text-lg font-bold mb-2">Welcome to your Ant Colony!</h2>
+      <p class="text-sm text-amber-800">Tap to collect food and grow your colony of industrious ants.</p>
 
-  <main>
-    <HelloWorld msg="Hello World Component" />
+      <div class="mt-6 flex justify-center">
+        <button
+          class="bg-gradient-to-br from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white font-bold py-4 px-6 rounded-full shadow-lg transform transition-all active:scale-95 active:shadow-md flex items-center">
+          <span class="i-heroicons-hand-raised text-2xl mr-2"></span>
+          Tap to Collect
+        </button>
+      </div>
+    </section>
 
-    <h2>Project setup and usage</h2>
+    <!-- Game Tick Information -->
+    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+      <h2 class="text-lg font-bold mb-3 flex items-center">
+        <span class="i-heroicons-clock-circle text-amber-700 mr-2"></span>
+        Game Cycle
+      </h2>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-sm text-amber-800">Tick Duration:</div>
+          <div class="font-medium">{{ gameStore.tickDuration }} seconds</div>
+        </div>
+        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-sm text-amber-800">Current Progress:</div>
+          <div class="font-medium">{{ gameStore.progressPercentage }}%</div>
+        </div>
+        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-sm text-amber-800">Time Until Next Tick:</div>
+          <div class="font-medium">{{ gameStore.timeRemaining }} seconds</div>
+        </div>
+        <div class="flex justify-between items-center bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200">
+          <div class="text-sm text-amber-800">Total Ticks:</div>
+          <div class="font-medium">{{ gameStore.formattedTotalTicks }}</div>
+        </div>
+      </div>
+    </section>
 
-    <h4>Install dependencies</h4>
-
-    <pre>pnpm i</pre>
-
-    <h4>Run development server</h4>
-
-    <pre>pnpm dev</pre>
-
-    <h4>Run unit + component tests (Vitest)</h4>
-
-    <pre>pnpm test</pre>
-
-    <h4>Run e2e tests (Playwright)</h4>
-
-    <pre>pnpm test-e2e</pre>
-
-    <h4>Build for production</h4>
-
-    <pre>pnpm build</pre>
-
-    <h4>Other</h4>
-
-    <p>See <code>package.json</code> for all available commands.</p>
-
-    <h2>Notes and further documentation</h2>
-
-    <h3>Typed ENV Variables</h3>
-
-    <p>
-      Vite exposes a special <code>meta.env</code> object for ENV variables (see
-      <a href="https://vitejs.dev/guide/env-and-mode.html">official docs</a>). This template extends that object and
-      adds custom typed variables which you can easily use and modify to your needs.
-    </p>
-
-    <p>
-      See <code>vite.config.ts</code> and <code>src/env.d.ts</code> for the configuration and
-      <code>src/App.vue</code> for usage example.
-    </p>
-
-    <h3>Code Coverage</h3>
-
-    <p>
-      Code coverage is provided from unit + component tests by
-      <a href="https://vitest.dev/guide/coverage.html">Vitest and V8</a>.
-    </p>
-
-    <p>
-      E2E coverage is a bit trickier to do because of the way Vite works. Typical Vite pipelines don't use babel at all
-      which is needed above for automatically instrument the transpilated code. Vite is powered by eslint which has
-      decided <a href="https://github.com/evanw/esbuild/issues/184"> code coverage being out of scope </a>.
-    </p>
-
-    <h2>Elsewhere</h2>
-
-    <ul>
-      <li>Follow <a href="https://twitter.com/uninen">@Uninen on Twitter</a></li>
-      <li>
-        Read continuously updating learnings from Vite / Vue / TypeScript and other Web development topics on my
-        <a href="https://til.unessa.net/">Today I Learned</a> site
-      </li>
-    </ul>
-
-    <h2>Contributing</h2>
-
-    <p>
-      Contributions are welcome! Please follow the
-      <a href="https://www.contributor-covenant.org/version/2/0/code_of_conduct/">code of conduct</a>
-      when interacting with others.
-    </p>
-  </main>
-  <footer>
-    <p>
-      vite-ts-tailwind-starter v{{ store.appMeta.version }} by <a href="https://twitter.com/uninen">@Uninen</a> &copy;
-      2020-{{ new Date().getFullYear() }}.
-      <template v-if="store.appMeta.builtAt"> Site built {{ store.appMeta.builtAt.toLocaleDateString() }}. </template>
-      <template v-else> Development mode. </template>
-    </p>
-  </footer>
+    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-5 shadow-md">
+      <h2 class="text-lg font-bold mb-3 flex items-center">
+        <span class="i-heroicons-clock text-amber-700 mr-2"></span>
+        Recent Activities
+      </h2>
+      <ul class="space-y-2.5">
+        <li class="text-sm border-b border-amber-200 pb-2.5 flex items-start">
+          <span class="i-heroicons-plus-circle text-green-600 mr-2 mt-0.5"></span>
+          <span>Game started</span>
+        </li>
+        <li v-if="hasTicksOccurred" class="text-sm border-b border-amber-200 pb-2.5 flex items-start">
+          <span class="i-heroicons-plus-circle text-green-600 mr-2 mt-0.5"></span>
+          <span>First game tick completed</span>
+        </li>
+        <li v-if="hasMultipleTicksOccurred" class="text-sm flex items-start">
+          <span class="i-heroicons-plus-circle text-green-600 mr-2 mt-0.5"></span>
+          <span>{{ additionalTicks }} additional ticks completed</span>
+        </li>
+      </ul>
+    </section>
+  </div>
 </template>
