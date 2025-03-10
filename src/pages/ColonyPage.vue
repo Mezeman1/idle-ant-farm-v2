@@ -5,7 +5,6 @@ import { useGeneratorStore } from '@/stores/generatorStore'
 import { useGeneratorUpgradeStore } from '@/stores/generatorUpgradeStore'
 import { formatDecimal } from '@/utils/decimalUtils'
 import GeneratorItem from '@/components/GeneratorItem.vue'
-import GeneratorLevelCard from '@/components/GeneratorLevelCard.vue'
 import GeneratorUpgradeItem from '@/components/GeneratorUpgradeItem.vue'
 import type { GeneratorId } from '@/types/generators'
 

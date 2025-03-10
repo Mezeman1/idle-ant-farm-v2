@@ -10,7 +10,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     EvolutionUpgradeItem: typeof import('./src/components/EvolutionUpgradeItem.vue')['default']
     GeneratorItem: typeof import('./src/components/GeneratorItem.vue')['default']
-    GeneratorLevelCard: typeof import('./src/components/GeneratorLevelCard.vue')['default']
     GeneratorUpgradeItem: typeof import('./src/components/GeneratorUpgradeItem.vue')['default']
     HoldableButton: typeof import('./src/components/HoldableButton.vue')['default']
     NextUnlockableGenerator: typeof import('./src/components/NextUnlockableGenerator.vue')['default']
