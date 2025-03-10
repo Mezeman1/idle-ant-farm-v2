@@ -270,8 +270,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
 
     if (generatorStore.food.gte(foodForNextLoop.value)) {
       // Complete foraging cycle via food (even if activity progress isn't complete)
-      // Consume the food
-      generatorStore.food = generatorStore.food.sub(foodForNextLoop.value)
       completeLoop()
     }
   }
@@ -394,7 +392,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
   // Reset progress (but keep upgrades and EP)
   const resetProgress = () => {
     const generatorStore = useGeneratorStore()
-    const gameStore = useGameStore()
     const generatorUpgradeStore = useGeneratorUpgradeStore()
 
     // Reset generators

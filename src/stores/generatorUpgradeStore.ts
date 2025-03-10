@@ -1,27 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import Decimal from 'break_infinity.js'
+import type Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
-import { useGeneratorStore } from './generatorStore'
-import { useGameStore } from './gameStore'
-
-// Generator upgrade interface
-export interface GeneratorUpgrade {
-  id: string
-  generatorId: string // Which generator this upgrade is for
-  name: string
-  description: string
-  cost: Decimal // Cost in generator points
-  level: Decimal
-  maxLevel: Decimal | null // null means no max level
-  effect: (level: Decimal) => Decimal // Returns multiplier based on level
-  icon: string
-  unlocked: boolean
-}
+import type { GeneratorId, GeneratorRecord, GeneratorUpgrade, GeneratorUpgradeState } from '@/types/generators'
+import { generatorUpgrades as initialGeneratorUpgrades } from '@/data/generatorUpgrades'
 
 export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
   // Generator levels and points
-  const generatorLevels = ref({
+  const generatorLevels = ref<GeneratorRecord>({
     worker: createDecimal(1),
     nursery: createDecimal(1),
     queenChamber: createDecimal(1),
@@ -31,7 +17,7 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     antopolis: createDecimal(1),
   })
 
-  const generatorPoints = ref({
+  const generatorPoints = ref<GeneratorRecord>({
     worker: createDecimal(0),
     nursery: createDecimal(0),
     queenChamber: createDecimal(0),
@@ -41,311 +27,49 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     antopolis: createDecimal(0),
   })
 
-  // Progress tracking for leveling up
-  const levelProgress = ref({
-    worker: createDecimal(0), // Ticks in current evolution
-    nursery: createDecimal(0), // Food gained
-    queenChamber: createDecimal(0), // Manual purchases
-    colony: createDecimal(0), // Upgrades purchased
-    megacolony: createDecimal(0), // Advanced metrics
-    hivemind: createDecimal(0), // Advanced metrics
-    antopolis: createDecimal(0), // Advanced metrics
+  const levelProgress = ref<GeneratorRecord>({
+    worker: createDecimal(0),
+    nursery: createDecimal(0),
+    queenChamber: createDecimal(0),
+    colony: createDecimal(0),
+    megacolony: createDecimal(0),
+    hivemind: createDecimal(0),
+    antopolis: createDecimal(0),
   })
 
   // Requirements for next level
-  const getLevelRequirement = (generatorId: string, level: Decimal) => {
+  const getLevelRequirement = (generatorId: GeneratorId, level: Decimal) => {
     let baseRequirement: Decimal
     let growthRate: number
 
     // Set base requirements and growth rates based on generator type
     switch (generatorId) {
       case 'worker':
-        baseRequirement = createDecimal(5) // 100 ticks for first level
-        growthRate = 1.5 // 50% increase per level
+        baseRequirement = createDecimal(5)
+        growthRate = 1.5
         break
       case 'nursery':
-        baseRequirement = createDecimal(1000) // 1000 food for first level
-        growthRate = 2.0 // 100% increase per level - faster growth since food is easier to get
+        baseRequirement = createDecimal(1000)
+        growthRate = 5.5
         break
       case 'queenChamber':
-        baseRequirement = createDecimal(10) // 10 manual purchases for first level
-        growthRate = 1.3 // 30% increase per level - slower growth to encourage manual purchases
+        baseRequirement = createDecimal(10)
+        growthRate = 1.3
         break
       case 'colony':
-        baseRequirement = createDecimal(5) // 5 upgrades purchased for first level
-        growthRate = 1.2 // 20% increase per level - slowest growth to encourage upgrades
+        baseRequirement = createDecimal(5)
+        growthRate = 1.2
         break
       default:
         baseRequirement = createDecimal(100)
         growthRate = 1.5
     }
 
-    // Apply the specific growth rate for this generator type
     return baseRequirement.mul(level.pow(growthRate))
   }
 
   // Generator upgrades
-  const generatorUpgrades = ref<GeneratorUpgrade[]>([
-    // Worker Ant Upgrades
-    {
-      id: 'workerEfficiency',
-      generatorId: 'worker',
-      name: 'Worker Efficiency',
-      description: 'Increases food production of worker ants',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(10),
-      effect: level => createDecimal(1).add(level.mul(0.2)), // +20% per level
-      icon: 'i-heroicons-bolt',
-      unlocked: true,
-    },
-    {
-      id: 'workerTraining',
-      generatorId: 'worker',
-      name: 'Worker Training',
-      description: 'Decreases the cost of worker ants',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(1).sub(level.mul(0.05)), // -5% per level (max -25%)
-      icon: 'i-heroicons-academic-cap',
-      unlocked: true,
-    },
-    {
-      id: 'workerReproduction',
-      generatorId: 'worker',
-      name: 'Worker Reproduction',
-      description: 'Workers occasionally reproduce on their own',
-      cost: createDecimal(3),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(level.mul(0.01)), // 1% chance per level to generate a free worker per tick
-      icon: 'i-heroicons-heart',
-      unlocked: true,
-    },
-    {
-      id: 'workerForaging',
-      generatorId: 'worker',
-      name: 'Advanced Foraging',
-      description: 'Workers find higher quality food sources',
-      cost: createDecimal(2),
-      level: createDecimal(0),
-      maxLevel: createDecimal(8),
-      effect: level => createDecimal(1).add(level.mul(0.15)), // +15% per level
-      icon: 'i-heroicons-map',
-      unlocked: true,
-    },
-    {
-      id: 'workerEndurance',
-      generatorId: 'worker',
-      name: 'Worker Endurance',
-      description: 'Workers can carry more food per trip',
-      cost: createDecimal(2),
-      level: createDecimal(0),
-      maxLevel: createDecimal(7),
-      effect: level => createDecimal(1).add(level.mul(0.1)), // +10% per level
-      icon: 'i-heroicons-battery-100',
-      unlocked: true,
-    },
-
-    // Nursery Upgrades
-    {
-      id: 'nurseryEfficiency',
-      generatorId: 'nursery',
-      name: 'Nursery Efficiency',
-      description: 'Increases worker ant production of nurseries',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(10),
-      effect: level => createDecimal(1).add(level.mul(0.2)), // +20% per level
-      icon: 'i-heroicons-bolt',
-      unlocked: true,
-    },
-    {
-      id: 'nurseryExpansion',
-      generatorId: 'nursery',
-      name: 'Nursery Expansion',
-      description: 'Decreases the cost of nurseries',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(1).sub(level.mul(0.05)), // -5% per level (max -25%)
-      icon: 'i-heroicons-home',
-      unlocked: true,
-    },
-    {
-      id: 'nurseryAutomation',
-      generatorId: 'nursery',
-      name: 'Nursery Automation',
-      description: 'Nurseries occasionally build themselves',
-      cost: createDecimal(3),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(level.mul(0.005)), // 0.5% chance per level to generate a free nursery per tick
-      icon: 'i-heroicons-cog',
-      unlocked: true,
-    },
-    {
-      id: 'nurseryNutrition',
-      generatorId: 'nursery',
-      name: 'Larval Nutrition',
-      description: 'Better nutrition leads to faster worker development',
-      cost: createDecimal(2),
-      level: createDecimal(0),
-      maxLevel: createDecimal(8),
-      effect: level => createDecimal(1).add(level.mul(0.12)), // +12% per level
-      icon: 'i-heroicons-beaker',
-      unlocked: true,
-    },
-    {
-      id: 'nurseryCapacity',
-      generatorId: 'nursery',
-      name: 'Nursery Capacity',
-      description: 'Nurseries can care for more larvae simultaneously',
-      cost: createDecimal(2),
-      level: createDecimal(0),
-      maxLevel: createDecimal(6),
-      effect: level => createDecimal(1).add(level.mul(0.15)), // +15% per level
-      icon: 'i-heroicons-cube',
-      unlocked: true,
-    },
-
-    // Queen Chamber Upgrades
-    {
-      id: 'queenChamberEfficiency',
-      generatorId: 'queenChamber',
-      name: 'Queen Efficiency',
-      description: 'Increases nursery production of queen chambers',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(10),
-      effect: level => createDecimal(1).add(level.mul(0.2)), // +20% per level
-      icon: 'i-heroicons-bolt',
-      unlocked: true,
-    },
-    {
-      id: 'queenChamberLongevity',
-      generatorId: 'queenChamber',
-      name: 'Queen Longevity',
-      description: 'Decreases the cost of queen chambers',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(1).sub(level.mul(0.05)), // -5% per level (max -25%)
-      icon: 'i-heroicons-clock',
-      unlocked: true,
-    },
-    {
-      id: 'queenChamberFertility',
-      generatorId: 'queenChamber',
-      name: 'Queen Fertility',
-      description: 'Queen chambers occasionally create new queens',
-      cost: createDecimal(3),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(level.mul(0.005)), // 0.5% chance per level to generate a free queen chamber per tick
-      icon: 'i-heroicons-heart',
-      unlocked: true,
-    },
-    {
-      id: 'queenChamberRoyalJelly',
-      generatorId: 'queenChamber',
-      name: 'Royal Jelly',
-      description: 'Special food increases queen egg production',
-      cost: createDecimal(2),
-      level: createDecimal(0),
-      maxLevel: createDecimal(7),
-      effect: level => createDecimal(1).add(level.mul(0.15)), // +15% per level
-      icon: 'i-heroicons-fire',
-      unlocked: true,
-    },
-    {
-      id: 'queenChamberGuards',
-      generatorId: 'queenChamber',
-      name: 'Royal Guards',
-      description: 'Special guards protect the queen, increasing productivity',
-      cost: createDecimal(2),
-      level: createDecimal(0),
-      maxLevel: createDecimal(6),
-      effect: level => createDecimal(1).add(level.mul(0.1)), // +10% per level
-      icon: 'i-heroicons-shield-check',
-      unlocked: true,
-    },
-
-    // Colony Upgrades
-    {
-      id: 'colonyEfficiency',
-      generatorId: 'colony',
-      name: 'Colony Efficiency',
-      description: 'Increases queen chamber production of colonies',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(10),
-      effect: level => createDecimal(1).add(level.mul(0.2)), // +20% per level
-      icon: 'i-heroicons-bolt',
-      unlocked: true,
-    },
-    {
-      id: 'colonyExpansion',
-      generatorId: 'colony',
-      name: 'Colony Expansion',
-      description: 'Decreases the cost of colonies',
-      cost: createDecimal(1),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(1).sub(level.mul(0.05)), // -5% per level (max -25%)
-      icon: 'i-heroicons-arrows-expand',
-      unlocked: true,
-    },
-    {
-      id: 'colonyDominance',
-      generatorId: 'colony',
-      name: 'Colony Dominance',
-      description: 'Colonies occasionally establish new colonies',
-      cost: createDecimal(3),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(level.mul(0.005)), // 0.5% chance per level to generate a free colony per tick
-      icon: 'i-heroicons-globe-alt',
-      unlocked: true,
-    },
-    {
-      id: 'colonyNetworking',
-      generatorId: 'colony',
-      name: 'Colony Networking',
-      description: 'Improved communication between colonies increases productivity',
-      cost: createDecimal(2),
-      level: createDecimal(0),
-      maxLevel: createDecimal(8),
-      effect: level => createDecimal(1).add(level.mul(0.12)), // +12% per level
-      icon: 'i-heroicons-signal',
-      unlocked: true,
-    },
-    {
-      id: 'colonyWarfare',
-      generatorId: 'colony',
-      name: 'Territorial Expansion',
-      description: 'Colonies can claim territory from other insects',
-      cost: createDecimal(3),
-      level: createDecimal(0),
-      maxLevel: createDecimal(6),
-      effect: level => createDecimal(1).add(level.mul(0.18)), // +18% per level
-      icon: 'i-heroicons-flag',
-      unlocked: true,
-    },
-    {
-      id: 'colonySymbiosis',
-      generatorId: 'colony',
-      name: 'Fungal Symbiosis',
-      description: 'Colonies cultivate fungi for additional food production',
-      cost: createDecimal(4),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(1).add(level.mul(0.25)), // +25% per level
-      icon: 'i-heroicons-sparkles',
-      unlocked: true,
-    },
-  ])
+  const generatorUpgrades = ref<GeneratorUpgrade[]>(initialGeneratorUpgrades)
 
   // Get upgrades for a specific generator
   const getUpgradesForGenerator = (generatorId: string) => {
@@ -364,10 +88,10 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     return upgrade.effect(upgrade.level)
   }
 
-  // Get all multipliers for a generator
-  const getMultipliersForGenerator = (generatorId: string) => {
+  // Get multipliers for a generator
+  const getMultipliersForGenerator = (generatorId: GeneratorId) => {
     const upgrades = generatorUpgrades.value.filter(upgrade => upgrade.generatorId === generatorId)
-    const multipliers = {}
+    const multipliers: Record<string, Decimal> = {}
 
     upgrades.forEach(upgrade => {
       multipliers[upgrade.id] = upgrade.effect(upgrade.level)
@@ -377,7 +101,7 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
   }
 
   // Update progress for generator levels
-  const updateProgress = (generatorId: string, amount: Decimal) => {
+  const updateProgress = (generatorId: GeneratorId, amount: Decimal) => {
     levelProgress.value[generatorId] = levelProgress.value[generatorId].add(amount)
 
     // Check if level up
@@ -454,20 +178,95 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     return true
   }
 
+  // Get state for saving
+  const getState = (): GeneratorUpgradeState => {
+    return {
+      generatorLevels: Object.entries(generatorLevels.value).reduce<Record<string, string>>((acc, [key, value]) => {
+        if (isGeneratorId(key)) {
+          acc[key] = value.toString()
+        }
+        return acc
+      }, {}),
+      generatorPoints: Object.entries(generatorPoints.value).reduce<Record<string, string>>((acc, [key, value]) => {
+        if (isGeneratorId(key)) {
+          acc[key] = value.toString()
+        }
+        return acc
+      }, {}),
+      levelProgress: Object.entries(levelProgress.value).reduce<Record<string, string>>((acc, [key, value]) => {
+        if (isGeneratorId(key)) {
+          acc[key] = value.toString()
+        }
+        return acc
+      }, {}),
+      upgrades: generatorUpgrades.value.map(upgrade => ({
+        id: upgrade.id,
+        level: upgrade.level.toString(),
+      })),
+    }
+  }
+
+  // Type guard for GeneratorId
+  const isGeneratorId = (key: string): key is GeneratorId => {
+    return ['worker', 'nursery', 'queenChamber', 'colony', 'megacolony', 'hivemind', 'antopolis'].includes(key)
+  }
+
+  // Load state
+  const loadState = (state: Partial<GeneratorUpgradeState>) => {
+    if (state.generatorLevels) {
+      Object.entries(state.generatorLevels).forEach(([key, value]) => {
+        if (isGeneratorId(key) && (typeof value === 'string' || typeof value === 'number')) {
+          generatorLevels.value[key] = createDecimal(value)
+        }
+      })
+    }
+
+    if (state.generatorPoints) {
+      Object.entries(state.generatorPoints).forEach(([key, value]) => {
+        if (isGeneratorId(key) && (typeof value === 'string' || typeof value === 'number')) {
+          generatorPoints.value[key] = createDecimal(value)
+        }
+      })
+    }
+
+    if (state.levelProgress) {
+      Object.entries(state.levelProgress).forEach(([key, value]) => {
+        if (isGeneratorId(key) && (typeof value === 'string' || typeof value === 'number')) {
+          levelProgress.value[key] = createDecimal(value)
+        }
+      })
+    }
+
+    if (state.upgrades && Array.isArray(state.upgrades)) {
+      state.upgrades.forEach((upgradeState: { id: string; level: string }) => {
+        const upgrade = getUpgrade(upgradeState.id)
+        if (
+          upgrade &&
+          upgradeState.level &&
+          (typeof upgradeState.level === 'string' || typeof upgradeState.level === 'number')
+        ) {
+          upgrade.level = createDecimal(upgradeState.level)
+        }
+      })
+    }
+  }
+
   // Reset progress (called on evolution)
   const resetProgress = () => {
+    const generatorIds = Object.keys(generatorLevels.value).filter(isGeneratorId)
+
     // Reset levels to 1
-    Object.keys(generatorLevels.value).forEach(key => {
+    generatorIds.forEach(key => {
       generatorLevels.value[key] = createDecimal(1)
     })
 
     // Reset points to 0
-    Object.keys(generatorPoints.value).forEach(key => {
+    generatorIds.forEach(key => {
       generatorPoints.value[key] = createDecimal(0)
     })
 
     // Reset progress to 0
-    Object.keys(levelProgress.value).forEach(key => {
+    generatorIds.forEach(key => {
       levelProgress.value[key] = createDecimal(0)
     })
 
@@ -478,17 +277,17 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
   }
 
   // Format level for display
-  const formatLevel = (generatorId: string) => {
+  const formatLevel = (generatorId: GeneratorId) => {
     return formatDecimal(generatorLevels.value[generatorId], 0)
   }
 
   // Format points for display
-  const formatPoints = (generatorId: string) => {
+  const formatPoints = (generatorId: GeneratorId) => {
     return formatDecimal(generatorPoints.value[generatorId], 0)
   }
 
   // Format progress percentage for display
-  const formatProgressPercentage = (generatorId: string) => {
+  const formatProgressPercentage = (generatorId: GeneratorId) => {
     const currentLevel = generatorLevels.value[generatorId]
     const requirement = getLevelRequirement(generatorId, currentLevel)
     const progress = levelProgress.value[generatorId]
@@ -498,75 +297,11 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
   }
 
   // Format next level requirement for display
-  const formatNextLevelRequirement = (generatorId: string) => {
+  const formatNextLevelRequirement = (generatorId: GeneratorId) => {
     const currentLevel = generatorLevels.value[generatorId]
     const requirement = getLevelRequirement(generatorId, currentLevel)
 
     return formatDecimal(requirement, 0)
-  }
-
-  // Get state for saving
-  const getState = () => {
-    return {
-      generatorLevels: Object.entries(generatorLevels.value).reduce((acc, [key, value]) => {
-        acc[key] = value.toString()
-        return acc
-      }, {}),
-      generatorPoints: Object.entries(generatorPoints.value).reduce((acc, [key, value]) => {
-        acc[key] = value.toString()
-        return acc
-      }, {}),
-      levelProgress: Object.entries(levelProgress.value).reduce((acc, [key, value]) => {
-        acc[key] = value.toString()
-        return acc
-      }, {}),
-      upgrades: generatorUpgrades.value.map(upgrade => ({
-        id: upgrade.id,
-        level: upgrade.level.toString(),
-      })),
-    }
-  }
-
-  // Load state
-  const loadState = (state: any) => {
-    if (state.generatorLevels) {
-      Object.entries(state.generatorLevels).forEach(([key, value]) => {
-        if (typeof value === 'string' || typeof value === 'number' || value instanceof Decimal) {
-          generatorLevels.value[key] = createDecimal(value)
-        }
-      })
-    }
-
-    if (state.generatorPoints) {
-      Object.entries(state.generatorPoints).forEach(([key, value]) => {
-        if (typeof value === 'string' || typeof value === 'number' || value instanceof Decimal) {
-          generatorPoints.value[key] = createDecimal(value)
-        }
-      })
-    }
-
-    if (state.levelProgress) {
-      Object.entries(state.levelProgress).forEach(([key, value]) => {
-        if (typeof value === 'string' || typeof value === 'number' || value instanceof Decimal) {
-          levelProgress.value[key] = createDecimal(value)
-        }
-      })
-    }
-
-    if (state.upgrades && Array.isArray(state.upgrades)) {
-      state.upgrades.forEach(upgradeState => {
-        const upgrade = getUpgrade(upgradeState.id)
-        if (
-          upgrade &&
-          upgradeState.level &&
-          (typeof upgradeState.level === 'string' ||
-            typeof upgradeState.level === 'number' ||
-            upgradeState.level instanceof Decimal)
-        ) {
-          upgrade.level = createDecimal(upgradeState.level)
-        }
-      })
-    }
   }
 
   return {

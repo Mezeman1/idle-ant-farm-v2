@@ -7,6 +7,7 @@ import { formatDecimal } from '@/utils/decimalUtils'
 import GeneratorItem from '@/components/GeneratorItem.vue'
 import GeneratorLevelCard from '@/components/GeneratorLevelCard.vue'
 import GeneratorUpgradeItem from '@/components/GeneratorUpgradeItem.vue'
+import type { GeneratorId } from '@/types/generators'
 
 const gameStore = useGameStore()
 const generatorStore = useGeneratorStore()
@@ -21,7 +22,7 @@ const formattedFoodPerSecond = computed(() => {
 })
 
 // Selected generator for upgrades
-const selectedGenerator = ref('')
+const selectedGenerator = ref<GeneratorId>('')
 
 // Get upgrades for selected generator
 const selectedGeneratorUpgrades = computed(() => {
@@ -33,7 +34,7 @@ const showUpgradeModal = ref(false)
 const isClosing = ref(false)
 
 // Open upgrade modal for a specific generator
-const openUpgradeModal = (generatorId: string) => {
+const openUpgradeModal = (generatorId: GeneratorId) => {
   selectedGenerator.value = generatorId
   isClosing.value = false
   showUpgradeModal.value = true
@@ -64,7 +65,7 @@ const toggleGeneratorInfo = () => {
 }
 
 // Generator names and icons mapping
-const generatorInfo = {
+const generatorInfo: Record<GeneratorId, { name: string; icon: string }> = {
   worker: { name: 'Worker Ants', icon: 'i-heroicons-bug-ant' },
   nursery: { name: 'Nursery', icon: 'i-heroicons-home-modern' },
   queenChamber: { name: 'Queen Chamber', icon: 'i-heroicons-crown' },
@@ -76,7 +77,41 @@ const generatorInfo = {
 
 // Get unlocked generator IDs for level cards
 const unlockedGeneratorIds = computed(() => {
-  return unlockedGenerators.value.map(generator => generator.id)
+  return unlockedGenerators.value.map(generator => generator.id as GeneratorId)
+})
+
+// Get level requirement description
+const levelRequirementDescription = computed(() => {
+  if (!selectedGenerator.value) return ''
+  switch (selectedGenerator.value) {
+    case 'worker':
+      return 'Levels up based on ticks in current evolution'
+    case 'nursery':
+      return 'Levels up based on amount of food gained'
+    case 'queenChamber':
+      return 'Levels up based on total manual purchases'
+    case 'colony':
+      return 'Levels up based on amount of upgrades purchased'
+    default:
+      return ''
+  }
+})
+
+// Get level requirement unit
+const levelRequirementUnit = computed(() => {
+  if (!selectedGenerator.value) return ''
+  switch (selectedGenerator.value) {
+    case 'worker':
+      return 'ticks'
+    case 'nursery':
+      return 'food'
+    case 'queenChamber':
+      return 'purchases'
+    case 'colony':
+      return 'upgrades'
+    default:
+      return ''
+  }
 })
 </script>
 
@@ -292,11 +327,16 @@ const unlockedGeneratorIds = computed(() => {
               </div>
               <div class="flex justify-between mt-1 text-xs text-amber-700">
                 <span>Current: {{ generatorUpgradeStore.levelProgress[selectedGenerator]?.toFixed(0) }}</span>
-                <span>Next: {{ generatorUpgradeStore.formatNextLevelRequirement(selectedGenerator) }}</span>
+                <span>Next: {{ generatorUpgradeStore.formatNextLevelRequirement(selectedGenerator) }} {{
+                  levelRequirementUnit }}</span>
               </div>
             </div>
-          </div>
 
+            <!-- Level Requirement Description -->
+            <div class="mt-3 pt-3 border-t border-amber-200">
+              <div class="text-xs text-amber-700">{{ levelRequirementDescription }}</div>
+            </div>
+          </div>
           <!-- Upgrades -->
           <h4 class="text-base font-bold text-amber-800 mb-3 flex items-center animate-fadeIn animation-delay-100">
             <span class="i-heroicons-adjustments-horizontal text-amber-600 mr-2"></span>
