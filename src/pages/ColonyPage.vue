@@ -21,10 +21,12 @@ const formattedFoodPerSecond = computed(() => {
 })
 
 // Selected generator for upgrades
-const selectedGenerator = ref<GeneratorId>('')
+const selectedGenerator = ref<GeneratorId | null>(null)
 
 // Get upgrades for selected generator
 const selectedGeneratorUpgrades = computed(() => {
+  if (!selectedGenerator.value) return []
+
   return generatorUpgradeStore.getUpgradesForGenerator(selectedGenerator.value)
 })
 
@@ -275,7 +277,7 @@ const levelRequirementUnit = computed(() => {
     </div>
 
     <!-- Generator Upgrade Modal -->
-    <div v-if="showUpgradeModal" class="fixed inset-0 z-50">
+    <div v-if="showUpgradeModal && selectedGenerator" class="fixed inset-0 z-50">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/70 animate-fadeIn" :class="{ 'animate-fadeOut': isClosing }"></div>
 
