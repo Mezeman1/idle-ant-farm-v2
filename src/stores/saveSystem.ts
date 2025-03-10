@@ -4,8 +4,9 @@ import { useGameStore } from './gameStore'
 import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
-import { createDecimal } from '@/utils/decimalUtils'
 import { useDebounceFn } from '@vueuse/core'
+import { useInventoryStore } from './inventoryStore'
+import { useAdventureStore } from './adventureStore'
 
 // Save key for localStorage
 const SAVE_KEY = 'idle-ant-farm-save'
@@ -37,6 +38,8 @@ export const useSaveSystem = defineStore('saveSystem', () => {
       generatorStore: useGeneratorStore(),
       prestigeStore: usePrestigeStore(),
       generatorUpgradeStore: useGeneratorUpgradeStore(),
+      inventoryStore: useInventoryStore(),
+      adventureStore: useAdventureStore(),
     }
   }
 
@@ -49,6 +52,8 @@ export const useSaveSystem = defineStore('saveSystem', () => {
       generatorStore: stores.generatorStore.getState(),
       prestigeStore: stores.prestigeStore.getState(),
       generatorUpgradeStore: stores.generatorUpgradeStore.getState(),
+      inventoryStore: stores.inventoryStore.getState(),
+      adventureStore: stores.adventureStore.getState(),
     }
 
     return state
@@ -76,6 +81,14 @@ export const useSaveSystem = defineStore('saveSystem', () => {
 
       if (state.generatorUpgradeStore) {
         stores.generatorUpgradeStore.loadState(state.generatorUpgradeStore)
+      }
+
+      if (state.inventoryStore) {
+        stores.inventoryStore.loadState(state.inventoryStore)
+      }
+
+      if (state.adventureStore) {
+        stores.adventureStore.loadState(state.adventureStore)
       }
 
       // Update last load time
@@ -221,11 +234,13 @@ export const useSaveSystem = defineStore('saveSystem', () => {
     }
   }
 
-  // Reset game (delete save and reload)
+  // Reset game state
   const resetGame = () => {
     try {
+      // Clear localStorage
       localStorage.removeItem(SAVE_KEY)
       window.location.reload()
+      console.log('Game reset successfully')
       return true
     } catch (error) {
       console.error('Error resetting game:', error)

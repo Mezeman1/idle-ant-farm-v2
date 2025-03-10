@@ -10,6 +10,7 @@ const navItems = ref([
   { name: 'Home', icon: 'i-heroicons-home', route: '/' },
   { name: 'Colony', icon: 'i-heroicons-building-storefront', route: '/colony' },
   { name: 'Upgrades', icon: 'i-heroicons-sparkles', route: '/upgrades' },
+  { name: 'Adventure', icon: 'i-heroicons-bolt', route: '/adventure' },
   { name: 'Settings', icon: 'i-heroicons-cog-6-tooth', route: '/settings' },
 ])
 
@@ -109,14 +110,16 @@ onUnmounted(() => {
     <!-- Footer Navigation -->
     <footer class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
       <nav class="flex justify-around items-center">
-        <router-link v-for="item in navItems" :key="item.name" :to="item.route"
-          class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200 select-none" :class="{
-            'text-amber-300 border-t-2 border-amber-300 bg-amber-900/20': $route.path === item.route,
-            'hover:bg-amber-900/10': $route.path !== item.route
-          }">
-          <span :class="[item.icon, 'text-xl']"></span>
-          <span class="text-xs mt-1 font-medium">{{ item.name }}</span>
-        </router-link>
+        <template v-for="item in navItems" :key="item.name">
+          <router-link :to="item.route"
+            class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200 select-none" :class="{
+              'text-amber-300 border-t-2 border-amber-300 bg-amber-900/20': $route.path === item.route,
+              'hover:bg-amber-900/10': $route.path !== item.route
+            }">
+            <span :class="[item.icon, 'text-xl']"></span>
+            <span class="text-xs mt-1 font-medium">{{ item.name }}</span>
+          </router-link>
+        </template>
       </nav>
     </footer>
   </div>

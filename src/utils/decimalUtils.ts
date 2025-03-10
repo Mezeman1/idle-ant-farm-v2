@@ -15,9 +15,12 @@ export function createDecimal(value: number | string | Decimal): Decimal {
  * Formats a Decimal value for display with optional precision
  */
 export function formatDecimal(value: Decimal, precision: number = 2): string {
-  if (value.lt(1e6)) {
-    // For small numbers, show exact value
+  if (value.lt(1e3)) {
+    // For very small numbers, show exact value without suffix
     return value.toFixed(precision)
+  } else if (value.lt(1e6)) {
+    // For thousands, show with K suffix
+    return `${value.div(1e3).toFixed(precision)}K`
   } else if (value.lt(1e9)) {
     // For millions, show with M suffix
     return `${value.div(1e6).toFixed(precision)}M`

@@ -4,6 +4,7 @@ import IndexPage from '@/pages/IndexPage.vue'
 import SettingsPage from '@/pages/SettingsPage.vue'
 import ColonyPage from '@/pages/ColonyPage.vue'
 import UpgradesPage from '@/pages/UpgradesPage.vue'
+import AdventurePage from '@/pages/AdventurePage.vue'
 
 const routes = [
   {
@@ -21,6 +22,10 @@ const routes = [
   {
     path: '/upgrades',
     component: UpgradesPage,
+  },
+  {
+    path: '/adventure',
+    component: AdventurePage,
   },
 ]
 

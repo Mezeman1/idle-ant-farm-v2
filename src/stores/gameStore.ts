@@ -6,6 +6,7 @@ import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 import { useSaveSystem } from './saveSystem'
+import { useAdventureStore } from './adventureStore'
 
 export const useGameStore = defineStore('game', () => {
   // Progress tracking
@@ -52,6 +53,10 @@ export const useGameStore = defineStore('game', () => {
     // Update generator upgrade progress
     const generatorUpgradeStore = useGeneratorUpgradeStore()
     generatorUpgradeStore.updateWorkerProgress(1) // 1 tick of progress for worker level
+
+    // Call the adventure store's tick function
+    const adventureStore = useAdventureStore()
+    adventureStore.tick()
 
     // Trigger debounced save
     const saveSystem = useSaveSystem()
