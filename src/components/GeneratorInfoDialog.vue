@@ -29,137 +29,120 @@ watch(() => props.show, (newValue) => {
 </script>
 
 <template>
-    <div v-if="show" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn"
-        :class="{ 'animate-fadeOut': isClosing }">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-4 mx-auto max-h-[80vh] overflow-y-auto animate-slideUp"
-            :class="{ 'animate-slideDown': isClosing }">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-base font-bold flex items-center text-amber-800">
-                    <span class="i-heroicons-information-circle text-amber-600 mr-2"></span>
-                    About Ant Specialization
-                </h3>
-                <button @click="handleClose" class="text-gray-500 hover:text-gray-700 transition-colors">
-                    <span class="i-heroicons-x-mark text-lg"></span>
-                </button>
-            </div>
+    <div v-if="show" class="fixed inset-0 z-50">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 animate-fadeIn" :class="{ 'animate-fadeOut': isClosing }"></div>
 
-            <div class="space-y-3">
-                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
-                    <p class="text-xs text-amber-800 mb-1">
-                        <strong>How Ant Specialization Works:</strong>
-                    </p>
+        <!-- Modal Content -->
+        <div class="fixed inset-0 flex flex-col animate-fadeIn" :class="{ 'animate-fadeOut': isClosing }">
+            <div class="w-full h-full flex flex-col bg-amber-50 text-amber-900 font-sans animate-slideUp"
+                :class="{ 'animate-slideDown': isClosing }">
+                <!-- Header -->
+                <header class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 shadow-lg">
+                    <!-- Main Header Content -->
+                    <div class="p-2 md:p-3">
+                        <!-- Title Row -->
+                        <div class="flex items-center justify-between">
+                            <h1 class="text-lg md:text-xl font-bold tracking-tight flex items-center">
+                                <span class="i-heroicons-information-circle text-amber-300 mr-2"></span>
+                                About Ant Specialization
+                            </h1>
+                            <button @click="handleClose"
+                                class="text-amber-50 hover:text-amber-300 transition-colors p-1.5 rounded-full hover:bg-amber-900/30">
+                                <span class="i-heroicons-x-mark text-lg"></span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
 
-                    <ul class="text-xs text-amber-800 list-disc pl-4 space-y-0.5">
-                        <li>Each ant type has its own specialization level that increases based on different metrics:
-                        </li>
-                        <li class="ml-3"><strong>Worker Ants:</strong> Level up based on foraging trips in current
-                            evolution (50%
-                            increase
-                            per level)</li>
-                        <li class="ml-3"><strong>Nurseries:</strong> Level up based on amount of food gathered (100%
-                            increase per
-                            level)</li>
-                        <li class="ml-3"><strong>Queen Chambers:</strong> Level up based on total manual purchases (30%
-                            increase
-                            per level)</li>
-                        <li class="ml-3"><strong>Colonies:</strong> Level up based on amount of adaptations developed
-                            (20%
-                            increase
-                            per level)</li>
-                        <li>Each level-up awards 1 adaptation point for that ant type</li>
-                        <li>Adaptation points can be spent on specialized traits for that ant type</li>
-                        <li>Specialization levels and adaptations reset when your colony undergoes metamorphosis</li>
-                    </ul>
-                </div>
+                <!-- Main Content (Scrollable) -->
+                <main class="flex-1 overflow-y-auto p-4 pb-6 scroll-smooth">
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-xl shadow-md border border-amber-200 p-3">
+                            <p class="text-sm text-amber-800 mb-2 font-medium">
+                                How Ant Specialization Works:
+                            </p>
 
-                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
-                    <p class="text-xs text-amber-800 mb-1">
-                        <strong>Types of Ant Adaptations:</strong>
-                    </p>
+                            <ul class="text-xs text-amber-800 list-disc pl-4 space-y-1">
+                                <li>Each ant type has its own specialization level that increases based on different
+                                    metrics:
+                                </li>
+                                <li class="ml-3"><strong>Worker Ants:</strong> Level up based on foraging trips in
+                                    current
+                                    evolution (50%
+                                    increase
+                                    per level)</li>
+                                <li class="ml-3"><strong>Nurseries:</strong> Level up based on amount of food gathered
+                                    (100%
+                                    increase per
+                                    level)</li>
+                                <li class="ml-3"><strong>Queen Chambers:</strong> Level up based on total manual
+                                    purchases (30%
+                                    increase
+                                    per level)</li>
+                                <li class="ml-3"><strong>Colonies:</strong> Level up based on amount of adaptations
+                                    developed
+                                    (20%
+                                    increase
+                                    per level)</li>
+                                <li>Each level-up awards 1 adaptation point for that ant type</li>
+                                <li>Adaptation points can be spent on specialized traits for that ant type</li>
+                                <li>Specialization levels and adaptations reset when your colony undergoes metamorphosis
+                                </li>
+                            </ul>
+                        </div>
 
-                    <ul class="text-xs text-amber-800 list-disc pl-4 space-y-0.5">
-                        <li><strong>Efficiency Adaptations:</strong> Increase production (+20% per level)</li>
-                        <li><strong>Resource Adaptations:</strong> Decrease resource requirements (-5% per level)</li>
-                        <li><strong>Special Adaptations:</strong> Add a chance for ants to reproduce themselves</li>
-                    </ul>
-                </div>
-            </div>
+                        <div class="bg-white rounded-xl shadow-md border border-amber-200 p-3">
+                            <p class="text-sm text-amber-800 mb-2 font-medium">
+                                Types of Ant Adaptations:
+                            </p>
 
-            <div class="mt-3 flex justify-end">
-                <button @click="handleClose"
-                    class="py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-xs font-medium transition-colors duration-200 active:scale-95">
-                    Close
-                </button>
+                            <ul class="text-xs text-amber-800 list-disc pl-4 space-y-1">
+                                <li><strong>Efficiency Adaptations:</strong> Increase production (+20% per level)</li>
+                                <li><strong>Resource Adaptations:</strong> Decrease resource requirements (-5% per
+                                    level)</li>
+                                <li><strong>Special Adaptations:</strong> Add a chance for ants to reproduce themselves
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Footer -->
+                <footer
+                    class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                    <div class="flex justify-end p-3">
+                        <button @click="handleClose"
+                            class="px-3 py-2 bg-amber-900/20 hover:bg-amber-900/30 rounded-lg text-amber-50 font-medium transition-colors duration-200 flex items-center justify-center active:scale-95 border border-amber-600">
+                            <span class="i-heroicons-arrow-left text-base mr-1"></span>
+                            Return to Colony
+                        </button>
+                    </div>
+                </footer>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-/* Animation keyframes */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+/* Custom scrollbar for the main content */
+main::-webkit-scrollbar {
+    width: 6px;
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(15px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+main::-webkit-scrollbar-track {
+    background-color: rgb(254 243 199);
+    /* amber-100 */
 }
 
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
+main::-webkit-scrollbar-thumb {
+    background-color: rgb(251 191 36);
+    /* amber-400 */
+    border-radius: 9999px;
 }
 
-@keyframes slideDown {
-    from {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    to {
-        transform: translateY(15px);
-        opacity: 0;
-    }
-}
-
-/* Animation classes */
-.animate-fadeIn {
-    animation: fadeIn 0.25s ease-out forwards;
-}
-
-.animate-slideUp {
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-fadeOut {
-    animation: fadeOut 0.25s ease-out forwards;
-}
-
-.animate-slideDown {
-    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Scale effect for buttons */
-.active\:scale-95:active {
-    transform: scale(0.95);
+main::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(245 158 11);
+    /* amber-500 */
 }
 </style>

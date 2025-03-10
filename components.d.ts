@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdaptationSummaryCard: typeof import('./src/components/AdaptationSummaryCard.vue')['default']
+    AntHierarchySection: typeof import('./src/components/AntHierarchySection.vue')['default']
     AntSpecializationCard: typeof import('./src/components/AntSpecializationCard.vue')['default']
     ColonyStatusCard: typeof import('./src/components/ColonyStatusCard.vue')['default']
     EvolutionUpgradeItem: typeof import('./src/components/EvolutionUpgradeItem.vue')['default']
@@ -17,6 +18,8 @@ declare module 'vue' {
     GeneratorUpgradeItem: typeof import('./src/components/GeneratorUpgradeItem.vue')['default']
     GeneratorUpgradeModal: typeof import('./src/components/GeneratorUpgradeModal.vue')['default']
     HoldableButton: typeof import('./src/components/HoldableButton.vue')['default']
+    HomeColonyStatusCard: typeof import('./src/components/HomeColonyStatusCard.vue')['default']
+    MetamorphosisCard: typeof import('./src/components/MetamorphosisCard.vue')['default']
     NextUnlockableGenerator: typeof import('./src/components/NextUnlockableGenerator.vue')['default']
     OfflineProgressModal: typeof import('./src/components/OfflineProgressModal.vue')['default']
     PWAInstallButton: typeof import('./src/components/PWAInstallButton.vue')['default']
