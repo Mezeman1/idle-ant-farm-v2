@@ -18,6 +18,7 @@ export interface Generator {
   baseProduction: Decimal
   unlocked: boolean
   icon: string
+  autoPurchaseEnabled: boolean // Toggle for auto-purchasing
 }
 
 export const useGeneratorStore = defineStore('generator', () => {
@@ -35,6 +36,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       baseProduction: createDecimal(10),
       unlocked: true,
       icon: 'i-heroicons-bug-ant',
+      autoPurchaseEnabled: true,
     },
     {
       id: 'nursery',
@@ -48,6 +50,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       baseProduction: createDecimal(1),
       unlocked: false,
       icon: 'i-heroicons-home-modern',
+      autoPurchaseEnabled: true,
     },
     {
       id: 'queenChamber',
@@ -61,6 +64,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       baseProduction: createDecimal(1),
       unlocked: false,
       icon: 'i-heroicons-crown',
+      autoPurchaseEnabled: true,
     },
     {
       id: 'colony',
@@ -74,6 +78,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       baseProduction: createDecimal(1),
       unlocked: false,
       icon: 'i-heroicons-building-storefront',
+      autoPurchaseEnabled: true,
     },
     // Advanced generators (unlocked through prestige upgrades)
     {
@@ -88,6 +93,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       baseProduction: createDecimal(1),
       unlocked: false,
       icon: 'i-heroicons-building-office-2',
+      autoPurchaseEnabled: true,
     },
     {
       id: 'hivemind',
@@ -101,6 +107,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       baseProduction: createDecimal(1),
       unlocked: false,
       icon: 'i-heroicons-cpu-chip',
+      autoPurchaseEnabled: true,
     },
     {
       id: 'antopolis',
@@ -114,6 +121,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       baseProduction: createDecimal(1),
       unlocked: false,
       icon: 'i-heroicons-building-library',
+      autoPurchaseEnabled: true,
     },
   ])
 
@@ -338,9 +346,39 @@ export const useGeneratorStore = defineStore('generator', () => {
           generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
         }
       }
+
+      // Handle auto-purchasing from prestige upgrades
+      // This needs to be done before production to ensure new generators contribute to this tick
+      const autoGeneratorMap = {
+        worker: 'autoWorker',
+        nursery: 'autoNursery',
+        queenChamber: 'autoQueenChamber',
+        colony: 'autoColony',
+        megacolony: 'autoMegacolony',
+        hivemind: 'autoHivemind',
+        antopolis: 'autoAntopolis',
+      }
+
+      // Process auto-purchases for each generator type
+      for (const generator of generators.value) {
+        if (generator.unlocked && generator.autoPurchaseEnabled) {
+          const autoUpgradeId = autoGeneratorMap[generator.id as keyof typeof autoGeneratorMap]
+          if (autoUpgradeId) {
+            const purchasesPerTick = prestigeStore.getUpgradeMultiplier(autoUpgradeId)
+
+            // Only attempt to purchase if the upgrade level is greater than 0
+            if (purchasesPerTick.gt(0)) {
+              // Try to purchase the specified number of generators
+              for (let i = 0; i < purchasesPerTick.toNumber(); i++) {
+                buyGenerator(generator.id, 1)
+              }
+            }
+          }
+        }
+      }
     } catch (error) {
       // Stores might not be initialized yet
-      console.error('Error applying multipliers:', error)
+      console.error('Error applying multipliers or auto-purchasing:', error)
     }
 
     // Track food gained in this tick for nursery progress
@@ -498,16 +536,27 @@ export const useGeneratorStore = defineStore('generator', () => {
     return `${formatDecimal(multiplier, 2)}x`
   }
 
+  // Toggle auto-purchase for a generator
+  const toggleAutoPurchase = (id: string) => {
+    const generator = getGenerator(id)
+    if (generator) {
+      generator.autoPurchaseEnabled = !generator.autoPurchaseEnabled
+      return true
+    }
+    return false
+  }
+
   // Get state for saving
   const getState = () => {
     return {
-      generators: generators.value.map(g => ({
-        id: g.id,
-        count: g.count.toString(),
-        manualPurchases: g.manualPurchases.toString(),
-        unlocked: g.unlocked,
-      })),
       food: food.value.toString(),
+      generators: generators.value.map(generator => ({
+        id: generator.id,
+        count: generator.count.toString(),
+        manualPurchases: generator.manualPurchases.toString(),
+        unlocked: generator.unlocked,
+        autoPurchaseEnabled: generator.autoPurchaseEnabled,
+      })),
     }
   }
 
@@ -532,6 +581,11 @@ export const useGeneratorStore = defineStore('generator', () => {
           }
 
           generator.unlocked = savedGen.unlocked
+
+          // Load auto-purchase toggle (with backward compatibility)
+          if (savedGen.autoPurchaseEnabled !== undefined) {
+            generator.autoPurchaseEnabled = savedGen.autoPurchaseEnabled
+          }
         }
       })
     }
@@ -554,6 +608,7 @@ export const useGeneratorStore = defineStore('generator', () => {
     formatFood,
     getProductionMultiplier,
     formatProductionMultiplier,
+    toggleAutoPurchase,
     getState,
     loadState,
   }
