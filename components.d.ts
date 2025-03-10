@@ -8,9 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AdaptationSummaryCard: typeof import('./src/components/AdaptationSummaryCard.vue')['default']
+    AntSpecializationCard: typeof import('./src/components/AntSpecializationCard.vue')['default']
+    ColonyStatusCard: typeof import('./src/components/ColonyStatusCard.vue')['default']
     EvolutionUpgradeItem: typeof import('./src/components/EvolutionUpgradeItem.vue')['default']
+    GeneratorInfoDialog: typeof import('./src/components/GeneratorInfoDialog.vue')['default']
     GeneratorItem: typeof import('./src/components/GeneratorItem.vue')['default']
     GeneratorUpgradeItem: typeof import('./src/components/GeneratorUpgradeItem.vue')['default']
+    GeneratorUpgradeModal: typeof import('./src/components/GeneratorUpgradeModal.vue')['default']
     HoldableButton: typeof import('./src/components/HoldableButton.vue')['default']
     NextUnlockableGenerator: typeof import('./src/components/NextUnlockableGenerator.vue')['default']
     OfflineProgressModal: typeof import('./src/components/OfflineProgressModal.vue')['default']

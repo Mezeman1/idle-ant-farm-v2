@@ -3,3 +3,5 @@
 @plugin "@egoist/tailwindcss-icons" {
   prefixes: mdi;
 }
+
+@import './styles/animations.css';
