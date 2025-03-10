@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useGeneratorStore } from './generatorStore'
 import type Decimal from 'break_infinity.js'
 import { createDecimal } from '@/utils/decimalUtils'
+
 export const useAdventureStore = defineStore('adventure', () => {
   const generatorStore = useGeneratorStore()
   const playerDamage = computed((): Decimal => {
@@ -21,7 +22,6 @@ export const useAdventureStore = defineStore('adventure', () => {
 
   const tick = () => {
     regenHealth()
-    takeDamage(createDecimal(10))
   }
 
   const regenHealth = () => {
@@ -37,11 +37,15 @@ export const useAdventureStore = defineStore('adventure', () => {
   })
 
   const loadState = (state: any) => {
+    currentHealth.value = createDecimal(state.currentHealth)
     console.log('Adventure store loadState', state)
   }
 
   const getState = () => {
     console.log('Adventure store getState')
+    return {
+      currentHealth: currentHealth.value.toString(),
+    }
   }
 
   return {
