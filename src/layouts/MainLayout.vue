@@ -16,6 +16,7 @@ const navItems = ref([
 // Game store for progress tracking
 const gameStore = useGameStore()
 const generatorStore = useGeneratorStore()
+const prestigeStore = usePrestigeStore()
 
 // Animation frame handling for smooth progress updates
 let animationFrameId: number | null = null
@@ -41,51 +42,61 @@ onUnmounted(() => {
 <template>
   <div class="flex flex-col h-screen bg-amber-50 text-amber-900 font-sans w-full">
     <!-- Header -->
-    <header class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 p-4 shadow-lg">
+    <header class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 shadow-lg">
       <!-- Foraging Progress Bar -->
-      <div class="w-full h-1.5 bg-amber-900/30 rounded-full mb-3 overflow-hidden">
+      <div class="w-full h-1.5 bg-amber-900/30 rounded-full overflow-hidden">
         <div class="h-full bg-amber-300 transition-all duration-100 ease-linear"
           :style="{ width: `${gameStore.progressPercentage}%` }"></div>
       </div>
 
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <h1 class="text-xl font-extrabold tracking-tight">Idle Ant Farm</h1>
-          <span class="ml-2 text-xs bg-amber-900/30 px-2 py-0.5 rounded-full">
-            {{ gameStore.timeRemaining }}s until next foraging trip
+      <!-- Main Header Content -->
+      <div class="p-2 md:p-3">
+        <!-- Title and Timer Row -->
+        <div class="flex items-center justify-between mb-2">
+          <h1 class="text-lg md:text-xl font-extrabold tracking-tight">Idle Ant Farm</h1>
+          <span class="text-xs bg-amber-900/30 px-2 py-0.5 rounded-full whitespace-nowrap">
+            {{ gameStore.timeRemaining }}s
           </span>
         </div>
 
-        <!-- Resource display -->
-        <div class="flex items-center gap-3">
-          <div class="flex items-center bg-amber-900/20 rounded-full px-3 py-1">
-            <span class="i-heroicons-cake text-amber-300 mr-1.5"></span>
-            <span class="text-sm font-medium">{{ generatorStore.formatFood() }}</span>
+        <!-- Resources Row -->
+        <div class="flex flex-wrap items-center gap-2 md:gap-3">
+          <!-- Food -->
+          <div class="flex items-center bg-amber-900/20 rounded-full px-2 py-1">
+            <span class="i-heroicons-cake text-amber-300 mr-1"></span>
+            <span class="text-xs md:text-sm font-medium">{{ generatorStore.formatFood() }}</span>
           </div>
-          <div class="flex items-center bg-amber-900/20 rounded-full px-3 py-1">
-            <span class="i-heroicons-bug-ant text-amber-300 mr-1.5"></span>
-            <span class="text-sm font-medium">{{ generatorStore.formatGeneratorCount('worker') }}</span>
-          </div>
-          <div class="flex items-center bg-amber-900/20 rounded-full px-3 py-1">
-            <span class="i-heroicons-arrow-path-rounded-square text-amber-300 mr-1.5"></span>
-            <span class="text-sm font-medium">{{ Math.round(gameStore.progressPercentage) }}%</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Colony stats summary -->
-      <div class="flex items-center justify-between mt-2 text-xs">
-        <div class="flex items-center">
-          <span class="i-heroicons-arrow-trending-up text-amber-300 mr-1"></span>
-          <span>{{ formatDecimal(generatorStore.foodPerSecond, 1) }} food/trip</span>
-        </div>
-        <div class="flex items-center">
-          <span class="i-heroicons-clock text-amber-300 mr-1"></span>
-          <span>{{ gameStore.formattedTotalTicks }} total trips</span>
-        </div>
-        <div class="flex items-center">
-          <span class="i-heroicons-sparkles text-amber-300 mr-1"></span>
-          <span>Evolution: {{ usePrestigeStore().formatEvolutionCount() }}</span>
+          <!-- Worker Ants -->
+          <div class="flex items-center bg-amber-900/20 rounded-full px-2 py-1">
+            <span class="i-heroicons-bug-ant text-amber-300 mr-1"></span>
+            <span class="text-xs md:text-sm font-medium">{{ generatorStore.formatGeneratorCount('worker') }}</span>
+          </div>
+
+          <!-- Progress -->
+          <div class="flex items-center bg-amber-900/20 rounded-full px-2 py-1">
+            <span class="i-heroicons-arrow-path-rounded-square text-amber-300 mr-1"></span>
+            <span class="text-xs md:text-sm font-medium">{{ Math.round(gameStore.progressPercentage) }}%</span>
+          </div>
+
+          <!-- Tick Duration -->
+          <div class="flex items-center bg-amber-900/20 rounded-full px-2 py-1">
+            <span class="i-heroicons-clock text-amber-300 mr-1"></span>
+            <span class="text-xs md:text-sm font-medium">{{ gameStore.tickDuration.toFixed(1) }}s/tick</span>
+          </div>
+
+          <!-- Food per Trip -->
+          <div class="flex items-center bg-amber-900/20 rounded-full px-2 py-1">
+            <span class="i-heroicons-arrow-trending-up text-amber-300 mr-1"></span>
+            <span class="text-xs md:text-sm font-medium">{{ formatDecimal(generatorStore.foodPerSecond, 1)
+              }}/trip</span>
+          </div>
+
+          <!-- Evolution Count -->
+          <div class="flex items-center bg-amber-900/20 rounded-full px-2 py-1">
+            <span class="i-heroicons-sparkles text-amber-300 mr-1"></span>
+            <span class="text-xs md:text-sm font-medium">Evo: {{ prestigeStore.formatEvolutionCount() }}</span>
+          </div>
         </div>
       </div>
     </header>

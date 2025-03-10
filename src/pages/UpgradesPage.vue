@@ -11,25 +11,56 @@ const generatorStore = useGeneratorStore()
 // Get all evolution upgrades
 const evolutionUpgrades = computed(() => prestigeStore.evolutionUpgrades)
 
+// Group upgrades by category
+const upgradeCategories = computed(() => {
+  const categories = {
+    production: [] as typeof evolutionUpgrades.value,
+    efficiency: [] as typeof evolutionUpgrades.value,
+    advanced: [] as typeof evolutionUpgrades.value,
+  }
+
+  evolutionUpgrades.value.forEach(upgrade => {
+    if (upgrade.id.startsWith('unlock')) {
+      categories.advanced.push(upgrade)
+    } else if (['foodProcessing', 'efficientQueens', 'mutatedWorkers'].includes(upgrade.id)) {
+      categories.production.push(upgrade)
+    } else {
+      categories.efficiency.push(upgrade)
+    }
+  })
+
+  return categories
+})
+
 // Check if evolution is possible
 const canEvolve = computed(() => prestigeStore.canEvolve)
 
 // Loop progress percentage
 const loopProgressPercentage = computed(() => {
-  return Math.min(100, Math.round(prestigeStore.currentLoopProgress * 100))
+  return Math.round((prestigeStore.currentLoopTicks.div(prestigeStore.ticksPerLoop)).mul(100).toNumber())
 })
 
 // Food progress percentage
 const foodProgressPercentage = computed(() => {
-  const currentFood = generatorStore.food.toNumber()
-  const requiredFood = prestigeStore.foodForNextLoop.toNumber()
-  const ratio = currentFood / requiredFood
-  return Math.min(100, Math.round(ratio * 100))
+  const currentFood = generatorStore.food
+  const requiredFood = prestigeStore.foodForNextLoop
+  const ratio = currentFood.div(requiredFood)
+  return Math.min(100, Math.round(ratio.mul(100).toNumber()))
 })
 
 // Format required loops
 const formattedRequiredLoops = computed(() => {
   return formatDecimal(prestigeStore.requiredLoops, 1)
+})
+
+// Format current ticks
+const formattedCurrentTicks = computed(() => {
+  return formatDecimal(prestigeStore.currentLoopTicks, 0)
+})
+
+// Format ticks per loop
+const formattedTicksPerLoop = computed(() => {
+  return formatDecimal(prestigeStore.ticksPerLoop, 1)
 })
 
 // Confirmation dialog state
@@ -79,7 +110,7 @@ const toggleAboutEvolution = () => {
         </button>
       </h2>
 
-      <div class="grid grid-cols-2 gap-3 mb-3">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
         <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200">
           <div class="text-xs text-purple-700 font-medium">Evolution Points</div>
           <div class="text-sm font-bold flex items-center">
@@ -96,106 +127,111 @@ const toggleAboutEvolution = () => {
           </div>
         </div>
 
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Current Foraging Cycle</div>
-          <div class="text-sm font-bold flex items-center">
-            <span class="i-heroicons-arrow-path-rounded-square text-purple-600 mr-1 text-xs"></span>
-            {{ loopProgressPercentage }}%
+        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200 md:col-span-1 col-span-2">
+          <div class="text-xs text-purple-700 font-medium flex justify-between">
+            <span>Foraging Cycles</span>
+            <span>{{ prestigeStore.formatLoopsCompleted() }} / {{ formattedRequiredLoops }}</span>
           </div>
-
-          <!-- Loop progress bar -->
-          <div class="h-1.5 bg-purple-100 rounded-full mt-1 overflow-hidden">
-            <div class="h-full bg-purple-500 transition-all duration-300 ease-out"
-              :style="{ width: `${loopProgressPercentage}%` }"></div>
-          </div>
-          <div class="text-xs text-purple-600 mt-0.5">
-            {{ Math.round(prestigeStore.currentLoopProgress * prestigeStore.ticksPerLoop.toNumber() * 10) /
-              10 }} / {{ prestigeStore.formatTicksPerLoop() }} foraging trips
-          </div>
-        </div>
-
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Foraging Cycles Completed</div>
-          <div class="text-sm font-bold flex items-center">
-            <span class="i-heroicons-arrow-path-rounded-square text-purple-600 mr-1 text-xs"></span>
-            {{ prestigeStore.formatLoopsCompleted() }} / {{ formattedRequiredLoops }}
-          </div>
-
-          <!-- Loops completed progress bar -->
           <div class="h-1.5 bg-purple-100 rounded-full mt-1 overflow-hidden">
             <div class="h-full bg-purple-500 transition-all duration-300 ease-out"
               :style="{ width: `${Math.min(100, (prestigeStore.loopsCompleted.div(prestigeStore.requiredLoops).toNumber() * 100))}%` }">
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Current Cycle Progress -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200">
+          <div class="text-xs text-purple-700 font-medium flex justify-between">
+            <span>Current Cycle Progress</span>
+            <span>{{ loopProgressPercentage }}%</span>
+          </div>
+          <div class="h-1.5 bg-purple-100 rounded-full mt-1 overflow-hidden">
+            <div class="h-full bg-purple-500 transition-all duration-300 ease-out"
+              :style="{ width: `${loopProgressPercentage}%` }">
+            </div>
+          </div>
+          <div class="text-xs text-purple-600 mt-1">
+            {{ formattedCurrentTicks }} / {{ formattedTicksPerLoop }} trips
+          </div>
+        </div>
 
         <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Food for Next Cycle</div>
-          <div class="text-sm font-bold flex items-center">
-            <span class="i-heroicons-cake text-purple-600 mr-1 text-xs"></span>
-            {{ generatorStore.formatFood() }} / {{ prestigeStore.formatFoodForNextLoop() }}
+          <div class="text-xs text-purple-700 font-medium flex justify-between">
+            <span>Food Progress</span>
+            <span>{{ foodProgressPercentage }}%</span>
           </div>
-          <div class="text-xs text-purple-600 mt-0.5">
-            Need {{ prestigeStore.formatFoodForNextLoop() }} food to complete a foraging cycle
-          </div>
-
-          <!-- Food for next loop progress bar -->
           <div class="h-1.5 bg-purple-100 rounded-full mt-1 overflow-hidden">
             <div class="h-full bg-purple-500 transition-all duration-300 ease-out"
               :style="{ width: `${foodProgressPercentage}%` }">
             </div>
           </div>
-        </div>
-
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Foraging Trips per Cycle</div>
-          <div class="text-sm font-bold flex items-center">
-            <span class="i-heroicons-clock text-purple-600 mr-1 text-xs"></span>
-            {{ prestigeStore.formatTicksPerLoop() }}
-          </div>
-          <div class="text-xs text-purple-600 mt-0.5">
-            Increases by 0.5 with each cycle completion
-          </div>
-        </div>
-
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200">
-          <div class="text-xs text-purple-700 font-medium">Required Foraging Cycles</div>
-          <div class="text-sm font-bold flex items-center">
-            <span class="i-heroicons-arrow-path-rounded-square text-purple-600 mr-1 text-xs"></span>
-            {{ formattedRequiredLoops }}
-          </div>
-          <div class="text-xs text-purple-600 mt-0.5">
-            Next metamorphosis: {{ formattedRequiredLoops }} cycles
+          <div class="text-xs text-purple-600 mt-1">
+            {{ generatorStore.formatFood() }} / {{ formatDecimal(prestigeStore.foodForNextLoop, 0) }} food
           </div>
         </div>
       </div>
 
-      <!-- Potential EP gain -->
-      <div v-if="canEvolve" class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200 mb-3">
-        <div class="text-xs text-purple-700 font-medium">Potential Genetic Advancement</div>
-        <div class="text-sm font-bold flex items-center text-purple-600">
-          <span class="i-heroicons-sparkles text-purple-600 mr-1 text-xs"></span>
-          +{{ prestigeStore.formatPotentialEPGain() }} EP
+      <!-- Potential EP gain and Evolution button -->
+      <div class="flex flex-col md:flex-row gap-2 items-center">
+        <div v-if="canEvolve" class="bg-white/80 p-2 rounded-lg shadow-sm border border-purple-200 flex-grow w-full">
+          <div class="text-xs text-purple-700 font-medium">Potential Genetic Advancement</div>
+          <div class="text-sm font-bold flex items-center text-purple-600">
+            <span class="i-heroicons-sparkles text-purple-600 mr-1 text-xs"></span>
+            +{{ prestigeStore.formatPotentialEPGain() }} EP
+          </div>
         </div>
-      </div>
 
-      <!-- Evolution button -->
-      <button @click="confirmEvolution"
-        class="w-full py-2 px-3 rounded-lg text-white font-bold transition-colors duration-200 flex items-center justify-center"
-        :class="canEvolve ? 'bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-lg' : 'bg-gray-300 cursor-not-allowed'"
-        :disabled="!canEvolve">
-        <span class="i-heroicons-sparkles text-base mr-1"></span>
-        <span v-if="canEvolve">Metamorphose for +{{ prestigeStore.formatPotentialEPGain() }} EP</span>
-        <span v-else>Metamorphose Your Colony</span>
-      </button>
-
-      <div class="mt-2 text-xs text-purple-700" v-if="!canEvolve">
-        <p class="flex items-start">
-          <span class="i-heroicons-information-circle text-purple-600 mr-1 mt-0.5"></span>
-          <span>Complete {{ formattedRequiredLoops }} foraging cycles to metamorphose.</span>
-        </p>
+        <button @click="confirmEvolution"
+          class="py-2 px-3 rounded-lg text-white font-bold transition-colors duration-200 flex items-center justify-center md:w-auto w-full"
+          :class="canEvolve ? 'bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-lg' : 'bg-gray-300 cursor-not-allowed'"
+          :disabled="!canEvolve">
+          <span class="i-heroicons-sparkles text-base mr-1"></span>
+          <span v-if="canEvolve">Metamorphose</span>
+          <span v-else>Need {{ formattedRequiredLoops }} Cycles</span>
+        </button>
       </div>
     </section>
+
+    <!-- Evolution Upgrades -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Production Upgrades -->
+      <section class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-3 shadow-md">
+        <h2 class="text-base font-bold mb-2 flex items-center">
+          <span class="i-heroicons-bolt text-purple-700 mr-2"></span>
+          Production Upgrades
+        </h2>
+
+        <div class="space-y-2">
+          <EvolutionUpgradeItem v-for="upgrade in upgradeCategories.production" :key="upgrade.id" :upgrade="upgrade" />
+        </div>
+      </section>
+
+      <!-- Efficiency Upgrades -->
+      <section class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-3 shadow-md">
+        <h2 class="text-base font-bold mb-2 flex items-center">
+          <span class="i-heroicons-cog-6-tooth text-purple-700 mr-2"></span>
+          Efficiency Upgrades
+        </h2>
+
+        <div class="space-y-2">
+          <EvolutionUpgradeItem v-for="upgrade in upgradeCategories.efficiency" :key="upgrade.id" :upgrade="upgrade" />
+        </div>
+      </section>
+
+      <!-- Advanced Generator Upgrades -->
+      <section class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-3 shadow-md">
+        <h2 class="text-base font-bold mb-2 flex items-center">
+          <span class="i-heroicons-beaker text-purple-700 mr-2"></span>
+          Advanced Research
+        </h2>
+
+        <div class="space-y-2">
+          <EvolutionUpgradeItem v-for="upgrade in upgradeCategories.advanced" :key="upgrade.id" :upgrade="upgrade" />
+        </div>
+      </section>
+    </div>
 
     <!-- Evolution Confirmation Dialog -->
     <div v-if="showConfirmation" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -279,17 +315,16 @@ const toggleAboutEvolution = () => {
         </div>
       </div>
     </div>
-
-    <!-- Evolution Upgrades -->
-    <section class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-3 shadow-md">
-      <h2 class="text-base font-bold mb-2 flex items-center">
-        <span class="i-heroicons-adjustments-horizontal text-purple-700 mr-2"></span>
-        Evolutionary Adaptations
-      </h2>
-
-      <div class="space-y-3">
-        <EvolutionUpgradeItem v-for="upgrade in evolutionUpgrades" :key="upgrade.id" :upgrade="upgrade" />
-      </div>
-    </section>
   </div>
 </template>
+
+<style scoped>
+/* Animation for active scale */
+.transform {
+  transition: transform 0.1s ease-in-out;
+}
+
+.active\:scale-98:active {
+  transform: scale(0.98);
+}
+</style>

@@ -5,10 +5,12 @@ import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 import { createDecimal } from '@/utils/decimalUtils'
+import { useDebounceFn } from '@vueuse/core'
 
 // Save key for localStorage
 const SAVE_KEY = 'idle-ant-farm-save'
 const AUTO_SAVE_INTERVAL = 60000 // 1 minute
+const DEBOUNCE_DELAY = 2000 // 2 seconds
 
 export const useSaveSystem = defineStore('saveSystem', () => {
   // Settings
@@ -231,6 +233,13 @@ export const useSaveSystem = defineStore('saveSystem', () => {
     }
   }
 
+  // Create a debounced version of saveGame
+  const debouncedSave = useDebounceFn(() => {
+    if (autoSaveEnabled.value) {
+      saveGame()
+    }
+  }, DEBOUNCE_DELAY)
+
   // Start auto-save interval
   const startAutoSave = () => {
     if (autoSaveIntervalId) return
@@ -288,5 +297,7 @@ export const useSaveSystem = defineStore('saveSystem', () => {
     stopAutoSave,
     toggleAutoSave,
     toggleOfflineProgress,
+    calculateOfflineProgress,
+    debouncedSave,
   }
 })

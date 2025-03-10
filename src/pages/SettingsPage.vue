@@ -212,23 +212,6 @@ onMounted(() => {
                         </label>
                     </div>
                 </div>
-
-                <!-- Game speed -->
-                <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
-                    <div>
-                        <div class="text-sm font-medium">Colony Activity Speed</div>
-                        <div class="text-xs text-gray-600">Adjust how quickly your colony operates</div>
-                    </div>
-                    <div class="mt-2 flex items-center space-x-2">
-                        <span class="text-xs text-gray-600">Slow</span>
-                        <input type="range" min="5" max="20" step="1" v-model="gameStore.tickDuration"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                        <span class="text-xs text-gray-600">Fast</span>
-                    </div>
-                    <div class="text-xs text-gray-600 mt-1 text-center">
-                        {{ gameStore.tickDuration }} seconds per foraging trip
-                    </div>
-                </div>
             </div>
         </section>
 

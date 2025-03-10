@@ -5,10 +5,17 @@ import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
 import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
+import { useSaveSystem } from './saveSystem'
 
 export const useGameStore = defineStore('game', () => {
   // Progress tracking
-  const tickDuration = ref(10) // Duration in seconds
+  const baseTickDuration = ref(10) // Base duration in seconds
+  const tickDuration = computed(() => {
+    const prestigeStore = usePrestigeStore()
+    const reduction = prestigeStore.getUpgradeMultiplier('cycleTimeReduction').toNumber()
+    // Ensure tick duration doesn't go below 1 second
+    return Math.max(1, baseTickDuration.value - reduction)
+  })
   const tickProgress = ref(0) // Current progress (0 to 1)
   const lastTickTime = ref(Date.now())
   const isRunning = ref(true)
@@ -46,6 +53,10 @@ export const useGameStore = defineStore('game', () => {
     const generatorUpgradeStore = useGeneratorUpgradeStore()
     generatorUpgradeStore.updateWorkerProgress(1) // 1 tick of progress for worker level
 
+    // Trigger debounced save
+    const saveSystem = useSaveSystem()
+    saveSystem.debouncedSave()
+
     // Reset progress after tick
     tickProgress.value = 0
     lastTickTime.value = Date.now()
@@ -82,6 +93,7 @@ export const useGameStore = defineStore('game', () => {
   const getState = () => {
     return {
       totalTicks: totalTicks.value.toString(),
+      baseTickDuration: baseTickDuration.value,
     }
   }
 
@@ -89,6 +101,10 @@ export const useGameStore = defineStore('game', () => {
   const loadState = (state: any) => {
     if (state.totalTicks) {
       totalTicks.value = createDecimal(state.totalTicks)
+    }
+
+    if (state.baseTickDuration) {
+      baseTickDuration.value = state.baseTickDuration
     }
   }
 

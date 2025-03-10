@@ -44,12 +44,54 @@ const formattedProduction = computed(() => {
   return formatDecimal(props.generator.baseProduction, 1)
 })
 
+// Get the production multiplier
+const productionMultiplier = computed(() => {
+  return generatorStore.getProductionMultiplier(props.generator.id)
+})
+
+// Format the production multiplier
+const formattedProductionMultiplier = computed(() => {
+  return generatorStore.formatProductionMultiplier(props.generator.id)
+})
+
+// Calculate actual production with multipliers
+const actualProduction = computed(() => {
+  return props.generator.baseProduction.mul(productionMultiplier.value)
+})
+
+// Format actual production
+const formattedActualProduction = computed(() => {
+  return formatDecimal(actualProduction.value, 1)
+})
+
 // Methods
 const buyGenerator = () => {
-  if (canAfford.value) {
+  if (canAfford.value && !hasMissingDependency.value) {
     generatorStore.buyGenerator(props.generator.id)
   }
 }
+
+// Check if this generator has dependencies that aren't met
+const hasMissingDependency = computed(() => {
+  if (props.generator.id === 'hivemind') {
+    const megacolony = generatorStore.getGenerator('megacolony')
+    return !megacolony || megacolony.count.eq(0)
+  } else if (props.generator.id === 'antopolis') {
+    const hivemind = generatorStore.getGenerator('hivemind')
+    return !hivemind || hivemind.count.eq(0)
+  }
+  return false
+})
+
+// Get dependency message if applicable
+const dependencyMessage = computed(() => {
+  if (props.generator.id === 'hivemind') {
+    return 'Requires at least one Mega Colony'
+  } else if (props.generator.id === 'antopolis') {
+    return 'Requires at least one Hive Mind'
+  }
+  return ''
+})
 
 // Get production type based on tier
 const productionType = computed(() => {
@@ -57,7 +99,11 @@ const productionType = computed(() => {
     case 1: return 'food'
     case 2: return 'worker ants'
     case 3: return 'nurseries'
-    default: return 'queen chambers'
+    case 4: return 'queen chambers'
+    case 5: return 'colonies'
+    case 6: return 'mega colonies'
+    case 7: return 'hive minds'
+    default: return 'resources'
   }
 })
 </script>
@@ -89,7 +135,11 @@ const productionType = computed(() => {
             <div class="text-xs text-amber-700">
               <div class="flex justify-between">
                 <span>Production:</span>
-                <span>{{ formattedProduction }} {{ productionType }}/trip</span>
+                <span>{{ formattedActualProduction }} {{ productionType }}/trip</span>
+              </div>
+              <div class="flex justify-between text-xs text-amber-600">
+                <span>Base × Multiplier:</span>
+                <span>{{ formattedProduction }} × {{ formattedProductionMultiplier }}</span>
               </div>
             </div>
           </div>
@@ -108,13 +158,21 @@ const productionType = computed(() => {
         </div>
 
         <!-- Buy button - replaced with HoldableButton -->
-        <HoldableButton @action="buyGenerator" :disabled="!canAfford" :class="canAfford
-          ? 'w-full py-1.5 px-3 rounded text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white'
-          : 'w-full py-1.5 px-3 rounded text-xs font-medium bg-gray-200 text-gray-500 cursor-not-allowed'"
-          :initial-delay="400" :repeat-interval="150" :accelerate="true" :min-interval="30">
-          <span class="i-heroicons-shopping-cart text-sm mr-1"></span>
-          Buy for {{ formattedCost }} food
-        </HoldableButton>
+        <div>
+          <!-- Dependency warning message -->
+          <div v-if="hasMissingDependency" class="text-xs text-red-600 mb-1 flex items-center">
+            <span class="i-heroicons-exclamation-triangle text-sm mr-1"></span>
+            {{ dependencyMessage }}
+          </div>
+
+          <HoldableButton @action="buyGenerator" :disabled="!canAfford || hasMissingDependency" :class="canAfford && !hasMissingDependency
+            ? 'w-full py-1.5 px-3 rounded text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white'
+            : 'w-full py-1.5 px-3 rounded text-xs font-medium bg-gray-200 text-gray-500 cursor-not-allowed'"
+            :initial-delay="400" :repeat-interval="150" :accelerate="true" :min-interval="30">
+            <span class="i-heroicons-shopping-cart text-sm mr-1"></span>
+            Buy for {{ formattedCost }} food
+          </HoldableButton>
+        </div>
       </div>
     </div>
   </div>

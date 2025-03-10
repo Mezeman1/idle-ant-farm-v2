@@ -26,6 +26,9 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     nursery: createDecimal(1),
     queenChamber: createDecimal(1),
     colony: createDecimal(1),
+    megacolony: createDecimal(1),
+    hivemind: createDecimal(1),
+    antopolis: createDecimal(1),
   })
 
   const generatorPoints = ref({
@@ -33,6 +36,9 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     nursery: createDecimal(0),
     queenChamber: createDecimal(0),
     colony: createDecimal(0),
+    megacolony: createDecimal(0),
+    hivemind: createDecimal(0),
+    antopolis: createDecimal(0),
   })
 
   // Progress tracking for leveling up
@@ -41,6 +47,9 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     nursery: createDecimal(0), // Food gained
     queenChamber: createDecimal(0), // Manual purchases
     colony: createDecimal(0), // Upgrades purchased
+    megacolony: createDecimal(0), // Advanced metrics
+    hivemind: createDecimal(0), // Advanced metrics
+    antopolis: createDecimal(0), // Advanced metrics
   })
 
   // Requirements for next level
@@ -405,6 +414,21 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     updateProgress('colony', createDecimal(upgradesPurchased))
   }
 
+  // Update megacolony level based on colonies built
+  const updateMegacolonyProgress = (coloniesBuilt: number) => {
+    updateProgress('megacolony', createDecimal(coloniesBuilt))
+  }
+
+  // Update hivemind level based on megacolonies built
+  const updateHivemindProgress = (megacoloniesBuilt: number) => {
+    updateProgress('hivemind', createDecimal(megacoloniesBuilt))
+  }
+
+  // Update antopolis level based on hiveminds built
+  const updateAntopolisProgress = (hivemindsBuilt: number) => {
+    updateProgress('antopolis', createDecimal(hivemindsBuilt))
+  }
+
   // Purchase an upgrade
   const purchaseUpgrade = (upgradeId: string) => {
     const upgrade = getUpgrade(upgradeId)
@@ -558,6 +582,9 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
     updateNurseryProgress,
     updateQueenChamberProgress,
     updateColonyProgress,
+    updateMegacolonyProgress,
+    updateHivemindProgress,
+    updateAntopolisProgress,
     purchaseUpgrade,
     resetProgress,
     formatLevel,

@@ -68,8 +68,16 @@ const generatorInfo = {
   worker: { name: 'Worker Ants', icon: 'i-heroicons-bug-ant' },
   nursery: { name: 'Nursery', icon: 'i-heroicons-home-modern' },
   queenChamber: { name: 'Queen Chamber', icon: 'i-heroicons-crown' },
-  colony: { name: 'Colony', icon: 'i-heroicons-building-office-2' }
+  colony: { name: 'Colony', icon: 'i-heroicons-building-storefront' },
+  megacolony: { name: 'Mega Colony', icon: 'i-heroicons-building-office-2' },
+  hivemind: { name: 'Hive Mind', icon: 'i-heroicons-cpu-chip' },
+  antopolis: { name: 'Antopolis', icon: 'i-heroicons-building-library' }
 }
+
+// Get unlocked generator IDs for level cards
+const unlockedGeneratorIds = computed(() => {
+  return unlockedGenerators.value.map(generator => generator.id)
+})
 </script>
 
 <template>
@@ -130,112 +138,25 @@ const generatorInfo = {
       </h2>
 
       <div class="grid grid-cols-2 gap-3">
-        <button @click="openUpgradeModal('worker')"
+        <button v-for="generatorId in unlockedGeneratorIds" :key="generatorId" @click="openUpgradeModal(generatorId)"
           class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
           <div class="flex justify-between items-center">
             <div class="flex items-center">
-              <span class="i-heroicons-bug-ant text-amber-600 mr-1.5 text-base"></span>
-              <span class="text-sm font-medium">Worker Ants</span>
+              <span :class="[generatorInfo[generatorId]?.icon, 'text-amber-600 mr-1.5 text-base']"></span>
+              <span class="text-sm font-medium">{{ generatorInfo[generatorId]?.name }}</span>
             </div>
             <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
-              Lvl {{ generatorUpgradeStore.generatorLevels.worker.toNumber() }}
+              Lvl {{ generatorUpgradeStore.generatorLevels[generatorId]?.toNumber() }}
             </span>
           </div>
           <div class="mt-1.5">
             <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
               <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
-                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('worker')}%` }"></div>
+                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage(generatorId)}%` }"></div>
             </div>
             <div class="flex justify-between mt-0.5 text-xs text-amber-700">
-              <span>{{ generatorUpgradeStore.formatPoints('worker') }} points</span>
-              <span>{{ generatorUpgradeStore.formatProgressPercentage('worker') }}%</span>
-            </div>
-          </div>
-          <div class="mt-2 flex justify-end">
-            <span class="text-xs bg-amber-600 text-white px-2 py-1 rounded-md flex items-center">
-              <span class="i-heroicons-arrow-up-circle text-xs mr-1"></span>
-              Upgrade
-            </span>
-          </div>
-        </button>
-
-        <button @click="openUpgradeModal('nursery')"
-          class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center">
-              <span class="i-heroicons-home-modern text-amber-600 mr-1.5 text-base"></span>
-              <span class="text-sm font-medium">Nursery</span>
-            </div>
-            <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
-              Lvl {{ generatorUpgradeStore.generatorLevels.nursery.toNumber() }}
-            </span>
-          </div>
-          <div class="mt-1.5">
-            <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
-              <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
-                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('nursery')}%` }"></div>
-            </div>
-            <div class="flex justify-between mt-0.5 text-xs text-amber-700">
-              <span>{{ generatorUpgradeStore.formatPoints('nursery') }} points</span>
-              <span>{{ generatorUpgradeStore.formatProgressPercentage('nursery') }}%</span>
-            </div>
-          </div>
-          <div class="mt-2 flex justify-end">
-            <span class="text-xs bg-amber-600 text-white px-2 py-1 rounded-md flex items-center">
-              <span class="i-heroicons-arrow-up-circle text-xs mr-1"></span>
-              Upgrade
-            </span>
-          </div>
-        </button>
-
-        <button @click="openUpgradeModal('queenChamber')"
-          class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center">
-              <span class="i-heroicons-crown text-amber-600 mr-1.5 text-base"></span>
-              <span class="text-sm font-medium">Queen Chamber</span>
-            </div>
-            <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
-              Lvl {{ generatorUpgradeStore.generatorLevels.queenChamber.toNumber() }}
-            </span>
-          </div>
-          <div class="mt-1.5">
-            <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
-              <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
-                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('queenChamber')}%` }"></div>
-            </div>
-            <div class="flex justify-between mt-0.5 text-xs text-amber-700">
-              <span>{{ generatorUpgradeStore.formatPoints('queenChamber') }} points</span>
-              <span>{{ generatorUpgradeStore.formatProgressPercentage('queenChamber') }}%</span>
-            </div>
-          </div>
-          <div class="mt-2 flex justify-end">
-            <span class="text-xs bg-amber-600 text-white px-2 py-1 rounded-md flex items-center">
-              <span class="i-heroicons-arrow-up-circle text-xs mr-1"></span>
-              Upgrade
-            </span>
-          </div>
-        </button>
-
-        <button @click="openUpgradeModal('colony')"
-          class="bg-white/80 p-2 rounded-lg shadow-md border border-amber-300 active:bg-amber-100 transition-all duration-200 text-left transform active:scale-98">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center">
-              <span class="i-heroicons-building-office-2 text-amber-600 mr-1.5 text-base"></span>
-              <span class="text-sm font-medium">Colony</span>
-            </div>
-            <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
-              Lvl {{ generatorUpgradeStore.generatorLevels.colony.toNumber() }}
-            </span>
-          </div>
-          <div class="mt-1.5">
-            <div class="h-1.5 bg-amber-100 rounded-full overflow-hidden">
-              <div class="h-full bg-amber-500 transition-all duration-700 ease-out"
-                :style="{ width: `${generatorUpgradeStore.formatProgressPercentage('colony')}%` }"></div>
-            </div>
-            <div class="flex justify-between mt-0.5 text-xs text-amber-700">
-              <span>{{ generatorUpgradeStore.formatPoints('colony') }} points</span>
-              <span>{{ generatorUpgradeStore.formatProgressPercentage('colony') }}%</span>
+              <span>{{ generatorUpgradeStore.formatPoints(generatorId) }} points</span>
+              <span>{{ generatorUpgradeStore.formatProgressPercentage(generatorId) }}%</span>
             </div>
           </div>
           <div class="mt-2 flex justify-end">

@@ -23,7 +23,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
   // Evolution stats
   const evolutionPoints = ref(createDecimal(0))
   const evolutionCount = ref(createDecimal(0))
-  const currentLoopProgress = ref(0) // 0 to 1
+  const currentLoopTicks = ref(createDecimal(0)) // Current ticks in this loop
   const loopsCompleted = ref(createDecimal(0))
   const ticksPerLoop = ref(createDecimal(3)) // Base requirement: 3 trips per cycle
   const foodForNextLoop = ref(createDecimal(1000)) // Base requirement: 1000 food for first cycle
@@ -114,6 +114,63 @@ export const usePrestigeStore = defineStore('prestige', () => {
       icon: 'i-heroicons-bug-ant',
       unlocked: true,
     },
+    // Advanced generator unlocks
+    {
+      id: 'unlockMegacolony',
+      name: 'Mega Colony Research',
+      description: 'Unlocks the Mega Colony generator',
+      cost: createDecimal(1000),
+      level: createDecimal(0),
+      maxLevel: createDecimal(1),
+      effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
+      icon: 'i-heroicons-building-office-2',
+      unlocked: true,
+    },
+    {
+      id: 'unlockHivemind',
+      name: 'Hive Mind Research',
+      description: 'Unlocks the Hive Mind generator',
+      cost: createDecimal(1e6),
+      level: createDecimal(0),
+      maxLevel: createDecimal(1),
+      effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
+      icon: 'i-heroicons-cpu-chip',
+      unlocked: false, // Only unlocked after purchasing Mega Colony
+    },
+    {
+      id: 'unlockAntopolis',
+      name: 'Antopolis Research',
+      description: 'Unlocks the Antopolis generator',
+      cost: createDecimal(1e9),
+      level: createDecimal(0),
+      maxLevel: createDecimal(1),
+      effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
+      icon: 'i-heroicons-building-library',
+      unlocked: false, // Only unlocked after purchasing Hive Mind
+    },
+    // New upgrades for cycle time and EP gain
+    {
+      id: 'cycleTimeReduction',
+      name: 'Time Manipulation',
+      description: 'Decreases cycle time by 0.2 seconds per level',
+      cost: createDecimal(50), // Expensive starting cost
+      level: createDecimal(0),
+      maxLevel: createDecimal(10), // Max 2 seconds reduction
+      effect: level => createDecimal(0.2).mul(level), // 0.2s reduction per level
+      icon: 'i-heroicons-clock-solid',
+      unlocked: true,
+    },
+    {
+      id: 'epBoost',
+      name: 'Evolution Mastery',
+      description: 'Increases Evolution Points gained per cycle by 10% per level',
+      cost: createDecimal(25),
+      level: createDecimal(0),
+      maxLevel: createDecimal(10),
+      effect: level => createDecimal(1).add(level.mul(0.1)), // +10% per level
+      icon: 'i-heroicons-star',
+      unlocked: true,
+    },
   ])
 
   // Get multiplier for a specific upgrade
@@ -173,8 +230,13 @@ export const usePrestigeStore = defineStore('prestige', () => {
 
     // Apply evolution count bonus (small bonus for higher evolution counts)
     const evolutionMultiplier = createDecimal(1).add(evolutionCount.value.div(10))
+    totalEP = totalEP.mul(evolutionMultiplier)
 
-    return totalEP.mul(evolutionMultiplier)
+    // Apply EP boost from Evolution Mastery upgrade
+    const epBoostMultiplier = getUpgradeMultiplier('epBoost')
+    totalEP = totalEP.mul(epBoostMultiplier)
+
+    return totalEP
   }
 
   // Complete a foraging cycle and update requirements
@@ -188,27 +250,19 @@ export const usePrestigeStore = defineStore('prestige', () => {
     // Increase food required for next cycle (exponential growth: ^1.1)
     foodForNextLoop.value = foodForNextLoop.value.pow(1.1)
 
-    // Reset cycle progress (keep remainder for activity-based progress)
-    currentLoopProgress.value = currentLoopProgress.value % 1
+    // Reset cycle progress
+    currentLoopTicks.value = createDecimal(0)
   }
 
   // Update foraging cycle progress based on activity and check food-based completion
-  const updateLoopProgress = (tickProgress: number) => {
-    // Get foraging efficiency multiplier from adaptations
-    const loopSpeedMultiplier = getUpgradeMultiplier('shorterLoops')
+  const updateLoopProgress = (deltaTime: number) => {
+    // Increment current ticks
+    currentLoopTicks.value = currentLoopTicks.value.add(1)
 
-    // Apply multiplier to progress
-    const adjustedProgress = tickProgress * toNumber(loopSpeedMultiplier)
-
-    // Calculate progress as a fraction of required foraging trips
-    const progressIncrement = adjustedProgress / toNumber(ticksPerLoop.value)
-
-    // Update foraging cycle progress
-    currentLoopProgress.value += progressIncrement
-
-    // Check if foraging cycle completed via activity
-    if (currentLoopProgress.value >= 1) {
-      completeLoop()
+    // Check if we have enough ticks for loop completion
+    if (currentLoopTicks.value.gte(ticksPerLoop.value)) {
+      currentLoopTicks.value = createDecimal(0)
+      loopsCompleted.value = loopsCompleted.value.add(1)
     }
 
     // Check if foraging cycle completed via food
@@ -269,7 +323,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       evolutionPoints: evolutionPoints.value.toString(),
       evolutionCount: evolutionCount.value.toString(),
       loopsCompleted: loopsCompleted.value.toString(),
-      currentLoopProgress: currentLoopProgress.value,
+      currentLoopTicks: currentLoopTicks.value.toString(),
       ticksPerLoop: ticksPerLoop.value.toString(),
       foodForNextLoop: foodForNextLoop.value.toString(),
       upgrades: evolutionUpgrades.value.map(upgrade => ({
@@ -294,8 +348,8 @@ export const usePrestigeStore = defineStore('prestige', () => {
       loopsCompleted.value = createDecimal(state.loopsCompleted)
     }
 
-    if (state.currentLoopProgress !== undefined) {
-      currentLoopProgress.value = state.currentLoopProgress
+    if (state.currentLoopTicks) {
+      currentLoopTicks.value = createDecimal(state.currentLoopTicks)
     }
 
     if (state.ticksPerLoop) {
@@ -348,9 +402,30 @@ export const usePrestigeStore = defineStore('prestige', () => {
       generator.count = createDecimal(0)
       generator.manualPurchases = createDecimal(0)
 
-      // Keep first tier unlocked, lock others
-      if (generator.tier > 1) {
+      // Keep first tier unlocked, lock others except advanced generators unlocked through prestige
+      if (generator.tier > 1 && generator.tier <= 4) {
         generator.unlocked = false
+      }
+
+      // For advanced generators (tier 5+), check if they should remain unlocked
+      if (generator.tier >= 5) {
+        // Check if the corresponding unlock upgrade is purchased
+        const upgradeId =
+          generator.id === 'megacolony'
+            ? 'unlockMegacolony'
+            : generator.id === 'hivemind'
+              ? 'unlockHivemind'
+              : generator.id === 'antopolis'
+                ? 'unlockAntopolis'
+                : ''
+
+        if (upgradeId) {
+          const upgrade = evolutionUpgrades.value.find(u => u.id === upgradeId)
+          // Keep unlocked only if the upgrade is purchased (level > 0)
+          generator.unlocked = upgrade ? upgrade.level.gt(0) : false
+        } else {
+          generator.unlocked = false
+        }
       }
     })
 
@@ -358,7 +433,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
     generatorStore.food = createDecimal(10) // Start with 10 food
 
     // Reset cycle progress
-    currentLoopProgress.value = 0
+    currentLoopTicks.value = createDecimal(0)
     loopsCompleted.value = createDecimal(0)
     ticksPerLoop.value = createDecimal(3) // Reset to base requirement
     foodForNextLoop.value = createDecimal(1000) // Reset to base requirement
@@ -384,6 +459,35 @@ export const usePrestigeStore = defineStore('prestige', () => {
       return false
     }
 
+    // Check dependencies for advanced generator upgrades
+    if (upgradeId === 'unlockHivemind') {
+      // Check if Mega Colony upgrade has been purchased
+      const megaColonyUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockMegacolony')
+      if (!megaColonyUpgrade || megaColonyUpgrade.level.eq(0)) {
+        return false // Cannot purchase Hive Mind upgrade without Mega Colony upgrade
+      }
+
+      // Also check if player has at least one Mega Colony
+      const generatorStore = useGeneratorStore()
+      const megacolony = generatorStore.getGenerator('megacolony')
+      if (!megacolony || megacolony.count.eq(0)) {
+        return false // Cannot purchase Hive Mind upgrade without having at least one Mega Colony
+      }
+    } else if (upgradeId === 'unlockAntopolis') {
+      // Check if Hive Mind upgrade has been purchased
+      const hiveMindUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockHivemind')
+      if (!hiveMindUpgrade || hiveMindUpgrade.level.eq(0)) {
+        return false // Cannot purchase Antopolis upgrade without Hive Mind upgrade
+      }
+
+      // Also check if player has at least one Hive Mind
+      const generatorStore = useGeneratorStore()
+      const hivemind = generatorStore.getGenerator('hivemind')
+      if (!hivemind || hivemind.count.eq(0)) {
+        return false // Cannot purchase Antopolis upgrade without having at least one Hive Mind
+      }
+    }
+
     // Purchase upgrade
     evolutionPoints.value = evolutionPoints.value.sub(upgrade.cost)
     upgrade.level = upgrade.level.add(1)
@@ -391,13 +495,49 @@ export const usePrestigeStore = defineStore('prestige', () => {
     // Increase cost for next level (cost increases by 50% per level)
     upgrade.cost = upgrade.cost.mul(1.5)
 
+    // Handle special upgrades for unlocking advanced generators
+    if (upgradeId === 'unlockMegacolony') {
+      // Unlock Mega Colony generator
+      const generatorStore = useGeneratorStore()
+      const megacolony = generatorStore.generators.find(g => g.id === 'megacolony')
+      if (megacolony) {
+        megacolony.unlocked = true
+      }
+
+      // Unlock the next upgrade in the sequence
+      const hivemindUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockHivemind')
+      if (hivemindUpgrade) {
+        hivemindUpgrade.unlocked = true
+      }
+    } else if (upgradeId === 'unlockHivemind') {
+      // Unlock Hive Mind generator
+      const generatorStore = useGeneratorStore()
+      const hivemind = generatorStore.generators.find(g => g.id === 'hivemind')
+      if (hivemind) {
+        hivemind.unlocked = true
+      }
+
+      // Unlock the next upgrade in the sequence
+      const antopolisUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockAntopolis')
+      if (antopolisUpgrade) {
+        antopolisUpgrade.unlocked = true
+      }
+    } else if (upgradeId === 'unlockAntopolis') {
+      // Unlock Antopolis generator
+      const generatorStore = useGeneratorStore()
+      const antopolis = generatorStore.generators.find(g => g.id === 'antopolis')
+      if (antopolis) {
+        antopolis.unlocked = true
+      }
+    }
+
     return true
   }
 
   return {
     evolutionPoints,
     evolutionCount,
-    currentLoopProgress,
+    currentLoopTicks,
     loopsCompleted,
     ticksPerLoop,
     foodForNextLoop,
