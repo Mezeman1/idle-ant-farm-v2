@@ -8,10 +8,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutEvolutionDialog: typeof import('./src/components/AboutEvolutionDialog.vue')['default']
     AdaptationSummaryCard: typeof import('./src/components/AdaptationSummaryCard.vue')['default']
     AntHierarchySection: typeof import('./src/components/AntHierarchySection.vue')['default']
     AntSpecializationCard: typeof import('./src/components/AntSpecializationCard.vue')['default']
     ColonyStatusCard: typeof import('./src/components/ColonyStatusCard.vue')['default']
+    EvolutionConfirmationDialog: typeof import('./src/components/EvolutionConfirmationDialog.vue')['default']
+    EvolutionStatusSection: typeof import('./src/components/EvolutionStatusSection.vue')['default']
     EvolutionUpgradeItem: typeof import('./src/components/EvolutionUpgradeItem.vue')['default']
     GeneratorInfoDialog: typeof import('./src/components/GeneratorInfoDialog.vue')['default']
     GeneratorItem: typeof import('./src/components/GeneratorItem.vue')['default']
@@ -26,5 +29,8 @@ declare module 'vue' {
     PWAUpdateNotification: typeof import('./src/components/PWAUpdateNotification.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UpgradeFilters: typeof import('./src/components/UpgradeFilters.vue')['default']
+    UpgradeGrid: typeof import('./src/components/UpgradeGrid.vue')['default']
+    UpgradeTabsNavigation: typeof import('./src/components/UpgradeTabsNavigation.vue')['default']
   }
 }

@@ -122,33 +122,121 @@ const purchaseUpgrade = () => {
         prestigeStore.purchaseUpgrade(props.upgrade.id)
     }
 }
+
+// Helper methods for styling based on category
+const getBorderColorClass = () => {
+    switch (props.upgrade.category) {
+        case 'production': return 'border-purple-200'
+        case 'efficiency': return 'border-blue-200'
+        case 'automation': return 'border-red-200'
+        case 'research': return 'border-amber-200'
+        case 'synergy': return 'border-green-200'
+        case 'prestige': return 'border-indigo-200'
+        default: return 'border-gray-200'
+    }
+}
+
+const getIconColorClass = () => {
+    switch (props.upgrade.category) {
+        case 'production': return 'text-purple-600'
+        case 'efficiency': return 'text-blue-600'
+        case 'automation': return 'text-red-600'
+        case 'research': return 'text-amber-600'
+        case 'synergy': return 'text-green-600'
+        case 'prestige': return 'text-indigo-600'
+        default: return 'text-gray-600'
+    }
+}
+
+const getTitleColorClass = () => {
+    switch (props.upgrade.category) {
+        case 'production': return 'text-purple-900'
+        case 'efficiency': return 'text-blue-900'
+        case 'automation': return 'text-red-900'
+        case 'research': return 'text-amber-900'
+        case 'synergy': return 'text-green-900'
+        case 'prestige': return 'text-indigo-900'
+        default: return 'text-gray-900'
+    }
+}
+
+const getDescriptionColorClass = () => {
+    switch (props.upgrade.category) {
+        case 'production': return 'text-purple-700'
+        case 'efficiency': return 'text-blue-700'
+        case 'automation': return 'text-red-700'
+        case 'research': return 'text-amber-700'
+        case 'synergy': return 'text-green-700'
+        case 'prestige': return 'text-indigo-700'
+        default: return 'text-gray-700'
+    }
+}
+
+const getEffectColorClass = () => {
+    switch (props.upgrade.category) {
+        case 'production': return 'text-purple-600'
+        case 'efficiency': return 'text-blue-600'
+        case 'automation': return 'text-red-600'
+        case 'research': return 'text-amber-600'
+        case 'synergy': return 'text-green-600'
+        case 'prestige': return 'text-indigo-600'
+        default: return 'text-gray-600'
+    }
+}
+
+const getLevelBadgeClasses = () => {
+    switch (props.upgrade.category) {
+        case 'production': return 'bg-purple-100 text-purple-800'
+        case 'efficiency': return 'bg-blue-100 text-blue-800'
+        case 'automation': return 'bg-red-100 text-red-800'
+        case 'research': return 'bg-amber-100 text-amber-800'
+        case 'synergy': return 'bg-green-100 text-green-800'
+        case 'prestige': return 'bg-indigo-100 text-indigo-800'
+        default: return 'bg-gray-100 text-gray-800'
+    }
+}
+
+const getButtonClasses = () => {
+    switch (props.upgrade.category) {
+        case 'production': return 'bg-purple-600 hover:bg-purple-700 text-white'
+        case 'efficiency': return 'bg-blue-600 hover:bg-blue-700 text-white'
+        case 'automation': return 'bg-red-600 hover:bg-red-700 text-white'
+        case 'research': return 'bg-amber-600 hover:bg-amber-700 text-white'
+        case 'synergy': return 'bg-green-600 hover:bg-green-700 text-white'
+        case 'prestige': return 'bg-indigo-600 hover:bg-indigo-700 text-white'
+        default: return 'bg-gray-600 hover:bg-gray-700 text-white'
+    }
+}
 </script>
 
 <template>
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-purple-200 transition-all duration-200"
-        :class="{ 'opacity-75': !canAfford || isMaxLevel || hasMissingDependency }">
+    <div class="bg-white/90 rounded-lg shadow-sm overflow-hidden border transition-all duration-200 hover:shadow-md"
+        :class="[
+            getBorderColorClass(),
+            { 'opacity-75': !canAfford || isMaxLevel || hasMissingDependency }
+        ]">
         <!-- Compact layout -->
-        <div class="p-2">
-            <div class="flex justify-between items-center mb-1">
+        <div class="p-2.5">
+            <div class="flex justify-between items-center mb-1.5">
                 <div class="flex items-center">
-                    <span :class="[upgrade.icon, 'text-lg mr-1.5 text-purple-600']"></span>
-                    <h3 class="font-medium text-sm text-purple-900">{{ upgrade.name }}</h3>
+                    <span :class="[upgrade.icon, 'text-lg mr-1.5', getIconColorClass()]"></span>
+                    <h3 class="font-medium text-sm" :class="getTitleColorClass()">{{ upgrade.name }}</h3>
                 </div>
-                <div class="text-xs font-medium bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded">
+                <div class="text-xs font-medium px-1.5 py-0.5 rounded" :class="getLevelBadgeClasses()">
                     Lv. {{ formattedLevel }}<span v-if="upgrade.maxLevel">/{{ formattedMaxLevel }}</span>
                 </div>
             </div>
 
-            <p class="text-xs text-purple-700 mb-1.5">{{ upgrade.description }}</p>
+            <p class="text-xs mb-2" :class="getDescriptionColorClass()">{{ upgrade.description }}</p>
 
             <div class="flex justify-between items-center">
-                <div class="text-xs text-purple-600">
+                <div class="text-xs" :class="getEffectColorClass()">
                     <span v-if="props.upgrade.level.gt(0)">Effect: {{ formattedEffect }}</span>
                 </div>
 
                 <HoldableButton @action="purchaseUpgrade" :disabled="!canAfford || isMaxLevel || hasMissingDependency"
                     class="py-1 px-2 rounded text-xs font-medium transition-colors" :class="canAfford && !isMaxLevel && !hasMissingDependency
-                        ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                        ? getButtonClasses()
                         : 'bg-gray-200 text-gray-500 cursor-not-allowed'">
                     <span v-if="isMaxLevel">Max</span>
                     <template v-else>
