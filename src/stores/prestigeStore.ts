@@ -12,6 +12,7 @@ export interface EvolutionUpgrade {
   name: string
   description: string
   cost: Decimal
+  costMultiplier?: (context: any) => Decimal
   level: Decimal
   maxLevel: Decimal | null // null means no max level
   effect: (level: Decimal) => Decimal // Returns multiplier based on level
@@ -234,6 +235,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       name: 'Time Manipulation',
       description: 'Decreases cycle time by 0.2 seconds per level',
       cost: createDecimal(50),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.5).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(20),
       effect: level => createDecimal(0.2).mul(level), // 0.2s reduction per level
@@ -570,11 +572,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
     }
   }
 
-  // Helper function to convert Decimal to number
-  const toNumber = (decimal: Decimal): number => {
-    return decimal.toNumber()
-  }
-
   // Format EP for display
   const formatEP = () => {
     return formatDecimal(evolutionPoints.value, 2)
@@ -867,7 +864,11 @@ export const usePrestigeStore = defineStore('prestige', () => {
     upgrade.level = upgrade.level.add(1)
 
     // Increase cost for next level (cost increases by 50% per level)
-    upgrade.cost = upgrade.cost.mul(1.5)
+    if (upgrade.costMultiplier) {
+      upgrade.cost = upgrade.costMultiplier({ cost: upgrade.cost, level: upgrade.level })
+    } else {
+      upgrade.cost = upgrade.cost.mul(1.5)
+    }
 
     // Handle special upgrades for unlocking advanced generators
     if (upgradeId === 'unlockMegacolony') {
