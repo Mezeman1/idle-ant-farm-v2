@@ -48,15 +48,16 @@ const preventTouchMove = (e: TouchEvent) => {
 </script>
 
 <template>
-    <div v-if="isVisible" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-hidden"
+    <div v-if="isVisible"
+        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-hidden"
         @touchmove="preventTouchMove">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-5 mx-auto">
-            <h3 class="text-lg font-bold mb-3 flex items-center text-amber-800">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-5 mx-auto border border-amber-200">
+            <h3 class="text-base font-bold mb-3 flex items-center text-amber-800 pb-2 border-b border-amber-200">
                 <span class="i-heroicons-clock text-amber-600 mr-2"></span>
                 Colony Hibernation Progress
             </h3>
 
-            <p class="text-sm text-gray-700 mb-4">
+            <p class="text-sm text-gray-700 mb-4 leading-relaxed">
                 Your colony has been hibernating for <span class="font-bold text-amber-600">{{
                     formatDuration(elapsedTime) }}</span>.
                 We're calculating the progress made during this time.
@@ -74,12 +75,9 @@ const preventTouchMove = (e: TouchEvent) => {
             </div>
 
             <div class="flex justify-end">
-                <HoldableButton
-                    @action="handleClose"
-                    :class="'py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium'"
-                    :initial-delay="300"
-                    :repeat-interval="100"
-                >
+                <HoldableButton @action="handleClose"
+                    :class="'py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors'"
+                    :initial-delay="300" :repeat-interval="100">
                     Continue
                 </HoldableButton>
             </div>

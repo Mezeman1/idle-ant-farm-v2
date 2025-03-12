@@ -9,6 +9,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AboutEvolutionDialog: typeof import('./src/components/AboutEvolutionDialog.vue')['default']
+    AchievementNotification: typeof import('./src/components/AchievementNotification.vue')['default']
+    AchievementsModal: typeof import('./src/components/AchievementsModal.vue')['default']
     AdaptationSummaryCard: typeof import('./src/components/AdaptationSummaryCard.vue')['default']
     AntHierarchySection: typeof import('./src/components/AntHierarchySection.vue')['default']
     AntSpecializationCard: typeof import('./src/components/AntSpecializationCard.vue')['default']

@@ -67,6 +67,6 @@ export function useVisibilityState() {
   })
 
   return {
-    isVisible,
+    isVisible: readonly(isVisible),
   }
 }
