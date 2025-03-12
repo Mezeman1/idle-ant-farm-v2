@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { usePrestigeStore } from '@/stores/prestigeStore'
 import type { EvolutionUpgrade } from '@/stores/prestigeStore'
-import { formatDecimal } from '@/utils/decimalUtils'
+import { formatDecimal, formatPercentage } from '@/utils/decimalUtils'
 import HoldableButton from '@/components/HoldableButton.vue'
 import { useGeneratorStore } from '@/stores/generatorStore'
 
@@ -28,9 +28,31 @@ const formattedMaxLevel = computed(() => {
 
 const formattedEffect = computed(() => {
     const effect = props.upgrade.effect(props.upgrade.level)
-    // Convert to percentage increase
-    const percentage = (effect.toNumber() - 1) * 100
-    return `+${percentage.toFixed(0)}%`
+
+    // Handle special cases for different upgrade types
+    if (props.upgrade.id === 'exponentialGrowth' || props.upgrade.id === 'compoundEvolution') {
+        // For exponential upgrades, show the actual multiplier
+        return `${formatDecimal(effect, 2)}x`
+    } else if (props.upgrade.id === 'startingFood') {
+        // For starting food, show the actual multiplier
+        return `${formatDecimal(effect, 0)}x`
+    } else if (props.upgrade.id === 'prestigeAcceleration' ||
+        props.upgrade.id.startsWith('auto') ||
+        props.upgrade.id === 'bulkAutomation') {
+        // For automation upgrades, show the actual value
+        return `${formatDecimal(effect, 0)}`
+    } else if (props.upgrade.id === 'cycleTimeReduction') {
+        // For cycle time reduction, show seconds
+        return `${formatDecimal(effect, 1)}s`
+    } else {
+        // For percentage-based upgrades, convert to percentage
+        const percentage = (effect.toNumber() - 1) * 100
+        if (percentage >= 1000) {
+            return `+${formatPercentage(percentage)}`
+        } else {
+            return `+${percentage.toFixed(0)}%`
+        }
+    }
 })
 
 const canAfford = computed(() => {
@@ -125,8 +147,7 @@ const purchaseUpgrade = () => {
                 </div>
 
                 <HoldableButton @action="purchaseUpgrade" :disabled="!canAfford || isMaxLevel || hasMissingDependency"
-                    class="py-1 px-2 rounded text-xs font-medium transition-colors"
-                    :class="canAfford && !isMaxLevel && !hasMissingDependency
+                    class="py-1 px-2 rounded text-xs font-medium transition-colors" :class="canAfford && !isMaxLevel && !hasMissingDependency
                         ? 'bg-purple-600 hover:bg-purple-700 text-white'
                         : 'bg-gray-200 text-gray-500 cursor-not-allowed'">
                     <span v-if="isMaxLevel">Max</span>

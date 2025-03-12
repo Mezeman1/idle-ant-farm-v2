@@ -208,3 +208,31 @@ export function calculateGeneratorCost(tier: number, count: Decimal): Decimal {
 export function toNumber(value: Decimal): number {
   return value.toNumber()
 }
+
+/**
+ * Formats a percentage value with appropriate suffixes for large numbers
+ */
+export function formatPercentage(value: Decimal | number): string {
+  // Convert to Decimal if it's a number
+  const decimalValue = typeof value === 'number' ? new Decimal(value) : value
+
+  if (decimalValue.lt(1000)) {
+    // For small percentages, show with fixed precision
+    return `${decimalValue.toFixed(2)}%`
+  } else if (decimalValue.lt(1e6)) {
+    // For thousands, show with K suffix
+    return `${decimalValue.div(1e3).toFixed(2)}K%`
+  } else if (decimalValue.lt(1e9)) {
+    // For millions, show with M suffix
+    return `${decimalValue.div(1e6).toFixed(2)}M%`
+  } else if (decimalValue.lt(1e12)) {
+    // For billions, show with B suffix
+    return `${decimalValue.div(1e9).toFixed(2)}B%`
+  } else if (decimalValue.lt(1e15)) {
+    // For trillions, show with T suffix
+    return `${decimalValue.div(1e12).toFixed(2)}T%`
+  } else {
+    // For very large numbers, use scientific notation
+    return `${decimalValue.toExponential(2)}%`
+  }
+}

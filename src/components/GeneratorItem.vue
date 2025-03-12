@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useGeneratorStore } from '@/stores/generatorStore'
 import { usePrestigeStore } from '@/stores/prestigeStore'
 import type { Generator } from '@/stores/generatorStore'
-import { formatDecimal } from '@/utils/decimalUtils'
+import { formatDecimal, formatPercentage } from '@/utils/decimalUtils'
 import HoldableButton from '@/components/HoldableButton.vue'
 
 const props = defineProps<{
@@ -53,7 +53,12 @@ const productionMultiplier = computed(() => {
 
 // Format the production multiplier
 const formattedProductionMultiplier = computed(() => {
-  return generatorStore.formatProductionMultiplier(props.generator.id)
+  const multiplier = productionMultiplier.value
+  if (multiplier.lt(1000)) {
+    return `${multiplier.toFixed(2)}x`
+  } else {
+    return formatDecimal(multiplier, 2) + 'x'
+  }
 })
 
 // Calculate actual production with multipliers
@@ -64,6 +69,85 @@ const actualProduction = computed(() => {
 // Format actual production
 const formattedActualProduction = computed(() => {
   return formatDecimal(actualProduction.value, 1)
+})
+
+// Get multiplier breakdown for tooltip
+const multiplierBreakdown = computed(() => {
+  const breakdown = []
+  const prestigeStore = usePrestigeStore()
+
+  // Add general multipliers
+  const strongerSoldiers = prestigeStore.getUpgradeMultiplier('strongerSoldiers')
+  if (strongerSoldiers.gt(1)) {
+    breakdown.push(`Stronger Soldiers: ${formatDecimal(strongerSoldiers, 2)}x`)
+  }
+
+  // Add exponential multipliers
+  const exponentialGrowth = prestigeStore.getUpgradeMultiplier('exponentialGrowth')
+  if (exponentialGrowth.gt(1)) {
+    breakdown.push(`Exponential Growth: ${formatDecimal(exponentialGrowth, 2)}x`)
+  }
+
+  const compoundEvolution = prestigeStore.getUpgradeMultiplier('compoundEvolution')
+  if (compoundEvolution.gt(1)) {
+    breakdown.push(`Compound Evolution: ${formatDecimal(compoundEvolution, 2)}x`)
+  }
+
+  // Add synergy multipliers
+  const generatorSynergy = prestigeStore.getAllMultipliers()['generatorSynergyBonus']
+  if (generatorSynergy && generatorSynergy.gt(1)) {
+    breakdown.push(`Generator Synergy: ${formatDecimal(generatorSynergy, 2)}x`)
+  }
+
+  const evolutionSynergy = prestigeStore.getAllMultipliers()['evolutionSynergyBonus']
+  if (evolutionSynergy && evolutionSynergy.gt(1)) {
+    breakdown.push(`Evolution Synergy: ${formatDecimal(evolutionSynergy, 2)}x`)
+  }
+
+  // Add generator-specific multipliers
+  if (props.generator.id === 'worker') {
+    const foodProcessing = prestigeStore.getUpgradeMultiplier('foodProcessing')
+    if (foodProcessing.gt(1)) {
+      breakdown.push(`Food Processing: ${formatDecimal(foodProcessing, 2)}x`)
+    }
+
+    const mutatedWorkers = prestigeStore.getUpgradeMultiplier('mutatedWorkers')
+    if (mutatedWorkers.gt(1)) {
+      breakdown.push(`Mutated Workers: ${formatDecimal(mutatedWorkers, 2)}x`)
+    }
+  } else if (props.generator.id === 'nursery') {
+    const nurseryEfficiency = prestigeStore.getUpgradeMultiplier('nurseryEfficiency')
+    if (nurseryEfficiency.gt(1)) {
+      breakdown.push(`Nursery Efficiency: ${formatDecimal(nurseryEfficiency, 2)}x`)
+    }
+  } else if (props.generator.id === 'queenChamber') {
+    const efficientQueens = prestigeStore.getUpgradeMultiplier('efficientQueens')
+    if (efficientQueens.gt(1)) {
+      breakdown.push(`Efficient Queens: ${formatDecimal(efficientQueens, 2)}x`)
+    }
+  } else if (props.generator.id === 'colony') {
+    const colonyExpansion = prestigeStore.getUpgradeMultiplier('colonyExpansion')
+    if (colonyExpansion.gt(1)) {
+      breakdown.push(`Colony Expansion: ${formatDecimal(colonyExpansion, 2)}x`)
+    }
+  } else if (props.generator.id === 'megacolony') {
+    const megacolonyEfficiency = prestigeStore.getUpgradeMultiplier('megacolonyEfficiency')
+    if (megacolonyEfficiency.gt(1)) {
+      breakdown.push(`Mega Colony Optimization: ${formatDecimal(megacolonyEfficiency, 2)}x`)
+    }
+  } else if (props.generator.id === 'hivemind') {
+    const hivemindEfficiency = prestigeStore.getUpgradeMultiplier('hivemindEfficiency')
+    if (hivemindEfficiency.gt(1)) {
+      breakdown.push(`Hive Mind Optimization: ${formatDecimal(hivemindEfficiency, 2)}x`)
+    }
+  } else if (props.generator.id === 'antopolis') {
+    const antopolisEfficiency = prestigeStore.getUpgradeMultiplier('antopolisEfficiency')
+    if (antopolisEfficiency.gt(1)) {
+      breakdown.push(`Antopolis Optimization: ${formatDecimal(antopolisEfficiency, 2)}x`)
+    }
+  }
+
+  return breakdown
 })
 
 // Check if auto-purchase is available for this generator
@@ -161,7 +245,26 @@ const productionType = computed(() => {
           <div class="text-right text-amber-700">{{ formattedActualProduction }} {{ productionType }}/trip</div>
 
           <div class="font-medium text-amber-600">Base × Multiplier:</div>
-          <div class="text-right text-amber-600">{{ formattedProduction }} × {{ formattedProductionMultiplier }}</div>
+          <div class="text-right text-amber-600 group relative">
+            {{ formattedProduction }} ×
+            <span class="cursor-help underline decoration-dotted" v-if="multiplierBreakdown.length > 0">
+              {{ formattedProductionMultiplier }}
+              <!-- Tooltip for multiplier breakdown -->
+              <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-48 bg-amber-50 border border-amber-200
+                          rounded shadow-lg p-2 text-xs text-amber-800 hidden group-hover:block z-10">
+                <div class="font-bold mb-1 text-amber-900">Multiplier Breakdown:</div>
+                <div v-for="(item, index) in multiplierBreakdown" :key="index" class="flex justify-between mb-0.5">
+                  <span>{{ item.split(':')[0] }}:</span>
+                  <span class="font-medium">{{ item.split(':')[1] }}</span>
+                </div>
+                <div class="border-t border-amber-200 mt-1 pt-1 flex justify-between font-bold text-amber-900">
+                  <span>Total:</span>
+                  <span>{{ formattedProductionMultiplier }}</span>
+                </div>
+              </div>
+            </span>
+            <span v-else>{{ formattedProductionMultiplier }}</span>
+          </div>
 
           <div class="font-medium text-amber-700">Bought:</div>
           <div class="text-right text-amber-700">{{ formattedManualPurchases }}</div>

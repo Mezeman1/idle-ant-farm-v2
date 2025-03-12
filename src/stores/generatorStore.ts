@@ -17,6 +17,7 @@ export interface Generator {
   costGrowth: Decimal
   baseProduction: Decimal
   unlocked: boolean
+  purchasable: boolean // Whether the generator can be purchased (for advanced generators)
   icon: string
   autoPurchaseEnabled: boolean // Toggle for auto-purchasing
 }
@@ -35,6 +36,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       costGrowth: createDecimal(1.1),
       baseProduction: createDecimal(10),
       unlocked: true,
+      purchasable: false,
       icon: 'i-heroicons-bug-ant',
       autoPurchaseEnabled: true,
     },
@@ -49,6 +51,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       costGrowth: createDecimal(1.15),
       baseProduction: createDecimal(1),
       unlocked: false,
+      purchasable: false,
       icon: 'i-heroicons-home-modern',
       autoPurchaseEnabled: true,
     },
@@ -63,6 +66,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       costGrowth: createDecimal(1.2),
       baseProduction: createDecimal(1),
       unlocked: false,
+      purchasable: false,
       icon: 'i-heroicons-crown',
       autoPurchaseEnabled: true,
     },
@@ -77,6 +81,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       costGrowth: createDecimal(1.25),
       baseProduction: createDecimal(1),
       unlocked: false,
+      purchasable: false,
       icon: 'i-heroicons-building-storefront',
       autoPurchaseEnabled: true,
     },
@@ -92,6 +97,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       costGrowth: createDecimal(1.3),
       baseProduction: createDecimal(1),
       unlocked: false,
+      purchasable: true,
       icon: 'i-heroicons-building-office-2',
       autoPurchaseEnabled: true,
     },
@@ -106,6 +112,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       costGrowth: createDecimal(1.35),
       baseProduction: createDecimal(1),
       unlocked: false,
+      purchasable: true,
       icon: 'i-heroicons-cpu-chip',
       autoPurchaseEnabled: true,
     },
@@ -120,6 +127,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       costGrowth: createDecimal(1.4),
       baseProduction: createDecimal(1),
       unlocked: false,
+      purchasable: true,
       icon: 'i-heroicons-building-library',
       autoPurchaseEnabled: true,
     },
@@ -165,12 +173,13 @@ export const useGeneratorStore = defineStore('generator', () => {
 
   // Get all unlocked generators
   const unlockedGenerators = computed(() => {
-    return generators.value.filter(g => g.unlocked)
+    return generators.value.filter(g => g.unlocked || g.purchasable)
   })
 
   // Get the next unlockable generator
   const nextUnlockableGenerator = computed(() => {
-    const highestUnlockedTier = Math.max(...generators.value.filter(g => g.unlocked).map(g => g.tier))
+    // Only consider regular generators (tier <= 4) when calculating the highest unlocked tier
+    const highestUnlockedTier = Math.max(...generators.value.filter(g => g.unlocked && g.tier <= 4).map(g => g.tier))
     const nextTier = highestUnlockedTier + 1
     const nextGenerator = generators.value.find(g => g.tier === nextTier)
 
@@ -228,6 +237,11 @@ export const useGeneratorStore = defineStore('generator', () => {
   const buyGenerator = (id: string, amount: number = 1) => {
     const generator = getGenerator(id)
     if (!generator) return false
+
+    // Check if generator is unlocked or purchasable
+    if (!generator.unlocked && !generator.purchasable) {
+      return false
+    }
 
     // Check dependencies for advanced generators
     if (id === 'hivemind') {
@@ -317,6 +331,22 @@ export const useGeneratorStore = defineStore('generator', () => {
       // Apply stronger soldiers multiplier (general efficiency)
       generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
 
+      // Apply exponential growth multiplier (affects all production)
+      generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('exponentialGrowth'))
+
+      // Apply compound evolution multiplier (affects all generators)
+      generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('compoundEvolution'))
+
+      // Apply generator synergy bonus
+      generalMultiplier = generalMultiplier.mul(
+        prestigeStore.getAllMultipliers()['generatorSynergyBonus'] || createDecimal(1)
+      )
+
+      // Apply evolution synergy bonus
+      generalMultiplier = generalMultiplier.mul(
+        prestigeStore.getAllMultipliers()['evolutionSynergyBonus'] || createDecimal(1)
+      )
+
       // Apply efficient queens multiplier
       queenMultiplier = queenMultiplier.mul(prestigeStore.getUpgradeMultiplier('efficientQueens'))
 
@@ -325,9 +355,13 @@ export const useGeneratorStore = defineStore('generator', () => {
         if (generator.id === 'worker') {
           // Apply worker efficiency multiplier
           generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEfficiency'))
+          // Apply mutated workers multiplier
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('mutatedWorkers'))
         } else if (generator.id === 'nursery') {
           // Apply nursery efficiency multiplier
           generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('nurseryEfficiency'))
+          // Apply new nursery efficiency prestige upgrade
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('nurseryEfficiency'))
         } else if (generator.id === 'queenChamber') {
           // Apply queen efficiency multiplier
           generalMultiplier = generalMultiplier.mul(
@@ -336,9 +370,33 @@ export const useGeneratorStore = defineStore('generator', () => {
         } else if (generator.id === 'colony') {
           // Apply colony efficiency multiplier
           generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('colonyEfficiency'))
-        } else if (generator.id === 'megacolony' || generator.id === 'hivemind' || generator.id === 'antopolis') {
+          // Apply colony expansion prestige upgrade
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('colonyExpansion'))
+        } else if (generator.id === 'megacolony') {
+          // Apply megacolony efficiency prestige upgrade
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('megacolonyEfficiency'))
+
           // For advanced generators, apply a stronger multiplier based on their tier
-          // This makes them more powerful as you progress
+          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
+          generalMultiplier = generalMultiplier.mul(tierBonus)
+
+          // Also apply the stronger soldiers multiplier as a general efficiency bonus
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
+        } else if (generator.id === 'hivemind') {
+          // Apply hivemind efficiency prestige upgrade
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('hivemindEfficiency'))
+
+          // For advanced generators, apply a stronger multiplier based on their tier
+          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
+          generalMultiplier = generalMultiplier.mul(tierBonus)
+
+          // Also apply the stronger soldiers multiplier as a general efficiency bonus
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
+        } else if (generator.id === 'antopolis') {
+          // Apply antopolis efficiency prestige upgrade
+          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('antopolisEfficiency'))
+
+          // For advanced generators, apply a stronger multiplier based on their tier
           const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
           generalMultiplier = generalMultiplier.mul(tierBonus)
 
@@ -481,7 +539,7 @@ export const useGeneratorStore = defineStore('generator', () => {
 
   // Format food amount for display
   const formatFood = () => {
-    return formatDecimal(food.value, 0)
+    return formatDecimal(food.value, 2)
   }
 
   // Get the production multiplier for a specific generator
@@ -495,6 +553,18 @@ export const useGeneratorStore = defineStore('generator', () => {
       // Apply general prestige multiplier
       multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
 
+      // Apply exponential growth multiplier (affects all production)
+      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('exponentialGrowth'))
+
+      // Apply compound evolution multiplier (affects all generators)
+      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('compoundEvolution'))
+
+      // Apply generator synergy bonus
+      multiplier = multiplier.mul(prestigeStore.getAllMultipliers()['generatorSynergyBonus'] || createDecimal(1))
+
+      // Apply evolution synergy bonus
+      multiplier = multiplier.mul(prestigeStore.getAllMultipliers()['evolutionSynergyBonus'] || createDecimal(1))
+
       // Apply generator-specific upgrade multipliers
       if (id === 'worker') {
         // Worker gets efficiency upgrades
@@ -507,13 +577,44 @@ export const useGeneratorStore = defineStore('generator', () => {
         multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('mutatedWorkers'))
       } else if (id === 'nursery') {
         multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('nurseryEfficiency'))
+        // Apply new nursery efficiency prestige upgrade
+        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('nurseryEfficiency'))
       } else if (id === 'queenChamber') {
         multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('queenChamberEfficiency'))
         // Apply queen multiplier for queen chambers
         multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('efficientQueens'))
       } else if (id === 'colony') {
         multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('colonyEfficiency'))
-      } else if (id === 'megacolony' || id === 'hivemind' || id === 'antopolis') {
+        // Apply colony expansion prestige upgrade
+        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('colonyExpansion'))
+      } else if (id === 'megacolony') {
+        // Apply megacolony efficiency prestige upgrade
+        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('megacolonyEfficiency'))
+
+        // For advanced generators, apply a stronger multiplier based on their tier
+        const generator = getGenerator(id)
+        if (generator) {
+          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
+          multiplier = multiplier.mul(tierBonus)
+          // Also apply the stronger soldiers multiplier again as a general efficiency bonus
+          multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
+        }
+      } else if (id === 'hivemind') {
+        // Apply hivemind efficiency prestige upgrade
+        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('hivemindEfficiency'))
+
+        // For advanced generators, apply a stronger multiplier based on their tier
+        const generator = getGenerator(id)
+        if (generator) {
+          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
+          multiplier = multiplier.mul(tierBonus)
+          // Also apply the stronger soldiers multiplier again as a general efficiency bonus
+          multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
+        }
+      } else if (id === 'antopolis') {
+        // Apply antopolis efficiency prestige upgrade
+        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('antopolisEfficiency'))
+
         // For advanced generators, apply a stronger multiplier based on their tier
         const generator = getGenerator(id)
         if (generator) {
@@ -555,6 +656,7 @@ export const useGeneratorStore = defineStore('generator', () => {
         count: generator.count.toString(),
         manualPurchases: generator.manualPurchases.toString(),
         unlocked: generator.unlocked,
+        purchasable: generator.purchasable,
         autoPurchaseEnabled: generator.autoPurchaseEnabled,
       })),
     }
@@ -581,6 +683,16 @@ export const useGeneratorStore = defineStore('generator', () => {
           }
 
           generator.unlocked = savedGen.unlocked
+
+          // Load purchasable property (with backward compatibility)
+          if (savedGen.purchasable !== undefined) {
+            generator.purchasable = savedGen.purchasable
+          } else if (generator.tier >= 5 && savedGen.unlocked) {
+            // For backward compatibility: if an advanced generator was unlocked in the save,
+            // set purchasable to true and unlocked to false
+            generator.purchasable = true
+            generator.unlocked = false
+          }
 
           // Load auto-purchase toggle (with backward compatibility)
           if (savedGen.autoPurchaseEnabled !== undefined) {
