@@ -11,7 +11,7 @@
 
 @keyframes slideUp {
   from {
-    transform: translateY(15px);
+    transform: translateY(8px);
     opacity: 0;
   }
 
@@ -38,26 +38,26 @@
   }
 
   to {
-    transform: translateY(15px);
+    transform: translateY(8px);
     opacity: 0;
   }
 }
 
 /* Animation classes */
 .animate-fadeIn {
-  animation: fadeIn 0.25s ease-out forwards;
+  animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-slideUp {
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-fadeOut {
-  animation: fadeOut 0.25s ease-out forwards;
+  animation: fadeOut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-slideDown {
-  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Animation delays */

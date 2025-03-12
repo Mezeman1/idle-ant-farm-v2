@@ -17,6 +17,7 @@ const emit = defineEmits<{
 
 const generatorUpgradeStore = useGeneratorUpgradeStore()
 const isClosing = ref(false)
+const isVisible = ref(false)
 
 // Get upgrades for selected generator
 const selectedGeneratorUpgrades = computed(() => {
@@ -24,13 +25,24 @@ const selectedGeneratorUpgrades = computed(() => {
   return generatorUpgradeStore.getUpgradesForGenerator(props.selectedGenerator)
 })
 
+// Handle visibility with animation sequence
+watch(() => props.show, (newValue) => {
+  if (newValue) {
+    // Show immediately when opening
+    isVisible.value = true
+  } else {
+    // Wait for animations to complete before hiding
+    isClosing.value = false
+  }
+})
+
 // Handle close with animation
 const handleClose = () => {
   isClosing.value = true
   setTimeout(() => {
     emit('close')
-    isClosing.value = false
-  }, 250) // Match this with the animation duration
+    isVisible.value = false
+  }, 400) // Match this with the longest animation duration
 }
 
 // Get level requirement description
@@ -42,22 +54,16 @@ const levelRequirementDescription = computed(() => {
 const levelRequirementUnit = computed(() => {
   return getLevelRequirementUnit(props.selectedGenerator)
 })
-
-// Reset isClosing when show changes
-watch(() => props.show, (newValue) => {
-  if (!newValue) {
-    isClosing.value = false
-  }
-})
 </script>
 
 <template>
-  <div v-if="show && selectedGenerator" class="fixed inset-0 z-50">
+  <div v-if="isVisible" class="fixed inset-0 z-50">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/50 animate-fadeIn" :class="{ 'animate-fadeOut': isClosing }"></div>
 
     <!-- Modal Content -->
-    <div class="fixed inset-0 flex flex-col animate-fadeIn" :class="{ 'animate-fadeOut': isClosing }">
+    <div class="fixed inset-0 flex flex-col animate-fadeIn" :class="{ 'animate-fadeOut': isClosing }"
+      v-if="selectedGenerator">
       <div class="w-full h-full flex flex-col bg-amber-50 text-amber-900 font-sans animate-slideUp"
         :class="{ 'animate-slideDown': isClosing }">
         <!-- Header -->
@@ -66,7 +72,8 @@ watch(() => props.show, (newValue) => {
           <div class="p-2 md:p-3">
             <!-- Title Row -->
             <div class="flex items-center justify-between">
-              <h1 class="text-lg md:text-xl font-bold tracking-tight flex items-center">
+              <h1 class="text-lg md:text-xl font-bold tracking-tight flex items-center opacity-0 animate-fadeIn"
+                :style="{ animationDelay: '150ms', animationFillMode: 'forwards' }">
                 <span :class="[generatorInfo[selectedGenerator]?.icon, 'text-amber-300 mr-2']"></span>
                 {{ generatorInfo[selectedGenerator]?.name }} Adaptations
               </h1>
@@ -81,8 +88,8 @@ watch(() => props.show, (newValue) => {
         <!-- Main Content (Scrollable) -->
         <main class="flex-1 overflow-y-auto p-4 pb-6 scroll-smooth">
           <!-- Stats Card -->
-          <div
-            class="bg-white rounded-xl shadow-md border border-amber-200 p-3 mb-4 animate-fadeIn animation-delay-100">
+          <div class="bg-white rounded-xl shadow-md border border-amber-200 p-3 mb-4 opacity-0 animate-fadeIn"
+            :style="{ animationDelay: '200ms', animationFillMode: 'forwards' }">
             <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
               <div>
                 <div class="text-sm text-amber-800 font-medium">Current Level</div>
@@ -112,7 +119,7 @@ watch(() => props.show, (newValue) => {
               </div>
               <div class="flex justify-between mt-1 text-xs text-amber-700">
                 <span>Current: {{ generatorUpgradeStore.levelProgress[selectedGenerator]?.toFixed(0)
-                }}</span>
+                  }}</span>
                 <span>Next: {{ generatorUpgradeStore.formatNextLevelRequirement(selectedGenerator) }} {{
                   levelRequirementUnit }}</span>
               </div>
@@ -124,19 +131,22 @@ watch(() => props.show, (newValue) => {
             </div>
           </div>
           <!-- Upgrades -->
-          <h4 class="text-base font-bold text-amber-800 mb-3 flex items-center animate-fadeIn animation-delay-100">
+          <h4 class="text-base font-bold text-amber-800 mb-3 flex items-center opacity-0 animate-fadeIn"
+            :style="{ animationDelay: '250ms', animationFillMode: 'forwards' }">
             <span class="i-heroicons-adjustments-horizontal text-amber-600 mr-2"></span>
             Available Adaptations
           </h4>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 animate-fadeIn animation-delay-150">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 opacity-0 animate-fadeIn"
+            :style="{ animationDelay: '300ms', animationFillMode: 'forwards' }">
             <GeneratorUpgradeItem v-for="upgrade in selectedGeneratorUpgrades" :key="upgrade.id"
               :upgradeId="upgrade.id" />
           </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <footer
+          class="bg-gradient-to-r from-amber-800 to-amber-700 text-amber-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
           <div class="flex justify-end p-3">
             <button @click="handleClose"
               class="px-3 py-2 bg-amber-900/20 hover:bg-amber-900/30 rounded-lg text-amber-50 font-medium transition-colors duration-200 flex items-center justify-center active:scale-95 border border-amber-600">
