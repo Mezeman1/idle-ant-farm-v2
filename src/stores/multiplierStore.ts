@@ -6,7 +6,7 @@ import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 import type { Generator } from '@/stores/generatorStore'
-import type { EvolutionUpgrade } from '@/stores/prestigeStore'
+import type { PrestigeUpgrade } from '@/types/prestige'
 
 export interface MultiplierBreakdown {
   name: string

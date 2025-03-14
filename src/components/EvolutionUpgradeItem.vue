@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePrestigeStore } from '@/stores/prestigeStore'
-import type { EvolutionUpgrade } from '@/stores/prestigeStore'
+import type { PrestigeUpgrade } from '@/types/prestige'
 import { formatDecimal, formatPercentage } from '@/utils/decimalUtils'
 import HoldableButton from '@/components/HoldableButton.vue'
 import { useGeneratorStore } from '@/stores/generatorStore'
 
 const props = defineProps<{
-    upgrade: EvolutionUpgrade
+    upgrade: PrestigeUpgrade
 }>()
 
 const prestigeStore = usePrestigeStore()
@@ -64,61 +64,48 @@ const isMaxLevel = computed(() => {
     return props.upgrade.level.gte(props.upgrade.maxLevel)
 })
 
-// Check if this upgrade has dependencies that aren't met
-const hasMissingDependency = computed(() => {
-    if (props.upgrade.id === 'unlockHivemind') {
-        // Check if Mega Colony upgrade has been purchased
-        const megaColonyUpgrade = prestigeStore.evolutionUpgrades.find(u => u.id === 'unlockMegacolony')
-        if (!megaColonyUpgrade || megaColonyUpgrade.level.eq(0)) {
-            return true // Missing Mega Colony upgrade
-        }
+// Check if this upgrade has dependencies that aren't met or is not unlocked
+const hasDependencies = computed(() => {
+    // First check if the upgrade is unlocked by its own criteria
+    if (!props.upgrade.isUnlocked()) {
+        return true
+    }
 
-        // Also check if player has at least one Mega Colony
+    // Then check for advanced generator unlocks
+    if (props.upgrade.id === 'unlockHivemind') {
+        // Check if player has at least one Mega Colony
         const generatorStore = useGeneratorStore()
         const megacolony = generatorStore.getGenerator('megacolony')
-        if (!megacolony || megacolony.count.eq(0)) {
-            return true // Missing Mega Colony generator
-        }
+        return !megacolony || megacolony.count.eq(0)
     } else if (props.upgrade.id === 'unlockAntopolis') {
-        // Check if Hive Mind upgrade has been purchased
-        const hiveMindUpgrade = prestigeStore.evolutionUpgrades.find(u => u.id === 'unlockHivemind')
-        if (!hiveMindUpgrade || hiveMindUpgrade.level.eq(0)) {
-            return true // Missing Hive Mind upgrade
-        }
-
-        // Also check if player has at least one Hive Mind
+        // Check if player has at least one Hive Mind
         const generatorStore = useGeneratorStore()
         const hivemind = generatorStore.getGenerator('hivemind')
-        if (!hivemind || hivemind.count.eq(0)) {
-            return true // Missing Hive Mind generator
-        }
+        return !hivemind || hivemind.count.eq(0)
     }
+
     return false
 })
 
 // Get dependency message if applicable
 const dependencyMessage = computed(() => {
+    // First check if the upgrade is unlocked by its own criteria
+    if (!props.upgrade.isUnlocked()) {
+        return 'Upgrade not yet unlocked'
+    }
+
     if (props.upgrade.id === 'unlockHivemind') {
-        const generatorStore = useGeneratorStore()
-        const megacolony = generatorStore.getGenerator('megacolony')
-        if (!megacolony || megacolony.count.eq(0)) {
-            return 'Requires at least one Mega Colony'
-        }
-        return 'Requires Mega Colony Research'
+        return 'Requires at least one Mega Colony'
     } else if (props.upgrade.id === 'unlockAntopolis') {
-        const generatorStore = useGeneratorStore()
-        const hivemind = generatorStore.getGenerator('hivemind')
-        if (!hivemind || hivemind.count.eq(0)) {
-            return 'Requires at least one Hive Mind'
-        }
-        return 'Requires Hive Mind Research'
+        return 'Requires at least one Hive Mind'
     }
     return ''
 })
 
 // Methods
 const purchaseUpgrade = () => {
-    if (canAfford.value && !isMaxLevel.value && !hasMissingDependency.value) {
+    // Check if the upgrade can be purchased
+    if (canAfford.value && !isMaxLevel.value && !hasDependencies.value) {
         prestigeStore.purchaseUpgrade(props.upgrade.id)
     }
 }
@@ -213,7 +200,7 @@ const getButtonClasses = () => {
     <div class="bg-white/90 rounded-lg shadow-sm overflow-hidden border transition-all duration-200 hover:shadow-md"
         :class="[
             getBorderColorClass(),
-            { 'opacity-75': !canAfford || isMaxLevel || hasMissingDependency }
+            { 'opacity-75': !canAfford || isMaxLevel || hasDependencies }
         ]">
         <!-- Compact layout -->
         <div class="p-2.5">
@@ -234,8 +221,8 @@ const getButtonClasses = () => {
                     <span v-if="props.upgrade.level.gt(0)">Effect: {{ formattedEffect }}</span>
                 </div>
 
-                <HoldableButton @action="purchaseUpgrade" :disabled="!canAfford || isMaxLevel || hasMissingDependency"
-                    class="py-1 px-2 rounded text-xs font-medium transition-colors" :class="canAfford && !isMaxLevel && !hasMissingDependency
+                <HoldableButton @action="purchaseUpgrade" :disabled="!canAfford || isMaxLevel || hasDependencies"
+                    class="py-1 px-2 rounded text-xs font-medium transition-colors" :class="canAfford && !isMaxLevel && !hasDependencies
                         ? getButtonClasses()
                         : 'bg-gray-200 text-gray-500 cursor-not-allowed'">
                     <span v-if="isMaxLevel">Max</span>
@@ -245,7 +232,7 @@ const getButtonClasses = () => {
                 </HoldableButton>
             </div>
 
-            <div v-if="hasMissingDependency" class="text-xs text-red-500 mt-1">
+            <div v-if="hasDependencies" class="text-xs text-red-500 mt-1">
                 {{ dependencyMessage }}
             </div>
         </div>
