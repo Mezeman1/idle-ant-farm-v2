@@ -51,7 +51,8 @@ const toggleGeneratorInfo = () => {
     </div>
 
     <!-- Generator Levels -->
-    <section class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md">
+    <section
+      class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md dark:from-amber-900/30 dark:to-amber-800/30 dark:text-amber-50">
       <h2 class="text-base font-bold mb-2 flex items-center">
         <span class="i-heroicons-star text-amber-700 mr-2"></span>
         Ant Specialization Levels

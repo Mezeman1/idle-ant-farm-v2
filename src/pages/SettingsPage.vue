@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useSaveSystem } from '@/stores/saveSystem'
 import { useGameStore } from '@/stores/gameStore'
+import DarkModeToggle from '@/components/DarkModeToggle.vue'
 
 const saveSystem = useSaveSystem()
 const gameStore = useGameStore()
@@ -146,68 +147,79 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 dark:bg-gray-900 dark:text-gray-100">
     <!-- Offline Progress Notification -->
-    <section v-if="offlineProgress" class="bg-gradient-to-br from-green-100 to-green-50 rounded-xl p-3 shadow-md">
-      <h2 class="text-base font-bold mb-2 flex items-center text-green-800">
-        <span class="i-heroicons-clock text-green-700 mr-2"></span>
+    <section v-if="offlineProgress"
+      class="bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 rounded-xl p-3 shadow-md">
+      <h2 class="text-base font-bold mb-2 flex items-center text-green-800 dark:text-green-200">
+        <span class="i-heroicons-clock text-green-700 dark:text-green-300 mr-2"></span>
         Offline Progress Applied
       </h2>
 
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-green-200">
-        <p class="text-xs text-green-800">
+      <div
+        class="bg-white/80 dark:bg-gray-800/80 p-2 rounded-lg shadow-sm border border-green-200 dark:border-green-700">
+        <p class="text-xs text-green-800 dark:text-green-200">
           While you were away for {{ formatDuration(offlineProgress.elapsedTime) }}, your colony continued to
           work!
         </p>
         <p class="text-xs font-medium mt-1">
-          <span class="i-heroicons-check-circle text-green-600 mr-1"></span>
+          <span class="i-heroicons-check-circle text-green-600 dark:text-green-400 mr-1"></span>
           {{ offlineProgress.ticks }} game cycles completed
         </p>
       </div>
 
       <div class="mt-2 flex justify-end">
         <button @click="offlineProgress = null"
-          class="text-xs text-green-800 bg-green-200 hover:bg-green-300 px-2 py-1 rounded-md">
+          class="text-xs text-green-800 dark:text-green-200 bg-green-200 dark:bg-green-700 hover:bg-green-300 dark:hover:bg-green-600 px-2 py-1 rounded-md">
           Dismiss
         </button>
       </div>
     </section>
 
-    <section class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl p-3 shadow-md">
+    <section
+      class="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 shadow-md">
       <h2 class="text-base font-bold mb-2 flex items-center">
-        <span class="i-heroicons-cog-6-tooth text-gray-700 mr-2"></span>
+        <span class="i-heroicons-cog-6-tooth text-gray-700 dark:text-gray-300 mr-2"></span>
         Colony Settings
       </h2>
 
       <div class="space-y-2">
+        <!-- Dark Mode Toggle -->
+        <div
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+          <DarkModeToggle />
+        </div>
+
         <!-- Auto-save -->
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
+        <div
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-sm font-medium">Pheromone Trail Preservation</div>
-              <div class="text-xs text-gray-600">Automatically save your colony progress every minute
+              <div class="text-xs text-gray-600 dark:text-gray-400">Automatically save your colony progress every minute
               </div>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="saveSystem.autoSaveEnabled" class="sr-only peer">
               <div
-                class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600">
+                class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
               </div>
             </label>
           </div>
         </div>
 
         <!-- Offline progress -->
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
+        <div
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-sm font-medium">Hibernation Progress</div>
-              <div class="text-xs text-gray-600">Calculate colony progress while you're away</div>
+              <div class="text-xs text-gray-600 dark:text-gray-400">Calculate colony progress while you're away</div>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="saveSystem.offlineProgressEnabled" class="sr-only peer">
               <div
-                class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600">
+                class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
               </div>
             </label>
           </div>
@@ -215,9 +227,10 @@ onMounted(() => {
       </div>
     </section>
 
-    <section class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl p-3 shadow-md">
+    <section
+      class="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 shadow-md">
       <h2 class="text-base font-bold mb-2 flex items-center">
-        <span class="i-heroicons-document-text text-gray-700 mr-2"></span>
+        <span class="i-heroicons-document-text text-gray-700 dark:text-gray-300 mr-2"></span>
         Colony Memory Management
       </h2>
 
@@ -238,15 +251,17 @@ onMounted(() => {
         </div>
 
         <!-- Success messages -->
-        <div v-if="saveSuccess || loadSuccess" class="bg-green-100 p-2 rounded-lg border border-green-200">
-          <p class="text-xs text-green-800 flex items-center">
-            <span class="i-heroicons-check-circle text-green-600 mr-1"></span>
+        <div v-if="saveSuccess || loadSuccess"
+          class="bg-green-100 dark:bg-green-900 p-2 rounded-lg border border-green-200 dark:border-green-700">
+          <p class="text-xs text-green-800 dark:text-green-200 flex items-center">
+            <span class="i-heroicons-check-circle text-green-600 dark:text-green-400 mr-1"></span>
             <span>{{ saveSuccess ? 'Colony saved successfully!' : 'Colony loaded successfully!' }}</span>
           </p>
         </div>
 
         <!-- Export/Import -->
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
+        <div
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
           <div class="text-sm font-medium mb-1">Export/Import Colony Data</div>
 
           <!-- Export -->
@@ -258,11 +273,12 @@ onMounted(() => {
             </button>
 
             <div v-if="exportedSave" class="mt-1">
-              <div class="text-xs text-gray-600 mb-0.5">Copy this code to save your colony data:</div>
+              <div class="text-xs text-gray-600 dark:text-gray-400 mb-0.5">Copy this code to save your colony data:
+              </div>
               <textarea readonly
-                class="w-full p-1.5 text-xs bg-gray-100 border border-gray-300 rounded-md h-16 font-mono"
+                class="w-full p-1.5 text-xs bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md h-16 font-mono dark:text-gray-200"
                 v-model="exportedSave"></textarea>
-              <div v-if="exportSuccess" class="text-xs text-green-600 mt-0.5">
+              <div v-if="exportSuccess" class="text-xs text-green-600 dark:text-green-400 mt-0.5">
                 Colony data exported successfully!
               </div>
             </div>
@@ -270,8 +286,9 @@ onMounted(() => {
 
           <!-- Import -->
           <div>
-            <div class="text-xs text-gray-600 mb-0.5">Paste your colony data here:</div>
-            <textarea class="w-full p-1.5 text-xs bg-gray-100 border border-gray-300 rounded-md h-16 font-mono mb-1"
+            <div class="text-xs text-gray-600 dark:text-gray-400 mb-0.5">Paste your colony data here:</div>
+            <textarea
+              class="w-full p-1.5 text-xs bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md h-16 font-mono mb-1 dark:text-gray-200"
               v-model="importSave" placeholder="Paste your colony data here..."></textarea>
 
             <button @click="handleImportSave"
@@ -280,20 +297,21 @@ onMounted(() => {
               Import Colony Data
             </button>
 
-            <div v-if="importError" class="text-xs text-red-600 mt-0.5">
+            <div v-if="importError" class="text-xs text-red-600 dark:text-red-400 mt-0.5">
               {{ importError }}
             </div>
 
-            <div v-if="importSuccess" class="text-xs text-green-600 mt-0.5">
+            <div v-if="importSuccess" class="text-xs text-green-600 dark:text-green-400 mt-0.5">
               Colony data imported successfully!
             </div>
           </div>
         </div>
 
         <!-- Reset game -->
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
+        <div
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
           <div class="text-sm font-medium mb-1">Reset Colony</div>
-          <p class="text-xs text-gray-600 mb-2">
+          <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
             This will completely reset your colony progress. This action cannot be undone.
           </p>
 
@@ -304,10 +322,11 @@ onMounted(() => {
           </button>
 
           <div v-else class="space-y-1">
-            <p class="text-xs text-red-600 font-medium">Are you sure you want to reset your colony?</p>
+            <p class="text-xs text-red-600 dark:text-red-400 font-medium">Are you sure you want to reset your colony?
+            </p>
             <div class="grid grid-cols-2 gap-2">
               <button @click="resetConfirm = false"
-                class="py-1.5 px-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-xs font-medium">
+                class="py-1.5 px-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md text-xs font-medium">
                 Cancel
               </button>
               <button @click="handleResetGame"
@@ -320,20 +339,23 @@ onMounted(() => {
       </div>
     </section>
 
-    <section class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl p-3 shadow-md">
+    <section
+      class="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 shadow-md">
       <h2 class="text-base font-bold mb-2 flex items-center">
-        <span class="i-heroicons-information-circle text-gray-700 mr-2"></span>
+        <span class="i-heroicons-information-circle text-gray-700 dark:text-gray-300 mr-2"></span>
         Game Information
       </h2>
 
       <div class="grid grid-cols-2 gap-2">
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
-          <div class="text-xs text-gray-800">Game Version:</div>
+        <div
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+          <div class="text-xs text-gray-800 dark:text-gray-400">Game Version:</div>
           <div class="text-sm font-medium">v0.1.0</div>
         </div>
 
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
-          <div class="text-xs text-gray-800">Total Ticks:</div>
+        <div
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+          <div class="text-xs text-gray-800 dark:text-gray-400">Total Ticks:</div>
           <div class="text-sm font-medium">{{ gameStore.formattedTotalTicks }}</div>
         </div>
       </div>

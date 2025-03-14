@@ -43,9 +43,9 @@ const unlockProgress = computed(() => {
 
 <template>
   <div v-if="generator"
-    class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-300 transition-all duration-200 opacity-75 relative">
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-300 dark:border-gray-700 transition-all duration-200 opacity-75 relative">
     <!-- Locked overlay -->
-    <div class="absolute inset-0 bg-gray-100/80 flex items-center justify-center z-10">
+    <div class="absolute inset-0 bg-gray-100/80 dark:bg-gray-900/80 flex items-center justify-center z-10">
       <div class="text-center p-3">
         <span class="i-heroicons-lock-closed text-2xl text-gray-500 mb-2 inline-block"></span>
         <h4 class="text-sm font-bold text-gray-700">Unlock {{ generator.name }}</h4>

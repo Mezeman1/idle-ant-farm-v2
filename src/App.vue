@@ -6,11 +6,15 @@ import PWAUpdateNotification from '@/components/PWAUpdateNotification.vue'
 import PWAInstallButton from '@/components/PWAInstallButton.vue'
 import { useSaveSystem } from '@/stores/saveSystem'
 import { useVisibilityState } from '@/composables/useVisibilityState'
+import { useDarkMode } from '@/composables/useDarkMode'
 
 const saveSystem = useSaveSystem()
 
 // Initialize visibility state tracking
 const { isVisible } = useVisibilityState()
+
+// Initialize dark mode
+const { isDarkMode } = useDarkMode()
 
 // Handle closing the offline progress modal
 const handleCloseOfflineModal = () => {

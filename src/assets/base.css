@@ -4,4 +4,7 @@
   prefixes: mdi;
 }
 
+/* Define dark mode custom variant */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @import './styles/animations.css';

@@ -46,6 +46,7 @@ export default defineConfig({
         {
           '@/composables/usePWAEvents': ['usePWAEvents'],
           '@/composables/useVisibilityState': ['useVisibilityState'],
+          '@/composables/useDarkMode': ['useDarkMode'],
         },
         unheadVueComposablesImports,
       ],

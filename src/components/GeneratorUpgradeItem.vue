@@ -80,39 +80,40 @@ const purchase = () => {
 
 <template>
   <div v-if="upgrade"
-    class="bg-white/80 p-3 rounded-lg shadow-sm border border-amber-200 hover:border-amber-300 transition-colors">
+    class="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg shadow-sm border border-amber-200 dark:border-amber-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors">
     <div class="flex justify-between items-start">
       <div>
         <div class="flex items-center">
-          <span :class="upgrade.icon + ' text-amber-600 mr-2'"></span>
-          <span class="font-medium">{{ upgrade.name }}</span>
+          <span :class="upgrade.icon + ' text-amber-600 dark:text-amber-500 mr-2'"></span>
+          <span class="font-medium text-gray-900 dark:text-gray-100">{{ upgrade.name }}</span>
         </div>
-        <div class="text-xs text-gray-600 mt-1">{{ upgrade.description }}</div>
+        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ upgrade.description }}</div>
       </div>
 
       <div class="text-right">
-        <div class="text-xs text-amber-700">
+        <div class="text-xs text-amber-700 dark:text-amber-400">
           Level: <span class="font-medium">{{ formatDecimal(upgrade.level, 0) }}</span>
           <span v-if="upgrade.maxLevel !== null">/{{ formatDecimal(upgrade.maxLevel, 0) }}</span>
         </div>
-        <div class="text-xs text-amber-700 mt-1">
+        <div class="text-xs text-amber-700 dark:text-amber-400 mt-1">
           Effect: <span class="font-medium">{{ formattedEffect }}</span>
         </div>
       </div>
     </div>
 
     <div class="mt-3 flex justify-between items-center">
-      <div class="text-xs text-amber-700">
+      <div class="text-xs text-amber-700 dark:text-amber-400">
         <span v-if="upgrade.maxLevel === null || upgrade.level.lt(upgrade.maxLevel)">
           Next: <span class="font-medium">{{ formattedNextEffect }}</span>
         </span>
-        <span v-else class="text-green-600 font-medium">MAX LEVEL</span>
+        <span v-else class="text-green-600 dark:text-green-500 font-medium">MAX LEVEL</span>
       </div>
 
-      <HoldableButton @action="purchase" :disabled="!canPurchase" :class="canPurchase
-        ? 'px-3 py-1 text-xs rounded-md font-medium bg-amber-500 hover:bg-amber-600 text-white'
-        : 'px-3 py-1 text-xs rounded-md font-medium bg-gray-200 text-gray-500 cursor-not-allowed'"
-        :initial-delay="400" :repeat-interval="200" :accelerate="true">
+      <HoldableButton @action="purchase" :disabled="!canPurchase"
+        :class="canPurchase
+          ? 'px-3 py-1 text-xs rounded-md font-medium bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white'
+          : 'px-3 py-1 text-xs rounded-md font-medium bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'" :initial-delay="400"
+        :repeat-interval="200" :accelerate="true">
         <span v-if="upgrade.maxLevel === null || upgrade.level.lt(upgrade.maxLevel)">
           Adapt ({{ formatDecimal(upgrade.cost, 0) }} pts)
         </span>

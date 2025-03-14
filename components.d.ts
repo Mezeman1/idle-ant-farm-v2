@@ -15,6 +15,7 @@ declare module 'vue' {
     AntHierarchySection: typeof import('./src/components/AntHierarchySection.vue')['default']
     AntSpecializationCard: typeof import('./src/components/AntSpecializationCard.vue')['default']
     ColonyStatusCard: typeof import('./src/components/ColonyStatusCard.vue')['default']
+    DarkModeToggle: typeof import('./src/components/DarkModeToggle.vue')['default']
     EvolutionConfirmationDialog: typeof import('./src/components/EvolutionConfirmationDialog.vue')['default']
     EvolutionStatusSection: typeof import('./src/components/EvolutionStatusSection.vue')['default']
     EvolutionUpgradeItem: typeof import('./src/components/EvolutionUpgradeItem.vue')['default']

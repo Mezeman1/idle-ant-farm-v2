@@ -6,133 +6,119 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const EffectScope: (typeof import('vue'))['EffectScope']
-  const acceptHMRUpdate: (typeof import('pinia'))['acceptHMRUpdate']
-  const calculateCost: (typeof import('./src/utils/decimalUtils'))['calculateCost']
-  const calculateGeneratorCost: (typeof import('./src/utils/decimalUtils'))['calculateGeneratorCost']
-  const calculateMk1Cost: (typeof import('./src/utils/decimalUtils'))['calculateMk1Cost']
-  const calculateMk2Cost: (typeof import('./src/utils/decimalUtils'))['calculateMk2Cost']
-  const calculateMk3Cost: (typeof import('./src/utils/decimalUtils'))['calculateMk3Cost']
-  const calculateMk4Cost: (typeof import('./src/utils/decimalUtils'))['calculateMk4Cost']
-  const calculateMk5Cost: (typeof import('./src/utils/decimalUtils'))['calculateMk5Cost']
-  const calculateMk6Cost: (typeof import('./src/utils/decimalUtils'))['calculateMk6Cost']
-  const calculateMk7Cost: (typeof import('./src/utils/decimalUtils'))['calculateMk7Cost']
-  const calculateProduction: (typeof import('./src/utils/decimalUtils'))['calculateProduction']
-  const canAfford: (typeof import('./src/utils/decimalUtils'))['canAfford']
-  const computed: (typeof import('vue'))['computed']
-  const createApp: (typeof import('vue'))['createApp']
-  const createDecimal: (typeof import('./src/utils/decimalUtils'))['createDecimal']
-  const createPinia: (typeof import('pinia'))['createPinia']
-  const customRef: (typeof import('vue'))['customRef']
-  const defineAsyncComponent: (typeof import('vue'))['defineAsyncComponent']
-  const defineComponent: (typeof import('vue'))['defineComponent']
-  const defineStore: (typeof import('pinia'))['defineStore']
-  const effectScope: (typeof import('vue'))['effectScope']
-  const formatDecimal: (typeof import('./src/utils/decimalUtils'))['formatDecimal']
-  const formatPercentage: (typeof import('./src/utils/decimalUtils'))['formatPercentage']
-  const getActiveHead: (typeof import('@unhead/vue'))['getActiveHead']
-  const getActivePinia: (typeof import('pinia'))['getActivePinia']
-  const getCurrentInstance: (typeof import('vue'))['getCurrentInstance']
-  const getCurrentScope: (typeof import('vue'))['getCurrentScope']
-  const h: (typeof import('vue'))['h']
-  const inject: (typeof import('vue'))['inject']
-  const injectHead: (typeof import('@unhead/vue'))['injectHead']
-  const isProxy: (typeof import('vue'))['isProxy']
-  const isReactive: (typeof import('vue'))['isReactive']
-  const isReadonly: (typeof import('vue'))['isReadonly']
-  const isRef: (typeof import('vue'))['isRef']
-  const mapActions: (typeof import('pinia'))['mapActions']
-  const mapGetters: (typeof import('pinia'))['mapGetters']
-  const mapState: (typeof import('pinia'))['mapState']
-  const mapStores: (typeof import('pinia'))['mapStores']
-  const mapWritableState: (typeof import('pinia'))['mapWritableState']
-  const markRaw: (typeof import('vue'))['markRaw']
-  const nextTick: (typeof import('vue'))['nextTick']
-  const onActivated: (typeof import('vue'))['onActivated']
-  const onBeforeMount: (typeof import('vue'))['onBeforeMount']
-  const onBeforeRouteLeave: (typeof import('vue-router'))['onBeforeRouteLeave']
-  const onBeforeRouteUpdate: (typeof import('vue-router'))['onBeforeRouteUpdate']
-  const onBeforeUnmount: (typeof import('vue'))['onBeforeUnmount']
-  const onBeforeUpdate: (typeof import('vue'))['onBeforeUpdate']
-  const onDeactivated: (typeof import('vue'))['onDeactivated']
-  const onErrorCaptured: (typeof import('vue'))['onErrorCaptured']
-  const onMounted: (typeof import('vue'))['onMounted']
-  const onRenderTracked: (typeof import('vue'))['onRenderTracked']
-  const onRenderTriggered: (typeof import('vue'))['onRenderTriggered']
-  const onScopeDispose: (typeof import('vue'))['onScopeDispose']
-  const onServerPrefetch: (typeof import('vue'))['onServerPrefetch']
-  const onUnmounted: (typeof import('vue'))['onUnmounted']
-  const onUpdated: (typeof import('vue'))['onUpdated']
-  const onWatcherCleanup: (typeof import('vue'))['onWatcherCleanup']
-  const provide: (typeof import('vue'))['provide']
-  const reactive: (typeof import('vue'))['reactive']
-  const readonly: (typeof import('vue'))['readonly']
-  const ref: (typeof import('vue'))['ref']
-  const resolveComponent: (typeof import('vue'))['resolveComponent']
-  const setActivePinia: (typeof import('pinia'))['setActivePinia']
-  const setMapStoreSuffix: (typeof import('pinia'))['setMapStoreSuffix']
-  const shallowReactive: (typeof import('vue'))['shallowReactive']
-  const shallowReadonly: (typeof import('vue'))['shallowReadonly']
-  const shallowRef: (typeof import('vue'))['shallowRef']
-  const storeToRefs: (typeof import('pinia'))['storeToRefs']
-  const toNumber: (typeof import('./src/utils/decimalUtils'))['toNumber']
-  const toRaw: (typeof import('vue'))['toRaw']
-  const toRef: (typeof import('vue'))['toRef']
-  const toRefs: (typeof import('vue'))['toRefs']
-  const toValue: (typeof import('vue'))['toValue']
-  const triggerRef: (typeof import('vue'))['triggerRef']
-  const unref: (typeof import('vue'))['unref']
-  const useAdventureStore: (typeof import('./src/stores/adventureStore'))['useAdventureStore']
-  const useAttrs: (typeof import('vue'))['useAttrs']
-  const useCssModule: (typeof import('vue'))['useCssModule']
-  const useCssVars: (typeof import('vue'))['useCssVars']
-  const useGameStore: (typeof import('./src/stores/gameStore'))['useGameStore']
-  const useGeneratorStore: (typeof import('./src/stores/generatorStore'))['useGeneratorStore']
-  const useGeneratorUpgradeStore: (typeof import('./src/stores/generatorUpgradeStore'))['useGeneratorUpgradeStore']
-  const useHead: (typeof import('@unhead/vue'))['useHead']
-  const useHeadSafe: (typeof import('@unhead/vue'))['useHeadSafe']
-  const useId: (typeof import('vue'))['useId']
-  const useInventoryStore: (typeof import('./src/stores/inventoryStore'))['useInventoryStore']
-  const useLink: (typeof import('vue-router'))['useLink']
-  const useModel: (typeof import('vue'))['useModel']
-  const useMultiplierStore: (typeof import('./src/stores/multiplierStore'))['useMultiplierStore']
-  const usePWAEvents: (typeof import('./src/composables/usePWAEvents'))['usePWAEvents']
-  const usePrestigeStore: (typeof import('./src/stores/prestigeStore'))['usePrestigeStore']
-  const useRoute: (typeof import('vue-router'))['useRoute']
-  const useRouter: (typeof import('vue-router'))['useRouter']
-  const useSaveSystem: (typeof import('./src/stores/saveSystem'))['useSaveSystem']
-  const useSeoMeta: (typeof import('@unhead/vue'))['useSeoMeta']
-  const useServerHead: (typeof import('@unhead/vue'))['useServerHead']
-  const useServerHeadSafe: (typeof import('@unhead/vue'))['useServerHeadSafe']
-  const useServerSeoMeta: (typeof import('@unhead/vue'))['useServerSeoMeta']
-  const useSlots: (typeof import('vue'))['useSlots']
-  const useStore: (typeof import('@/store'))['useStore']
-  const useTemplateRef: (typeof import('vue'))['useTemplateRef']
-  const useVisibilityState: (typeof import('./src/composables/useVisibilityState'))['useVisibilityState']
-  const watch: (typeof import('vue'))['watch']
-  const watchEffect: (typeof import('vue'))['watchEffect']
-  const watchPostEffect: (typeof import('vue'))['watchPostEffect']
-  const watchSyncEffect: (typeof import('vue'))['watchSyncEffect']
+  const EffectScope: typeof import('vue')['EffectScope']
+  const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
+  const calculateCost: typeof import('./src/utils/decimalUtils')['calculateCost']
+  const calculateGeneratorCost: typeof import('./src/utils/decimalUtils')['calculateGeneratorCost']
+  const calculateMk1Cost: typeof import('./src/utils/decimalUtils')['calculateMk1Cost']
+  const calculateMk2Cost: typeof import('./src/utils/decimalUtils')['calculateMk2Cost']
+  const calculateMk3Cost: typeof import('./src/utils/decimalUtils')['calculateMk3Cost']
+  const calculateMk4Cost: typeof import('./src/utils/decimalUtils')['calculateMk4Cost']
+  const calculateMk5Cost: typeof import('./src/utils/decimalUtils')['calculateMk5Cost']
+  const calculateMk6Cost: typeof import('./src/utils/decimalUtils')['calculateMk6Cost']
+  const calculateMk7Cost: typeof import('./src/utils/decimalUtils')['calculateMk7Cost']
+  const calculateProduction: typeof import('./src/utils/decimalUtils')['calculateProduction']
+  const canAfford: typeof import('./src/utils/decimalUtils')['canAfford']
+  const computed: typeof import('vue')['computed']
+  const createApp: typeof import('vue')['createApp']
+  const createDecimal: typeof import('./src/utils/decimalUtils')['createDecimal']
+  const createPinia: typeof import('pinia')['createPinia']
+  const customRef: typeof import('vue')['customRef']
+  const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
+  const defineComponent: typeof import('vue')['defineComponent']
+  const defineStore: typeof import('pinia')['defineStore']
+  const effectScope: typeof import('vue')['effectScope']
+  const formatDecimal: typeof import('./src/utils/decimalUtils')['formatDecimal']
+  const formatPercentage: typeof import('./src/utils/decimalUtils')['formatPercentage']
+  const getActiveHead: typeof import('@unhead/vue')['getActiveHead']
+  const getActivePinia: typeof import('pinia')['getActivePinia']
+  const getCurrentInstance: typeof import('vue')['getCurrentInstance']
+  const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const h: typeof import('vue')['h']
+  const inject: typeof import('vue')['inject']
+  const injectHead: typeof import('@unhead/vue')['injectHead']
+  const isProxy: typeof import('vue')['isProxy']
+  const isReactive: typeof import('vue')['isReactive']
+  const isReadonly: typeof import('vue')['isReadonly']
+  const isRef: typeof import('vue')['isRef']
+  const mapActions: typeof import('pinia')['mapActions']
+  const mapGetters: typeof import('pinia')['mapGetters']
+  const mapState: typeof import('pinia')['mapState']
+  const mapStores: typeof import('pinia')['mapStores']
+  const mapWritableState: typeof import('pinia')['mapWritableState']
+  const markRaw: typeof import('vue')['markRaw']
+  const nextTick: typeof import('vue')['nextTick']
+  const onActivated: typeof import('vue')['onActivated']
+  const onBeforeMount: typeof import('vue')['onBeforeMount']
+  const onBeforeRouteLeave: typeof import('vue-router')['onBeforeRouteLeave']
+  const onBeforeRouteUpdate: typeof import('vue-router')['onBeforeRouteUpdate']
+  const onBeforeUnmount: typeof import('vue')['onBeforeUnmount']
+  const onBeforeUpdate: typeof import('vue')['onBeforeUpdate']
+  const onDeactivated: typeof import('vue')['onDeactivated']
+  const onErrorCaptured: typeof import('vue')['onErrorCaptured']
+  const onMounted: typeof import('vue')['onMounted']
+  const onRenderTracked: typeof import('vue')['onRenderTracked']
+  const onRenderTriggered: typeof import('vue')['onRenderTriggered']
+  const onScopeDispose: typeof import('vue')['onScopeDispose']
+  const onServerPrefetch: typeof import('vue')['onServerPrefetch']
+  const onUnmounted: typeof import('vue')['onUnmounted']
+  const onUpdated: typeof import('vue')['onUpdated']
+  const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
+  const provide: typeof import('vue')['provide']
+  const reactive: typeof import('vue')['reactive']
+  const readonly: typeof import('vue')['readonly']
+  const ref: typeof import('vue')['ref']
+  const resolveComponent: typeof import('vue')['resolveComponent']
+  const setActivePinia: typeof import('pinia')['setActivePinia']
+  const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
+  const shallowReactive: typeof import('vue')['shallowReactive']
+  const shallowReadonly: typeof import('vue')['shallowReadonly']
+  const shallowRef: typeof import('vue')['shallowRef']
+  const storeToRefs: typeof import('pinia')['storeToRefs']
+  const toNumber: typeof import('./src/utils/decimalUtils')['toNumber']
+  const toRaw: typeof import('vue')['toRaw']
+  const toRef: typeof import('vue')['toRef']
+  const toRefs: typeof import('vue')['toRefs']
+  const toValue: typeof import('vue')['toValue']
+  const triggerRef: typeof import('vue')['triggerRef']
+  const unref: typeof import('vue')['unref']
+  const useAdventureStore: typeof import('./src/stores/adventureStore')['useAdventureStore']
+  const useAttrs: typeof import('vue')['useAttrs']
+  const useCssModule: typeof import('vue')['useCssModule']
+  const useCssVars: typeof import('vue')['useCssVars']
+  const useDarkMode: typeof import('./src/composables/useDarkMode')['useDarkMode']
+  const useGameStore: typeof import('./src/stores/gameStore')['useGameStore']
+  const useGeneratorStore: typeof import('./src/stores/generatorStore')['useGeneratorStore']
+  const useGeneratorUpgradeStore: typeof import('./src/stores/generatorUpgradeStore')['useGeneratorUpgradeStore']
+  const useHead: typeof import('@unhead/vue')['useHead']
+  const useHeadSafe: typeof import('@unhead/vue')['useHeadSafe']
+  const useId: typeof import('vue')['useId']
+  const useInventoryStore: typeof import('./src/stores/inventoryStore')['useInventoryStore']
+  const useLink: typeof import('vue-router')['useLink']
+  const useModel: typeof import('vue')['useModel']
+  const useMultiplierStore: typeof import('./src/stores/multiplierStore')['useMultiplierStore']
+  const usePWAEvents: typeof import('./src/composables/usePWAEvents')['usePWAEvents']
+  const usePrestigeStore: typeof import('./src/stores/prestigeStore')['usePrestigeStore']
+  const useRoute: typeof import('vue-router')['useRoute']
+  const useRouter: typeof import('vue-router')['useRouter']
+  const useSaveSystem: typeof import('./src/stores/saveSystem')['useSaveSystem']
+  const useSeoMeta: typeof import('@unhead/vue')['useSeoMeta']
+  const useServerHead: typeof import('@unhead/vue')['useServerHead']
+  const useServerHeadSafe: typeof import('@unhead/vue')['useServerHeadSafe']
+  const useServerSeoMeta: typeof import('@unhead/vue')['useServerSeoMeta']
+  const useSlots: typeof import('vue')['useSlots']
+  const useStore: typeof import('@/store')['useStore']
+  const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const useVisibilityState: typeof import('./src/composables/useVisibilityState')['useVisibilityState']
+  const watch: typeof import('vue')['watch']
+  const watchEffect: typeof import('vue')['watchEffect']
+  const watchPostEffect: typeof import('vue')['watchPostEffect']
+  const watchSyncEffect: typeof import('vue')['watchSyncEffect']
 }
 // for type re-export
 declare global {
   // @ts-ignore
-  export type {
-    Component,
-    ComponentPublicInstance,
-    ComputedRef,
-    DirectiveBinding,
-    ExtractDefaultPropTypes,
-    ExtractPropTypes,
-    ExtractPublicPropTypes,
-    InjectionKey,
-    PropType,
-    Ref,
-    MaybeRef,
-    MaybeRefOrGetter,
-    VNode,
-    WritableComputedRef,
-  } from 'vue'
+  export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
   export type { Generator } from './src/stores/generatorStore'
@@ -140,9 +126,6 @@ declare global {
   // @ts-ignore
   export type { MultiplierBreakdown } from './src/stores/multiplierStore'
   import('./src/stores/multiplierStore')
-  // @ts-ignore
-  export type { PrestigeUpgrade } from './src/types/prestige'
-  import('./src/types/prestige')
 }
 
 // for vue template auto import
@@ -150,116 +133,113 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
-    readonly EffectScope: UnwrapRef<(typeof import('vue'))['EffectScope']>
-    readonly acceptHMRUpdate: UnwrapRef<(typeof import('pinia'))['acceptHMRUpdate']>
-    readonly calculateCost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateCost']>
-    readonly calculateGeneratorCost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateGeneratorCost']>
-    readonly calculateMk1Cost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateMk1Cost']>
-    readonly calculateMk2Cost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateMk2Cost']>
-    readonly calculateMk3Cost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateMk3Cost']>
-    readonly calculateMk4Cost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateMk4Cost']>
-    readonly calculateMk5Cost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateMk5Cost']>
-    readonly calculateMk6Cost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateMk6Cost']>
-    readonly calculateMk7Cost: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateMk7Cost']>
-    readonly calculateProduction: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['calculateProduction']>
-    readonly canAfford: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['canAfford']>
-    readonly computed: UnwrapRef<(typeof import('vue'))['computed']>
-    readonly createApp: UnwrapRef<(typeof import('vue'))['createApp']>
-    readonly createDecimal: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['createDecimal']>
-    readonly createPinia: UnwrapRef<(typeof import('pinia'))['createPinia']>
-    readonly customRef: UnwrapRef<(typeof import('vue'))['customRef']>
-    readonly defineAsyncComponent: UnwrapRef<(typeof import('vue'))['defineAsyncComponent']>
-    readonly defineComponent: UnwrapRef<(typeof import('vue'))['defineComponent']>
-    readonly defineStore: UnwrapRef<(typeof import('pinia'))['defineStore']>
-    readonly effectScope: UnwrapRef<(typeof import('vue'))['effectScope']>
-    readonly formatDecimal: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['formatDecimal']>
-    readonly formatPercentage: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['formatPercentage']>
-    readonly getActiveHead: UnwrapRef<(typeof import('@unhead/vue'))['getActiveHead']>
-    readonly getActivePinia: UnwrapRef<(typeof import('pinia'))['getActivePinia']>
-    readonly getCurrentInstance: UnwrapRef<(typeof import('vue'))['getCurrentInstance']>
-    readonly getCurrentScope: UnwrapRef<(typeof import('vue'))['getCurrentScope']>
-    readonly h: UnwrapRef<(typeof import('vue'))['h']>
-    readonly inject: UnwrapRef<(typeof import('vue'))['inject']>
-    readonly injectHead: UnwrapRef<(typeof import('@unhead/vue'))['injectHead']>
-    readonly isProxy: UnwrapRef<(typeof import('vue'))['isProxy']>
-    readonly isReactive: UnwrapRef<(typeof import('vue'))['isReactive']>
-    readonly isReadonly: UnwrapRef<(typeof import('vue'))['isReadonly']>
-    readonly isRef: UnwrapRef<(typeof import('vue'))['isRef']>
-    readonly mapActions: UnwrapRef<(typeof import('pinia'))['mapActions']>
-    readonly mapGetters: UnwrapRef<(typeof import('pinia'))['mapGetters']>
-    readonly mapState: UnwrapRef<(typeof import('pinia'))['mapState']>
-    readonly mapStores: UnwrapRef<(typeof import('pinia'))['mapStores']>
-    readonly mapWritableState: UnwrapRef<(typeof import('pinia'))['mapWritableState']>
-    readonly markRaw: UnwrapRef<(typeof import('vue'))['markRaw']>
-    readonly nextTick: UnwrapRef<(typeof import('vue'))['nextTick']>
-    readonly onActivated: UnwrapRef<(typeof import('vue'))['onActivated']>
-    readonly onBeforeMount: UnwrapRef<(typeof import('vue'))['onBeforeMount']>
-    readonly onBeforeRouteLeave: UnwrapRef<(typeof import('vue-router'))['onBeforeRouteLeave']>
-    readonly onBeforeRouteUpdate: UnwrapRef<(typeof import('vue-router'))['onBeforeRouteUpdate']>
-    readonly onBeforeUnmount: UnwrapRef<(typeof import('vue'))['onBeforeUnmount']>
-    readonly onBeforeUpdate: UnwrapRef<(typeof import('vue'))['onBeforeUpdate']>
-    readonly onDeactivated: UnwrapRef<(typeof import('vue'))['onDeactivated']>
-    readonly onErrorCaptured: UnwrapRef<(typeof import('vue'))['onErrorCaptured']>
-    readonly onMounted: UnwrapRef<(typeof import('vue'))['onMounted']>
-    readonly onRenderTracked: UnwrapRef<(typeof import('vue'))['onRenderTracked']>
-    readonly onRenderTriggered: UnwrapRef<(typeof import('vue'))['onRenderTriggered']>
-    readonly onScopeDispose: UnwrapRef<(typeof import('vue'))['onScopeDispose']>
-    readonly onServerPrefetch: UnwrapRef<(typeof import('vue'))['onServerPrefetch']>
-    readonly onUnmounted: UnwrapRef<(typeof import('vue'))['onUnmounted']>
-    readonly onUpdated: UnwrapRef<(typeof import('vue'))['onUpdated']>
-    readonly onWatcherCleanup: UnwrapRef<(typeof import('vue'))['onWatcherCleanup']>
-    readonly provide: UnwrapRef<(typeof import('vue'))['provide']>
-    readonly reactive: UnwrapRef<(typeof import('vue'))['reactive']>
-    readonly readonly: UnwrapRef<(typeof import('vue'))['readonly']>
-    readonly ref: UnwrapRef<(typeof import('vue'))['ref']>
-    readonly resolveComponent: UnwrapRef<(typeof import('vue'))['resolveComponent']>
-    readonly setActivePinia: UnwrapRef<(typeof import('pinia'))['setActivePinia']>
-    readonly setMapStoreSuffix: UnwrapRef<(typeof import('pinia'))['setMapStoreSuffix']>
-    readonly shallowReactive: UnwrapRef<(typeof import('vue'))['shallowReactive']>
-    readonly shallowReadonly: UnwrapRef<(typeof import('vue'))['shallowReadonly']>
-    readonly shallowRef: UnwrapRef<(typeof import('vue'))['shallowRef']>
-    readonly storeToRefs: UnwrapRef<(typeof import('pinia'))['storeToRefs']>
-    readonly toNumber: UnwrapRef<(typeof import('./src/utils/decimalUtils'))['toNumber']>
-    readonly toRaw: UnwrapRef<(typeof import('vue'))['toRaw']>
-    readonly toRef: UnwrapRef<(typeof import('vue'))['toRef']>
-    readonly toRefs: UnwrapRef<(typeof import('vue'))['toRefs']>
-    readonly toValue: UnwrapRef<(typeof import('vue'))['toValue']>
-    readonly triggerRef: UnwrapRef<(typeof import('vue'))['triggerRef']>
-    readonly unref: UnwrapRef<(typeof import('vue'))['unref']>
-    readonly useAdventureStore: UnwrapRef<(typeof import('./src/stores/adventureStore'))['useAdventureStore']>
-    readonly useAttrs: UnwrapRef<(typeof import('vue'))['useAttrs']>
-    readonly useCssModule: UnwrapRef<(typeof import('vue'))['useCssModule']>
-    readonly useCssVars: UnwrapRef<(typeof import('vue'))['useCssVars']>
-    readonly useGameStore: UnwrapRef<(typeof import('./src/stores/gameStore'))['useGameStore']>
-    readonly useGeneratorStore: UnwrapRef<(typeof import('./src/stores/generatorStore'))['useGeneratorStore']>
-    readonly useGeneratorUpgradeStore: UnwrapRef<
-      (typeof import('./src/stores/generatorUpgradeStore'))['useGeneratorUpgradeStore']
-    >
-    readonly useHead: UnwrapRef<(typeof import('@unhead/vue'))['useHead']>
-    readonly useHeadSafe: UnwrapRef<(typeof import('@unhead/vue'))['useHeadSafe']>
-    readonly useId: UnwrapRef<(typeof import('vue'))['useId']>
-    readonly useInventoryStore: UnwrapRef<(typeof import('./src/stores/inventoryStore'))['useInventoryStore']>
-    readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>
-    readonly useModel: UnwrapRef<(typeof import('vue'))['useModel']>
-    readonly useMultiplierStore: UnwrapRef<(typeof import('./src/stores/multiplierStore'))['useMultiplierStore']>
-    readonly usePWAEvents: UnwrapRef<(typeof import('./src/composables/usePWAEvents'))['usePWAEvents']>
-    readonly usePrestigeStore: UnwrapRef<(typeof import('./src/stores/prestigeStore'))['usePrestigeStore']>
-    readonly useRoute: UnwrapRef<(typeof import('vue-router'))['useRoute']>
-    readonly useRouter: UnwrapRef<(typeof import('vue-router'))['useRouter']>
-    readonly useSaveSystem: UnwrapRef<(typeof import('./src/stores/saveSystem'))['useSaveSystem']>
-    readonly useSeoMeta: UnwrapRef<(typeof import('@unhead/vue'))['useSeoMeta']>
-    readonly useServerHead: UnwrapRef<(typeof import('@unhead/vue'))['useServerHead']>
-    readonly useServerHeadSafe: UnwrapRef<(typeof import('@unhead/vue'))['useServerHeadSafe']>
-    readonly useServerSeoMeta: UnwrapRef<(typeof import('@unhead/vue'))['useServerSeoMeta']>
-    readonly useSlots: UnwrapRef<(typeof import('vue'))['useSlots']>
-    readonly useStore: UnwrapRef<(typeof import('@/store'))['useStore']>
-    readonly useTemplateRef: UnwrapRef<(typeof import('vue'))['useTemplateRef']>
-    readonly useVisibilityState: UnwrapRef<
-      (typeof import('./src/composables/useVisibilityState'))['useVisibilityState']
-    >
-    readonly watch: UnwrapRef<(typeof import('vue'))['watch']>
-    readonly watchEffect: UnwrapRef<(typeof import('vue'))['watchEffect']>
-    readonly watchPostEffect: UnwrapRef<(typeof import('vue'))['watchPostEffect']>
-    readonly watchSyncEffect: UnwrapRef<(typeof import('vue'))['watchSyncEffect']>
+    readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly calculateCost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateCost']>
+    readonly calculateGeneratorCost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateGeneratorCost']>
+    readonly calculateMk1Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk1Cost']>
+    readonly calculateMk2Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk2Cost']>
+    readonly calculateMk3Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk3Cost']>
+    readonly calculateMk4Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk4Cost']>
+    readonly calculateMk5Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk5Cost']>
+    readonly calculateMk6Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk6Cost']>
+    readonly calculateMk7Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk7Cost']>
+    readonly calculateProduction: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateProduction']>
+    readonly canAfford: UnwrapRef<typeof import('./src/utils/decimalUtils')['canAfford']>
+    readonly computed: UnwrapRef<typeof import('vue')['computed']>
+    readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createDecimal: UnwrapRef<typeof import('./src/utils/decimalUtils')['createDecimal']>
+    readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
+    readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
+    readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
+    readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
+    readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly formatDecimal: UnwrapRef<typeof import('./src/utils/decimalUtils')['formatDecimal']>
+    readonly formatPercentage: UnwrapRef<typeof import('./src/utils/decimalUtils')['formatPercentage']>
+    readonly getActiveHead: UnwrapRef<typeof import('@unhead/vue')['getActiveHead']>
+    readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
+    readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
+    readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly inject: UnwrapRef<typeof import('vue')['inject']>
+    readonly injectHead: UnwrapRef<typeof import('@unhead/vue')['injectHead']>
+    readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
+    readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
+    readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
+    readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
+    readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
+    readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
+    readonly mapState: UnwrapRef<typeof import('pinia')['mapState']>
+    readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
+    readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
+    readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
+    readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
+    readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
+    readonly onBeforeRouteLeave: UnwrapRef<typeof import('vue-router')['onBeforeRouteLeave']>
+    readonly onBeforeRouteUpdate: UnwrapRef<typeof import('vue-router')['onBeforeRouteUpdate']>
+    readonly onBeforeUnmount: UnwrapRef<typeof import('vue')['onBeforeUnmount']>
+    readonly onBeforeUpdate: UnwrapRef<typeof import('vue')['onBeforeUpdate']>
+    readonly onDeactivated: UnwrapRef<typeof import('vue')['onDeactivated']>
+    readonly onErrorCaptured: UnwrapRef<typeof import('vue')['onErrorCaptured']>
+    readonly onMounted: UnwrapRef<typeof import('vue')['onMounted']>
+    readonly onRenderTracked: UnwrapRef<typeof import('vue')['onRenderTracked']>
+    readonly onRenderTriggered: UnwrapRef<typeof import('vue')['onRenderTriggered']>
+    readonly onScopeDispose: UnwrapRef<typeof import('vue')['onScopeDispose']>
+    readonly onServerPrefetch: UnwrapRef<typeof import('vue')['onServerPrefetch']>
+    readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
+    readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
+    readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
+    readonly provide: UnwrapRef<typeof import('vue')['provide']>
+    readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
+    readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
+    readonly ref: UnwrapRef<typeof import('vue')['ref']>
+    readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
+    readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
+    readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
+    readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
+    readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
+    readonly toNumber: UnwrapRef<typeof import('./src/utils/decimalUtils')['toNumber']>
+    readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
+    readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
+    readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
+    readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
+    readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
+    readonly unref: UnwrapRef<typeof import('vue')['unref']>
+    readonly useAdventureStore: UnwrapRef<typeof import('./src/stores/adventureStore')['useAdventureStore']>
+    readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
+    readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useDarkMode: UnwrapRef<typeof import('./src/composables/useDarkMode')['useDarkMode']>
+    readonly useGameStore: UnwrapRef<typeof import('./src/stores/gameStore')['useGameStore']>
+    readonly useGeneratorStore: UnwrapRef<typeof import('./src/stores/generatorStore')['useGeneratorStore']>
+    readonly useGeneratorUpgradeStore: UnwrapRef<typeof import('./src/stores/generatorUpgradeStore')['useGeneratorUpgradeStore']>
+    readonly useHead: UnwrapRef<typeof import('@unhead/vue')['useHead']>
+    readonly useHeadSafe: UnwrapRef<typeof import('@unhead/vue')['useHeadSafe']>
+    readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useInventoryStore: UnwrapRef<typeof import('./src/stores/inventoryStore')['useInventoryStore']>
+    readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
+    readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useMultiplierStore: UnwrapRef<typeof import('./src/stores/multiplierStore')['useMultiplierStore']>
+    readonly usePWAEvents: UnwrapRef<typeof import('./src/composables/usePWAEvents')['usePWAEvents']>
+    readonly usePrestigeStore: UnwrapRef<typeof import('./src/stores/prestigeStore')['usePrestigeStore']>
+    readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
+    readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
+    readonly useSaveSystem: UnwrapRef<typeof import('./src/stores/saveSystem')['useSaveSystem']>
+    readonly useSeoMeta: UnwrapRef<typeof import('@unhead/vue')['useSeoMeta']>
+    readonly useServerHead: UnwrapRef<typeof import('@unhead/vue')['useServerHead']>
+    readonly useServerHeadSafe: UnwrapRef<typeof import('@unhead/vue')['useServerHeadSafe']>
+    readonly useServerSeoMeta: UnwrapRef<typeof import('@unhead/vue')['useServerSeoMeta']>
+    readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
+    readonly useStore: UnwrapRef<typeof import('@/store')['useStore']>
+    readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useVisibilityState: UnwrapRef<typeof import('./src/composables/useVisibilityState')['useVisibilityState']>
+    readonly watch: UnwrapRef<typeof import('vue')['watch']>
+    readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
+    readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>
+    readonly watchSyncEffect: UnwrapRef<typeof import('vue')['watchSyncEffect']>
   }
 }

@@ -94,9 +94,10 @@ defineExpose({
 <template>
   <div class="space-y-4">
     <div v-if="filteredUpgrades.length === 0" class="text-center py-8">
-      <div class="text-gray-400 i-heroicons-face-frown text-4xl mx-auto mb-2"></div>
-      <p class="text-gray-600">No upgrades match your filters</p>
-      <button @click="emit('resetFilters')" class="mt-2 text-purple-600 hover:text-purple-800 text-sm">
+      <div class="text-gray-400 dark:text-gray-500 i-heroicons-face-frown text-4xl mx-auto mb-2"></div>
+      <p class="text-gray-600 dark:text-gray-400">No upgrades match your filters</p>
+      <button @click="emit('resetFilters')"
+        class="mt-2 text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 text-sm">
         Reset filters
       </button>
     </div>

@@ -92,14 +92,14 @@ const focusTab = (index: number) => {
 </script>
 
 <template>
-  <div class="flex overflow-x-auto scrollbar-hide border-b border-gray-200" role="tablist"
+  <div class="flex overflow-x-auto scrollbar-hide border-b border-gray-200 dark:border-gray-700" role="tablist"
     aria-label="Upgrade Categories">
     <button v-for="(category, index) in categories" :key="category" @click="emit('update:activeTab', category)"
       @keydown="handleKeyDown($event, index)" :class="[
         'px-4 py-3 font-medium text-sm whitespace-nowrap transition-colors outline-none',
         activeTab === category
-          ? 'border-b-2 border-purple-600 text-purple-700'
-          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+          ? 'border-b-2 border-purple-600 dark:border-purple-500 text-purple-700 dark:text-purple-400'
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
       ]" :id="`tab-${category}`" :aria-selected="activeTab === category" :aria-controls="`panel-${category}`"
       role="tab" :tabindex="activeTab === category ? 0 : -1">
       <span :class="getTabIcon(category)" class="mr-1.5"></span>
@@ -113,6 +113,11 @@ const focusTab = (index: number) => {
 /* Remove default focus styles */
 button:focus-visible {
   outline: 2px solid #9333ea;
+  outline-offset: -2px;
+}
+
+.dark button:focus-visible {
+  outline: 2px solid #a855f7;
   outline-offset: -2px;
 }
 </style>
