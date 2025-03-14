@@ -5,6 +5,7 @@ import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
 import { useGeneratorStore } from './generatorStore'
 import { useGameStore } from './gameStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
+import { useMultiplierStore } from './multiplierStore'
 import { prestigeUpgrades, calculateUpgradeCost } from '@/data/prestigeUpgrades'
 import type { PrestigeUpgrade } from '@/types/prestige'
 
@@ -171,6 +172,13 @@ export const usePrestigeStore = defineStore('prestige', () => {
       const epPercentage = epSquaredMultiplier.sub(1)
       const epBonus = evolutionPoints.value.mul(epPercentage)
       totalEP = totalEP.add(epBonus)
+    }
+
+    // Apply EP boost from items
+    const multiplierStore = useMultiplierStore()
+    const itemEPBoost = multiplierStore.getEPBoostMultiplier()
+    if (itemEPBoost.gt(1)) {
+      totalEP = totalEP.mul(itemEPBoost)
     }
 
     return totalEP

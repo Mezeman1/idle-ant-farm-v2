@@ -7,8 +7,8 @@ export interface Item {
   id: string
   name: string
   description: string
-  type: 'equipment' | 'consumable'
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  type: 'equipment'
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic' | 'divine'
   stats: {
     damage?: Decimal
     health?: Decimal
@@ -18,6 +18,11 @@ export interface Item {
   quantity?: Decimal
   productionModifiers?: {
     [generatorId: string]: Decimal // Maps generator ID to multiplier
+  }
+  specialModifiers?: {
+    epBoost?: Decimal // Multiplier for EP gain
+    global?: Decimal // Global production multiplier
+    [key: string]: Decimal | undefined // Other special modifiers
   }
 }
 
@@ -38,6 +43,41 @@ export const useItemStore = defineStore('item', () => {
     }
   }
 
+  // Get all special modifiers from equipped items
+  const getSpecialModifiers = () => {
+    const modifiers: Record<string, Decimal> = {
+      epBoost: Decimal.fromNumber(1), // Default is 1 (no boost)
+      global: Decimal.fromNumber(1), // Default is 1 (no boost)
+    }
+
+    // Iterate through all items and collect special modifiers
+    Object.values(itemsRef.value).forEach(item => {
+      if (item.quantity && item.quantity.gt(0) && item.specialModifiers) {
+        // Apply EP boost modifier
+        if (item.specialModifiers.epBoost) {
+          modifiers.epBoost = modifiers.epBoost.mul(item.specialModifiers.epBoost)
+        }
+
+        // Apply global production modifier
+        if (item.specialModifiers.global) {
+          modifiers.global = modifiers.global.mul(item.specialModifiers.global)
+        }
+
+        // Apply any other special modifiers
+        Object.entries(item.specialModifiers).forEach(([key, value]) => {
+          if (key !== 'epBoost' && key !== 'global' && value !== undefined) {
+            if (!modifiers[key]) {
+              modifiers[key] = Decimal.fromNumber(1)
+            }
+            modifiers[key] = modifiers[key].mul(value)
+          }
+        })
+      }
+    })
+
+    return modifiers
+  }
+
   // Rarity color utilities
   const rarityColors = {
     common: 'text-gray-600 dark:text-gray-400',
@@ -45,6 +85,8 @@ export const useItemStore = defineStore('item', () => {
     rare: 'text-blue-600 dark:text-blue-400',
     epic: 'text-purple-600 dark:text-purple-400',
     legendary: 'text-yellow-600 dark:text-yellow-400',
+    mythic: 'text-pink-600 dark:text-pink-400',
+    divine: 'text-cyan-600 dark:text-cyan-400',
   }
 
   const rarityBackgrounds = {
@@ -53,6 +95,8 @@ export const useItemStore = defineStore('item', () => {
     rare: 'bg-blue-100 dark:bg-blue-900/30',
     epic: 'bg-purple-100 dark:bg-purple-900/30',
     legendary: 'bg-yellow-100 dark:bg-yellow-900/30',
+    mythic: 'bg-pink-100 dark:bg-pink-900/30',
+    divine: 'bg-cyan-100 dark:bg-cyan-900/30',
   }
 
   const getRarityColor = (rarity: string) => {
@@ -67,6 +111,7 @@ export const useItemStore = defineStore('item', () => {
     items: itemsRef,
     getItem,
     createItem,
+    getSpecialModifiers,
     getRarityColor,
     getRarityBackground,
   }

@@ -6,6 +6,7 @@ import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 import { useInventoryStore } from './inventoryStore'
+import { useItemStore } from './itemStore'
 import type { Generator } from '@/stores/generatorStore'
 import type { PrestigeUpgrade } from '@/types/prestige'
 
@@ -28,6 +29,7 @@ export const useMultiplierStore = defineStore('multiplier', () => {
   const prestigeStore = usePrestigeStore()
   const generatorUpgradeStore = useGeneratorUpgradeStore()
   const inventoryStore = useInventoryStore()
+  const itemStore = useItemStore()
 
   // Define global multipliers that apply to all generators
   const getGlobalMultipliers = (): MultiplierSource[] => {
@@ -69,6 +71,17 @@ export const useMultiplierStore = defineStore('multiplier', () => {
         }
       }
     })
+
+    // Add global production multiplier from items
+    const specialModifiers = itemStore.getSpecialModifiers()
+    if (specialModifiers.global && specialModifiers.global.gt(1)) {
+      globalMultipliers.push({
+        id: 'item_global_multiplier',
+        name: 'Global Production Bonus',
+        getMultiplier: () => specialModifiers.global,
+        appliesTo: () => true,
+      })
+    }
 
     return globalMultipliers
   }
@@ -156,6 +169,9 @@ export const useMultiplierStore = defineStore('multiplier', () => {
         if (item?.productionModifiers) {
           // Add a multiplier source for each generator this item affects
           Object.entries(item.productionModifiers).forEach(([generatorId, multiplier]) => {
+            // Skip global modifiers as they're handled separately
+            if (generatorId === 'global') return
+
             multipliers.push({
               id: `equipment_${item.id}_${generatorId}`,
               name: `${item.name} Bonus`,
@@ -280,9 +296,19 @@ export const useMultiplierStore = defineStore('multiplier', () => {
     return breakdown
   }
 
+  /**
+   * Get the EP boost multiplier from items
+   * @returns The EP boost multiplier
+   */
+  const getEPBoostMultiplier = (): Decimal => {
+    const specialModifiers = itemStore.getSpecialModifiers()
+    return specialModifiers.epBoost || createDecimal(1)
+  }
+
   return {
     getProductionMultiplier,
     getFormattedMultiplier,
     getMultiplierBreakdown,
+    getEPBoostMultiplier,
   }
 })

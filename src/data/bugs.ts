@@ -31,6 +31,24 @@ export const bugs: Bug[] = [
         minQuantity: 1,
         maxQuantity: 1,
       },
+      {
+        itemId: 'wooden_shield',
+        chance: 0.4,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'leaf_cloak',
+        chance: 0.4,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'void_reaver',
+        chance: 0.0001,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
     ],
   },
   {
@@ -51,6 +69,24 @@ export const bugs: Bug[] = [
       {
         itemId: 'worker_armor',
         chance: 0.4,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'foraging_tools',
+        chance: 0.45,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'pebble_hammer',
+        chance: 0.35,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'reinforced_mandibles',
+        chance: 0.2,
         minQuantity: 1,
         maxQuantity: 1,
       },
@@ -77,6 +113,18 @@ export const bugs: Bug[] = [
         minQuantity: 1,
         maxQuantity: 1,
       },
+      {
+        itemId: 'resin_helmet',
+        chance: 0.25,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'thorn_spear',
+        chance: 0.25,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
     ],
   },
   {
@@ -87,7 +135,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(50),
     defense: createDecimal(20),
     description: 'Looks cute but can be surprisingly tough!',
-    drops: [],
+    drops: [
+      {
+        itemId: 'mandible_crusher',
+        chance: 0.05,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'beetle_shell_shield',
+        chance: 0.15,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'spider_fang_blade',
+        chance: 0.08,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'housefly',
@@ -97,7 +164,20 @@ export const bugs: Bug[] = [
     damage: createDecimal(200),
     defense: createDecimal(50),
     description: 'Annoying and surprisingly durable.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'exoskeleton_plate',
+        chance: 0.04,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'dragonfly_wing_cloak',
+        chance: 0.1,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'mosquito',
@@ -107,7 +187,20 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e3),
     defense: createDecimal(100),
     description: 'Small but extremely irritating.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'venom_dagger',
+        chance: 0.03,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'hornet_stinger_dagger',
+        chance: 0.12,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'beetle',
@@ -117,7 +210,20 @@ export const bugs: Bug[] = [
     damage: createDecimal(5e3),
     defense: createDecimal(200),
     description: 'Hard shell, strong bite.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'exoskeleton_plate',
+        chance: 0.08,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'beetle_shell_shield',
+        chance: 0.2,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'grasshopper',
@@ -127,7 +233,20 @@ export const bugs: Bug[] = [
     damage: createDecimal(2e4),
     defense: createDecimal(300),
     description: 'Jumps around and avoids attacks!',
-    drops: [],
+    drops: [
+      {
+        itemId: 'mandible_crusher',
+        chance: 0.07,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'thorn_spear',
+        chance: 0.15,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'cockroach',
@@ -137,7 +256,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e5),
     defense: createDecimal(500),
     description: "Survivor of everything. Just won't die.",
-    drops: [],
+    drops: [
+      {
+        itemId: 'venom_dagger',
+        chance: 0.06,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'chronos_shell',
+        chance: 0.001,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'firefly_lantern_shield',
+        chance: 0.1,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'fire_ant',
@@ -147,7 +285,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(5e5),
     defense: createDecimal(1e3),
     description: 'Burns everything in its path.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'queen_stinger',
+        chance: 0.01,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'void_reaver',
+        chance: 0.002,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'spider_fang_blade',
+        chance: 0.15,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'termite',
@@ -157,7 +314,20 @@ export const bugs: Bug[] = [
     damage: createDecimal(2e6),
     defense: createDecimal(2e3),
     description: 'Destroys everything it touches.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'mandible_crusher',
+        chance: 0.1,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'reinforced_mandibles',
+        chance: 0.25,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'wasp',
@@ -167,7 +337,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e7),
     defense: createDecimal(5e3),
     description: 'Faster and angrier than a hornet!',
-    drops: [],
+    drops: [
+      {
+        itemId: 'queen_stinger',
+        chance: 0.02,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'entropy_fangs',
+        chance: 0.003,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'hornet_stinger_dagger',
+        chance: 0.2,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'scorpion',
@@ -177,7 +366,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(5e7),
     defense: createDecimal(1e4),
     description: 'Big pincers, bigger stinger.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'venom_dagger',
+        chance: 0.15,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'void_reaver',
+        chance: 0.004,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'hornet_stinger_dagger',
+        chance: 0.25,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'giant_moth',
@@ -187,7 +395,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(2e8),
     defense: createDecimal(2e4),
     description: "Loves lights. Too bad it's also huge.",
-    drops: [],
+    drops: [
+      {
+        itemId: 'cosmic_carapace',
+        chance: 0.005,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'chronos_shell',
+        chance: 0.002,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'dragonfly_wing_cloak',
+        chance: 0.2,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'tarantula',
@@ -197,7 +424,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e9),
     defense: createDecimal(5e4),
     description: 'Fluffy but terrifying.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'exoskeleton_plate',
+        chance: 0.12,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'entropy_fangs',
+        chance: 0.005,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'spider_fang_blade',
+        chance: 0.3,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'giant_stag_beetle',
@@ -207,7 +453,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(5e10),
     defense: createDecimal(1e5),
     description: 'Massive pincers that can crush anything.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'mandible_crusher',
+        chance: 0.2,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'entropy_fangs',
+        chance: 0.008,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'beetle_shell_shield',
+        chance: 0.35,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+    ],
   },
   {
     id: 'army_ant',
@@ -217,7 +482,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e13),
     defense: createDecimal(2e5),
     description: 'A relentless horde of ants.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'queen_stinger',
+        chance: 0.03,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'infinity_shard',
+        chance: 0.0005,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'reinforced_mandibles',
+        chance: 0.4,
+        minQuantity: 1,
+        maxQuantity: 3,
+      },
+    ],
   },
   {
     id: 'stag_beetle_swarm',
@@ -227,7 +511,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e16),
     defense: createDecimal(5e5),
     description: 'Too many beetles to count.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'quantum_mandibles',
+        chance: 0.008,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'eternity_weave',
+        chance: 0.0008,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'beetle_shell_shield',
+        chance: 0.5,
+        minQuantity: 1,
+        maxQuantity: 5,
+      },
+    ],
   },
   {
     id: 'mutant_fly',
@@ -237,7 +540,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e19),
     defense: createDecimal(1e6),
     description: 'Somehow even more annoying than a normal fly.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'cosmic_carapace',
+        chance: 0.01,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'void_reaver',
+        chance: 0.01,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'dragonfly_wing_cloak',
+        chance: 0.3,
+        minQuantity: 1,
+        maxQuantity: 2,
+      },
+    ],
   },
   {
     id: 'giant_firefly',
@@ -247,7 +569,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e23),
     defense: createDecimal(2e6),
     description: 'Brighter than the sun, dangerous too.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'cosmic_carapace',
+        chance: 0.015,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'chronos_shell',
+        chance: 0.01,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'firefly_lantern_shield',
+        chance: 0.35,
+        minQuantity: 1,
+        maxQuantity: 2,
+      },
+    ],
   },
   {
     id: 'ultra_beetle',
@@ -257,7 +598,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e28),
     defense: createDecimal(5e6),
     description: 'Bigger. Stronger. Shinier.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'quantum_mandibles',
+        chance: 0.012,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'entropy_fangs',
+        chance: 0.015,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'beetle_shell_shield',
+        chance: 0.6,
+        minQuantity: 2,
+        maxQuantity: 5,
+      },
+    ],
   },
   {
     id: 'queen_wasp',
@@ -267,7 +627,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e33),
     defense: createDecimal(1e7),
     description: 'Controls an entire hive of wasps.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'queen_stinger',
+        chance: 0.05,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'infinity_shard',
+        chance: 0.002,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'hornet_stinger_dagger',
+        chance: 0.5,
+        minQuantity: 1,
+        maxQuantity: 3,
+      },
+    ],
   },
   {
     id: 'colossal_cockroach',
@@ -277,7 +656,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e38),
     defense: createDecimal(2e7),
     description: 'Even harder to kill than before.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'exoskeleton_plate',
+        chance: 0.025,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'eternity_weave',
+        chance: 0.003,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'firefly_lantern_shield',
+        chance: 0.4,
+        minQuantity: 1,
+        maxQuantity: 3,
+      },
+    ],
   },
   {
     id: 'apocalyptic_termites',
@@ -287,7 +685,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e48),
     defense: createDecimal(5e7),
     description: 'Capable of reducing everything to dust.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'quantum_mandibles',
+        chance: 0.02,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'genesis_claw',
+        chance: 0.001,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'reinforced_mandibles',
+        chance: 0.6,
+        minQuantity: 2,
+        maxQuantity: 5,
+      },
+    ],
   },
   {
     id: 'radioactive_spider',
@@ -297,7 +714,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e58),
     defense: createDecimal(1e8),
     description: 'Not the kind that gives you superpowers.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'venom_dagger',
+        chance: 0.03,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'infinity_shard',
+        chance: 0.004,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'spider_fang_blade',
+        chance: 0.5,
+        minQuantity: 2,
+        maxQuantity: 4,
+      },
+    ],
   },
   {
     id: 'endless_ant_swarms',
@@ -307,7 +743,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e73),
     defense: createDecimal(2e8),
     description: 'A never-ending army of ants.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'queen_stinger',
+        chance: 0.04,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'eternity_weave',
+        chance: 0.005,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'reinforced_mandibles',
+        chance: 0.7,
+        minQuantity: 3,
+        maxQuantity: 8,
+      },
+    ],
   },
   {
     id: 'galactic_moth',
@@ -317,7 +772,26 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e98),
     defense: createDecimal(5e8),
     description: 'It seeks the biggest, brightest lights in the universe.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'cosmic_carapace',
+        chance: 0.03,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'genesis_claw',
+        chance: 0.002,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'dragonfly_wing_cloak',
+        chance: 0.6,
+        minQuantity: 2,
+        maxQuantity: 5,
+      },
+    ],
   },
   {
     id: 'quantum_beetle',
@@ -327,6 +801,44 @@ export const bugs: Bug[] = [
     damage: createDecimal(1e148),
     defense: createDecimal(1e9),
     description: 'Exists in multiple places at once.',
-    drops: [],
+    drops: [
+      {
+        itemId: 'quantum_mandibles',
+        chance: 0.05,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'genesis_claw',
+        chance: 0.01,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'infinity_shard',
+        chance: 0.01,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      {
+        itemId: 'eternity_weave',
+        chance: 0.01,
+        minQuantity: 1,
+        maxQuantity: 1,
+      },
+      // Guaranteed drops of lower tier items
+      {
+        itemId: 'beetle_shell_shield',
+        chance: 1,
+        minQuantity: 5,
+        maxQuantity: 10,
+      },
+      {
+        itemId: 'spider_fang_blade',
+        chance: 1,
+        minQuantity: 3,
+        maxQuantity: 8,
+      },
+    ],
   },
 ]

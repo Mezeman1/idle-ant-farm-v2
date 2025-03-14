@@ -122,6 +122,13 @@ export const useSaveSystem = defineStore('saveSystem', () => {
 
     if (elapsedSeconds < 10) return // Don't calculate for very short periods
 
+    // Cap offline progress to a maximum of 14 days (1,209,600 seconds)
+    const MAX_OFFLINE_SECONDS = 14 * 24 * 60 * 60 // 14 days in seconds
+    if (elapsedSeconds > MAX_OFFLINE_SECONDS) {
+      console.log(`Capping offline progress from ${elapsedSeconds} to ${MAX_OFFLINE_SECONDS} seconds (14 days)`)
+      elapsedSeconds = MAX_OFFLINE_SECONDS
+    }
+
     const stores = getStores()
     const tickDuration = stores.gameStore.tickDuration
 
