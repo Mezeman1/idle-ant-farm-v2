@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Import shared styles
 import '@/assets/styles/animations.css'
+import ScrollToTopButton from '@/components/ScrollToTopButton.vue'
 
 const gameStore = useGameStore()
 const generatorStore = useGeneratorStore()
@@ -20,5 +21,8 @@ const prestigeStore = usePrestigeStore()
 
     <!-- Generators -->
     <AntHierarchySection />
+
+    <!-- Scroll to top button -->
+    <ScrollToTopButton :threshold="400" />
   </div>
 </template>

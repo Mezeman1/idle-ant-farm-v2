@@ -7,6 +7,7 @@ import PWAInstallButton from '@/components/PWAInstallButton.vue'
 import { useSaveSystem } from '@/stores/saveSystem'
 import { useVisibilityState } from '@/composables/useVisibilityState'
 import { useDarkMode } from '@/composables/useDarkMode'
+import { useScrollPosition } from '@/composables/useScrollPosition'
 
 const saveSystem = useSaveSystem()
 
@@ -15,6 +16,13 @@ const { isVisible } = useVisibilityState()
 
 // Initialize dark mode
 const { isDarkMode } = useDarkMode()
+
+// Initialize scroll position persistence
+const { scrollPosition } = useScrollPosition({
+  debounceTime: 150, // Slightly higher debounce time for better performance
+  storageKey: 'idleAntFarmScrollPositions', // App-specific key
+  scrollElementSelector: 'main' // Target the main element in MainLayout
+})
 
 // Handle closing the offline progress modal
 const handleCloseOfflineModal = () => {
