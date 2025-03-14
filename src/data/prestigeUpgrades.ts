@@ -576,6 +576,47 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       isUnlocked: () => true,
       category: 'prestige',
     },
+    {
+      id: 'inventorySlots',
+      name: 'Inventory Expansion',
+      description: 'Increase maximum inventory slots by 5. Each level adds more slots, but costs increase rapidly.',
+      baseCost: createDecimal(100),
+      cost: createDecimal(100),
+      level: createDecimal(0),
+      maxLevel: null, // No max level
+      effect: (level: Decimal) => {
+        // Each level adds 5 slots
+        return level.mul(5)
+      },
+      isUnlocked: () => true, // Always available
+      costMultiplier: ({ cost, level }) => {
+        // Exponential scaling: cost * (1.5 ^ level)
+        return cost.mul(createDecimal(1.5).pow(level))
+      },
+      icon: 'i-heroicons-squares-2x2',
+      category: 'prestige',
+    },
+    {
+      id: 'equipmentSlots',
+      name: 'Equipment Mastery',
+      description:
+        'Unlock an additional equipment slot. Each level unlocks one more slot, up to a maximum of 10 slots.',
+      baseCost: createDecimal(1000),
+      cost: createDecimal(1000),
+      level: createDecimal(0),
+      maxLevel: createDecimal(10),
+      effect: (level: Decimal) => {
+        // Each level unlocks one slot
+        return level
+      },
+      isUnlocked: () => true, // Always available
+      costMultiplier: ({ cost, level }) => {
+        // More expensive exponential scaling: cost * (2 ^ level)
+        return cost.mul(createDecimal(2).pow(level))
+      },
+      icon: 'i-heroicons-shield-check',
+      category: 'prestige',
+    },
   ]
 
   // Update each upgrade to recalculate its cost based on level

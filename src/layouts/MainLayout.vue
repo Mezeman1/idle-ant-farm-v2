@@ -7,6 +7,7 @@ const navItems = ref([
   { name: 'Colony', icon: 'i-heroicons-building-storefront', route: '/colony' },
   { name: 'Upgrades', icon: 'i-heroicons-sparkles', route: '/upgrades' },
   { name: 'Adventure', icon: 'i-heroicons-bolt', route: '/adventure' },
+  { name: 'Inventory', icon: 'i-heroicons-squares-2x2', route: '/inventory' },
   { name: 'Settings', icon: 'i-heroicons-cog-6-tooth', route: '/settings' },
 ])
 
@@ -97,7 +98,7 @@ onUnmounted(() => {
             <div class="flex items-center bg-amber-900/20 dark:bg-amber-950/40 rounded-full px-2 py-1">
               <span class="i-heroicons-arrow-trending-up text-amber-300 dark:text-amber-400 mr-1"></span>
               <span class="text-xs md:text-sm font-medium">{{ formatDecimal(generatorStore.foodPerSecond, 1)
-              }}/trip</span>
+                }}/trip</span>
             </div>
 
             <!-- Evolution Count -->

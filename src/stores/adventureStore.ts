@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useGeneratorStore } from './generatorStore'
 import { useBugStore } from './bugStore'
-import type Decimal from 'break_infinity.js'
+import { useInventoryStore } from './inventoryStore'
+import Decimal from 'break_infinity.js'
 import { createDecimal } from '@/utils/decimalUtils'
 
 interface LogEntry {
@@ -14,17 +15,22 @@ interface LogEntry {
 export const useAdventureStore = defineStore('adventure', () => {
   const generatorStore = useGeneratorStore()
   const bugStore = useBugStore()
+  const inventoryStore = useInventoryStore()
 
   const playerDamage = computed((): Decimal => {
-    return generatorStore.generators[0].count.mul(10)
+    return generatorStore.generators[0].count.mul(Decimal.fromNumber(10))
   })
 
   const playerMaxHealth = computed((): Decimal => {
-    return generatorStore.generators[0].count.mul(100)
+    return generatorStore.generators[0].count.mul(Decimal.fromNumber(100))
   })
 
   const playerRegen = computed((): Decimal => {
-    return generatorStore.generators[0].count.mul(1)
+    return generatorStore.generators[0].count
+  })
+
+  const playerDefense = computed((): Decimal => {
+    return inventoryStore.totalStats.defense || Decimal.fromNumber(0)
   })
 
   const currentHealth = ref<Decimal>(playerMaxHealth.value)
@@ -34,6 +40,14 @@ export const useAdventureStore = defineStore('adventure', () => {
   const logs = ref<LogEntry[]>([])
   const MAX_LOGS = 20
   const isSpawning = ref(false) // Track if we're in the spawn phase
+
+  // Damage calculation function
+  const calculateDamage = (attackerDamage: Decimal, defenderDefense: Decimal): Decimal => {
+    // Base damage reduction formula: damage * (100 / (100 + defense))
+    // This creates diminishing returns for defense
+    const damageReduction = defenderDefense.div(defenderDefense.plus(Decimal.fromNumber(100)))
+    return attackerDamage.mul(Decimal.fromNumber(1).minus(damageReduction))
+  }
 
   const addLog = (message: string, type: LogEntry['type'] = 'info') => {
     const entry: LogEntry = {
@@ -75,13 +89,13 @@ export const useAdventureStore = defineStore('adventure', () => {
         // Combat phase
         if (!bugStore.isBugDead) {
           // Player attacks first
-          const damage = playerDamage.value
+          const damage = calculateDamage(playerDamage.value, bugStore.selectedBug.defense)
           bugStore.attackBug(damage)
           addLog(`You deal ${damage} damage to ${bugStore.selectedBug.name}`, 'combat')
 
           // Enemy counterattacks
           if (!bugStore.isBugDead) {
-            const enemyDamage = bugStore.selectedBug.damage
+            const enemyDamage = calculateDamage(bugStore.selectedBug.damage, playerDefense.value)
             takeDamage(enemyDamage)
             addLog(`${bugStore.selectedBug.name} deals ${enemyDamage} damage to you`, 'combat')
 
@@ -95,6 +109,16 @@ export const useAdventureStore = defineStore('adventure', () => {
             const reward = bug.maxHealth.mul(0.1) // 10% of max health as reward
             generatorStore.food = generatorStore.food.add(reward)
             addLog(`You defeated ${bug.name} and gained ${reward} food!`, 'reward')
+
+            // Handle item drops
+            const drops = bugStore.getRandomDrops()
+            if (drops.length > 0) {
+              drops.forEach(drop => {
+                inventoryStore.addItem(drop.itemId, Decimal.fromNumber(drop.quantity))
+                addLog(`You found ${drop.quantity}x ${drop.itemId}!`, 'reward')
+              })
+            }
+
             isSpawning.value = true // Switch to spawn phase after defeating
           }
         }
@@ -153,6 +177,7 @@ export const useAdventureStore = defineStore('adventure', () => {
     playerMaxHealth,
     playerDamage,
     playerRegen,
+    playerDefense,
     isDead,
     isInCombat,
     autoCombatEnabled,

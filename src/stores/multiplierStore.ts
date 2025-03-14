@@ -5,6 +5,7 @@ import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
 import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
+import { useInventoryStore } from './inventoryStore'
 import type { Generator } from '@/stores/generatorStore'
 import type { PrestigeUpgrade } from '@/types/prestige'
 
@@ -26,6 +27,7 @@ export const useMultiplierStore = defineStore('multiplier', () => {
   const generatorStore = useGeneratorStore()
   const prestigeStore = usePrestigeStore()
   const generatorUpgradeStore = useGeneratorUpgradeStore()
+  const inventoryStore = useInventoryStore()
 
   // Define global multipliers that apply to all generators
   const getGlobalMultipliers = (): MultiplierSource[] => {
@@ -143,6 +145,31 @@ export const useMultiplierStore = defineStore('multiplier', () => {
     return multipliers
   }
 
+  // Get equipment multipliers
+  const getEquipmentMultipliers = (): MultiplierSource[] => {
+    const multipliers: MultiplierSource[] = []
+
+    // Process each equipped item
+    inventoryStore.equipmentSlots.forEach(slot => {
+      if (slot.item) {
+        const item = inventoryStore.getItem(slot.item)
+        if (item?.productionModifiers) {
+          // Add a multiplier source for each generator this item affects
+          Object.entries(item.productionModifiers).forEach(([generatorId, multiplier]) => {
+            multipliers.push({
+              id: `equipment_${item.id}_${generatorId}`,
+              name: `${item.name} Bonus`,
+              getMultiplier: () => multiplier as Decimal,
+              appliesTo: id => id === generatorId,
+            })
+          })
+        }
+      }
+    })
+
+    return multipliers
+  }
+
   // Get special multipliers like tier bonuses
   const getSpecialMultipliers = (): MultiplierSource[] => {
     return [
@@ -172,6 +199,7 @@ export const useMultiplierStore = defineStore('multiplier', () => {
       ...getGlobalMultipliers(),
       ...getPrestigeMultipliers(),
       ...getGeneratorUpgradeMultipliers(),
+      ...getEquipmentMultipliers(),
       ...getSpecialMultipliers(),
     ]
   }

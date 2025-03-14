@@ -5,6 +5,7 @@ import SettingsPage from '@/pages/SettingsPage.vue'
 import ColonyPage from '@/pages/ColonyPage.vue'
 import UpgradesPage from '@/pages/UpgradesPage.vue'
 import AdventurePage from '@/pages/AdventurePage.vue'
+import InventoryPage from '@/pages/InventoryPage.vue'
 
 const routes = [
   {
@@ -26,6 +27,10 @@ const routes = [
   {
     path: '/adventure',
     component: AdventurePage,
+  },
+  {
+    path: '/inventory',
+    component: InventoryPage,
   },
 ]
 

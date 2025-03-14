@@ -92,17 +92,18 @@ const categories = ['all', 'production', 'efficiency', 'automation', 'research',
       @confirmEvolution="confirmEvolution" />
 
     <!-- Evolution Upgrades -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50">
       <!-- Tabs Navigation -->
-      <UpgradeTabsNavigation v-model:activeTab="activeTab" :categories="categories">
-        <template #badge="{ category }">
-          <span v-if="category !== 'all'"
-            class="ml-1.5 px-1.5 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-700">
-            {{ getCategoryCount(category) }}
-          </span>
-        </template>
-      </UpgradeTabsNavigation>
+      <div class="sticky top-0 z-20 bg-white dark:bg-gray-800">
+        <UpgradeTabsNavigation v-model:activeTab="activeTab" :categories="categories">
+          <template #badge="{ category }">
+            <span v-if="category !== 'all'"
+              class="ml-1.5 px-1.5 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-700">
+              {{ getCategoryCount(category) }}
+            </span>
+          </template>
+        </UpgradeTabsNavigation>
+      </div>
 
       <!-- Upgrades Content -->
       <div class="p-4">

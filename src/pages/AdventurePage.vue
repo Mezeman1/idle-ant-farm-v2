@@ -1,13 +1,27 @@
 <script setup lang="ts">
 import { useAdventureStore } from '@/stores/adventureStore'
 import { useBugStore } from '@/stores/bugStore'
+import { useGameStore } from '@/stores/gameStore'
+import { useItemStore } from '@/stores/itemStore'
 import { formatDecimal } from '@/utils/decimalUtils'
 import { computed, ref, onMounted, nextTick, watch } from 'vue'
 
 const adventureStore = useAdventureStore()
 const gameStore = useGameStore()
 const bugStore = useBugStore()
+const itemStore = useItemStore()
 const logContainer = ref<HTMLElement | null>(null)
+
+// Drop table modal state
+const selectedBug = ref<any>(null)
+
+const showDropTableModal = (bug: any) => {
+  selectedBug.value = bug
+}
+
+const hideDropTableModal = () => {
+  selectedBug.value = null
+}
 
 // Computed properties for formatted values
 const formattedCurrentHealth = computed(() =>
@@ -24,6 +38,10 @@ const formattedDamage = computed(() =>
 
 const formattedRegen = computed(() =>
   formatDecimal(adventureStore.playerRegen)
+)
+
+const formattedDefense = computed(() =>
+  formatDecimal(adventureStore.playerDefense)
 )
 
 // Enemy stats
@@ -130,6 +148,15 @@ watch(() => adventureStore.logs.length, () => {
 
           <div
             class="bg-white/80 dark:bg-gray-800/80 p-2 rounded-lg shadow-sm border border-red-200 dark:border-red-700">
+            <div class="text-xs text-red-700 dark:text-red-400 font-medium">Defense</div>
+            <div class="text-sm font-bold flex items-center">
+              <span class="i-heroicons-shield-check text-red-600 dark:text-red-500 mr-1 text-xs"></span>
+              {{ formattedDefense }}
+            </div>
+          </div>
+
+          <div
+            class="bg-white/80 dark:bg-gray-800/80 p-2 rounded-lg shadow-sm border border-red-200 dark:border-red-700">
             <div class="text-xs text-red-700 dark:text-red-400 font-medium">Health Regen</div>
             <div class="text-sm font-bold flex items-center">
               <span class="i-heroicons-arrow-path text-red-600 dark:text-red-500 mr-1 text-xs"></span>
@@ -170,7 +197,7 @@ watch(() => adventureStore.logs.length, () => {
         <!-- Combat Status -->
         <div v-if="adventureStore.isInCombat && bugStore.selectedBug" class="mt-4">
           <h3 class="text-sm font-bold mb-2 text-red-700 dark:text-red-500">Current Enemy: {{ bugStore.selectedBug.name
-          }}</h3>
+            }}</h3>
           <div
             class="bg-white/80 dark:bg-gray-800/80 p-2 rounded-lg shadow-sm border border-red-200 dark:border-red-700">
             <div class="text-xs text-red-700 dark:text-red-400 font-medium">Enemy Health</div>
@@ -247,15 +274,21 @@ watch(() => adventureStore.logs.length, () => {
                   <span class="i-heroicons-bug-ant text-blue-600 dark:text-blue-400 mr-2"></span>
                   <span class="font-medium text-blue-700 dark:text-blue-300">{{ bug.name }}</span>
                 </div>
-                <button @click="adventureStore.toggleAutoCombat(bug.id)" :class="[
-                  adventureStore.autoCombatEnabled && adventureStore.selectedBugId === bug.id
-                    ? 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
-                    : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800',
-                  'px-3 py-1 rounded-lg text-white text-sm font-medium transition-colors duration-200'
-                ]">
-                  {{ adventureStore.autoCombatEnabled && adventureStore.selectedBugId === bug.id ? 'Stop Fighting' :
-                    'Auto Fight' }}
-                </button>
+                <div class="flex items-center space-x-2">
+                  <button @click="showDropTableModal(bug)"
+                    class="p-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors">
+                    <span class="i-heroicons-information-circle text-blue-600 dark:text-blue-400"></span>
+                  </button>
+                  <button @click="adventureStore.toggleAutoCombat(bug.id)" :class="[
+                    adventureStore.autoCombatEnabled && adventureStore.selectedBugId === bug.id
+                      ? 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
+                      : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800',
+                    'px-3 py-1 rounded-lg text-white text-sm font-medium transition-colors duration-200'
+                  ]">
+                    {{ adventureStore.autoCombatEnabled && adventureStore.selectedBugId === bug.id ? 'Stop Fighting' :
+                      'Auto Fight' }}
+                  </button>
+                </div>
               </div>
               <div class="text-xs text-blue-600 dark:text-blue-400 space-y-1">
                 <p>Health: {{ formatDecimal(bug.maxHealth) }}</p>
@@ -318,5 +351,50 @@ watch(() => adventureStore.logs.length, () => {
         </div>
       </div>
     </section>
+
+    <!-- Drop Table Modal -->
+    <div v-if="selectedBug"
+      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-5 mx-auto border border-blue-200 dark:border-blue-700">
+        <h3
+          class="text-base font-bold mb-3 flex items-center text-blue-800 dark:text-blue-300 pb-2 border-b border-blue-200 dark:border-blue-700">
+          <span class="i-heroicons-bug-ant text-blue-600 dark:text-blue-400 mr-2"></span>
+          {{ selectedBug.name }} Drop Table
+        </h3>
+
+        <div class="space-y-3">
+          <div class="text-sm text-gray-700 dark:text-gray-300">
+            {{ selectedBug.description }}
+          </div>
+
+          <!-- Drop Table -->
+          <div class="space-y-2">
+            <div v-for="drop in selectedBug.drops" :key="drop.itemId"
+              class="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium"
+                  :class="itemStore.getRarityColor(itemStore.getItem(drop.itemId)?.rarity || 'common')">
+                  {{ itemStore.getItem(drop.itemId)?.name }}
+                </span>
+                <span class="text-xs text-gray-500">
+                  {{ (drop.chance * 100).toFixed(1) }}%
+                </span>
+              </div>
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                {{ drop.minQuantity }}-{{ drop.maxQuantity }}x
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-4">
+          <button @click="hideDropTableModal"
+            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

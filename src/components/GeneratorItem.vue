@@ -238,17 +238,23 @@ const buttonClass = computed(() => {
   <!-- Teleported tooltip -->
   <Teleport to="body">
     <div v-if="showTooltip && multiplierBreakdown.length > 0"
-      class="fixed bg-amber-50 dark:bg-gray-800 border border-amber-200 dark:border-amber-700 rounded shadow-lg p-2 text-xs text-amber-800 dark:text-amber-300 z-50"
+      class="fixed bg-amber-50 dark:bg-gray-800 border-2 border-amber-300 dark:border-amber-600 rounded-lg shadow-xl p-3 text-sm text-amber-800 dark:text-amber-300 z-50 min-w-[200px]"
       :style="{ top: `${tooltipY}px`, left: `${tooltipX}px`, transform: 'translate(-50%, -100%)' }">
-      <div class="font-bold mb-1 text-amber-900 dark:text-amber-200">Multiplier Breakdown:</div>
-      <div v-for="(item, index) in multiplierBreakdown" :key="index" class="flex justify-between mb-0.5">
-        <span>{{ item.name }}:</span>
-        <span class="font-medium">{{ item.formatted }}</span>
+      <div class="font-bold mb-2 text-amber-900 dark:text-amber-200 text-base flex items-center">
+        <span class="i-heroicons-chart-bar mr-1.5"></span>
+        Multiplier Breakdown
+      </div>
+      <div class="space-y-1.5">
+        <div v-for="(item, index) in multiplierBreakdown" :key="index"
+          class="flex justify-between items-center py-0.5 px-2 rounded bg-amber-100/50 dark:bg-amber-900/30">
+          <span class="text-amber-700 dark:text-amber-400">{{ item.name }}</span>
+          <span class="font-medium text-amber-900 dark:text-amber-200">{{ item.formatted }}</span>
+        </div>
       </div>
       <div
-        class="border-t border-amber-200 dark:border-amber-700 mt-1 pt-1 flex justify-between font-bold text-amber-900 dark:text-amber-200">
-        <span>Total:</span>
-        <span>{{ formattedProductionMultiplier }}</span>
+        class="border-t-2 border-amber-200 dark:border-amber-700 mt-2 pt-2 flex justify-between items-center font-bold text-amber-900 dark:text-amber-200 text-base">
+        <span>Total Multiplier</span>
+        <span class="bg-amber-200 dark:bg-amber-700 px-2 py-0.5 rounded">{{ formattedProductionMultiplier }}</span>
       </div>
     </div>
   </Teleport>
