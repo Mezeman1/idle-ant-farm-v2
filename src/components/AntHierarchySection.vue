@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useGeneratorStore } from '@/stores/generatorStore'
-import GeneratorItem from '@/components/GeneratorItem.vue'
-import NextUnlockableGenerator from '@/components/NextUnlockableGenerator.vue'
-
 const props = defineProps<{
-    className?: string
+  className?: string
 }>()
 
 const generatorStore = useGeneratorStore()
@@ -18,15 +13,15 @@ const nextUnlockableGenerator = computed(() => generatorStore.nextUnlockableGene
 </script>
 
 <template>
-    <section :class="['bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md', className]">
-        <h2 class="text-base font-bold mb-2 flex items-center">
-            <span class="i-heroicons-cog-6-tooth text-amber-700 mr-2"></span>
-            Ant Hierarchy
-        </h2>
+  <section :class="['bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md', className]">
+    <h2 class="text-base font-bold mb-2 flex items-center">
+      <span class="i-heroicons-cog-6-tooth text-amber-700 mr-2"></span>
+      Ant Hierarchy
+    </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <GeneratorItem v-for="generator in unlockedGenerators" :key="generator.id" :generator="generator" />
-            <NextUnlockableGenerator v-if="nextUnlockableGenerator" :generator="nextUnlockableGenerator" />
-        </div>
-    </section>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <GeneratorItem v-for="generator in unlockedGenerators" :key="generator.id" :generator="generator" />
+      <NextUnlockableGenerator v-if="nextUnlockableGenerator" :generator="nextUnlockableGenerator" />
+    </div>
+  </section>
 </template>

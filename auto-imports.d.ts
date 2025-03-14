@@ -8,14 +8,28 @@ export {}
 declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
+  const calculateCost: typeof import('./src/utils/decimalUtils')['calculateCost']
+  const calculateGeneratorCost: typeof import('./src/utils/decimalUtils')['calculateGeneratorCost']
+  const calculateMk1Cost: typeof import('./src/utils/decimalUtils')['calculateMk1Cost']
+  const calculateMk2Cost: typeof import('./src/utils/decimalUtils')['calculateMk2Cost']
+  const calculateMk3Cost: typeof import('./src/utils/decimalUtils')['calculateMk3Cost']
+  const calculateMk4Cost: typeof import('./src/utils/decimalUtils')['calculateMk4Cost']
+  const calculateMk5Cost: typeof import('./src/utils/decimalUtils')['calculateMk5Cost']
+  const calculateMk6Cost: typeof import('./src/utils/decimalUtils')['calculateMk6Cost']
+  const calculateMk7Cost: typeof import('./src/utils/decimalUtils')['calculateMk7Cost']
+  const calculateProduction: typeof import('./src/utils/decimalUtils')['calculateProduction']
+  const canAfford: typeof import('./src/utils/decimalUtils')['canAfford']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
+  const createDecimal: typeof import('./src/utils/decimalUtils')['createDecimal']
   const createPinia: typeof import('pinia')['createPinia']
   const customRef: typeof import('vue')['customRef']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const defineStore: typeof import('pinia')['defineStore']
   const effectScope: typeof import('vue')['effectScope']
+  const formatDecimal: typeof import('./src/utils/decimalUtils')['formatDecimal']
+  const formatPercentage: typeof import('./src/utils/decimalUtils')['formatPercentage']
   const getActiveHead: typeof import('@unhead/vue')['getActiveHead']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
@@ -61,22 +75,31 @@ declare global {
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
   const storeToRefs: typeof import('pinia')['storeToRefs']
+  const toNumber: typeof import('./src/utils/decimalUtils')['toNumber']
   const toRaw: typeof import('vue')['toRaw']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
+  const useAdventureStore: typeof import('./src/stores/adventureStore')['useAdventureStore']
   const useAttrs: typeof import('vue')['useAttrs']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
+  const useGameStore: typeof import('./src/stores/gameStore')['useGameStore']
+  const useGeneratorStore: typeof import('./src/stores/generatorStore')['useGeneratorStore']
+  const useGeneratorUpgradeStore: typeof import('./src/stores/generatorUpgradeStore')['useGeneratorUpgradeStore']
   const useHead: typeof import('@unhead/vue')['useHead']
   const useHeadSafe: typeof import('@unhead/vue')['useHeadSafe']
   const useId: typeof import('vue')['useId']
+  const useInventoryStore: typeof import('./src/stores/inventoryStore')['useInventoryStore']
   const useLink: typeof import('vue-router')['useLink']
   const useModel: typeof import('vue')['useModel']
+  const usePWAEvents: typeof import('./src/composables/usePWAEvents')['usePWAEvents']
+  const usePrestigeStore: typeof import('./src/stores/prestigeStore')['usePrestigeStore']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouter: typeof import('vue-router')['useRouter']
+  const useSaveSystem: typeof import('./src/stores/saveSystem')['useSaveSystem']
   const useSeoMeta: typeof import('@unhead/vue')['useSeoMeta']
   const useServerHead: typeof import('@unhead/vue')['useServerHead']
   const useServerHeadSafe: typeof import('@unhead/vue')['useServerHeadSafe']
@@ -84,6 +107,7 @@ declare global {
   const useSlots: typeof import('vue')['useSlots']
   const useStore: typeof import('@/store')['useStore']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const useVisibilityState: typeof import('./src/composables/useVisibilityState')['useVisibilityState']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -94,6 +118,12 @@ declare global {
   // @ts-ignore
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { Generator } from './src/stores/generatorStore'
+  import('./src/stores/generatorStore')
+  // @ts-ignore
+  export type { EvolutionUpgrade } from './src/stores/prestigeStore'
+  import('./src/stores/prestigeStore')
 }
 
 // for vue template auto import
@@ -103,14 +133,28 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly calculateCost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateCost']>
+    readonly calculateGeneratorCost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateGeneratorCost']>
+    readonly calculateMk1Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk1Cost']>
+    readonly calculateMk2Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk2Cost']>
+    readonly calculateMk3Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk3Cost']>
+    readonly calculateMk4Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk4Cost']>
+    readonly calculateMk5Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk5Cost']>
+    readonly calculateMk6Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk6Cost']>
+    readonly calculateMk7Cost: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateMk7Cost']>
+    readonly calculateProduction: UnwrapRef<typeof import('./src/utils/decimalUtils')['calculateProduction']>
+    readonly canAfford: UnwrapRef<typeof import('./src/utils/decimalUtils')['canAfford']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createDecimal: UnwrapRef<typeof import('./src/utils/decimalUtils')['createDecimal']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly formatDecimal: UnwrapRef<typeof import('./src/utils/decimalUtils')['formatDecimal']>
+    readonly formatPercentage: UnwrapRef<typeof import('./src/utils/decimalUtils')['formatPercentage']>
     readonly getActiveHead: UnwrapRef<typeof import('@unhead/vue')['getActiveHead']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
@@ -156,22 +200,31 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
+    readonly toNumber: UnwrapRef<typeof import('./src/utils/decimalUtils')['toNumber']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
+    readonly useAdventureStore: UnwrapRef<typeof import('./src/stores/adventureStore')['useAdventureStore']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useGameStore: UnwrapRef<typeof import('./src/stores/gameStore')['useGameStore']>
+    readonly useGeneratorStore: UnwrapRef<typeof import('./src/stores/generatorStore')['useGeneratorStore']>
+    readonly useGeneratorUpgradeStore: UnwrapRef<typeof import('./src/stores/generatorUpgradeStore')['useGeneratorUpgradeStore']>
     readonly useHead: UnwrapRef<typeof import('@unhead/vue')['useHead']>
     readonly useHeadSafe: UnwrapRef<typeof import('@unhead/vue')['useHeadSafe']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useInventoryStore: UnwrapRef<typeof import('./src/stores/inventoryStore')['useInventoryStore']>
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly usePWAEvents: UnwrapRef<typeof import('./src/composables/usePWAEvents')['usePWAEvents']>
+    readonly usePrestigeStore: UnwrapRef<typeof import('./src/stores/prestigeStore')['usePrestigeStore']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
+    readonly useSaveSystem: UnwrapRef<typeof import('./src/stores/saveSystem')['useSaveSystem']>
     readonly useSeoMeta: UnwrapRef<typeof import('@unhead/vue')['useSeoMeta']>
     readonly useServerHead: UnwrapRef<typeof import('@unhead/vue')['useServerHead']>
     readonly useServerHeadSafe: UnwrapRef<typeof import('@unhead/vue')['useServerHeadSafe']>
@@ -179,6 +232,7 @@ declare module 'vue' {
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useStore: UnwrapRef<typeof import('@/store')['useStore']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useVisibilityState: UnwrapRef<typeof import('./src/composables/useVisibilityState')['useVisibilityState']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>

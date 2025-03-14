@@ -1,30 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useGameStore } from '@/stores/gameStore'
-import { useGeneratorStore } from '@/stores/generatorStore'
-import { useGeneratorUpgradeStore } from '@/stores/generatorUpgradeStore'
-import GeneratorItem from '@/components/GeneratorItem.vue'
-import NextUnlockableGenerator from '@/components/NextUnlockableGenerator.vue'
-import ColonyStatusCard from '@/components/ColonyStatusCard.vue'
-import AdaptationSummaryCard from '@/components/AdaptationSummaryCard.vue'
-import AntSpecializationCard from '@/components/AntSpecializationCard.vue'
-import GeneratorInfoDialog from '@/components/GeneratorInfoDialog.vue'
-import GeneratorUpgradeModal from '@/components/GeneratorUpgradeModal.vue'
 import { generatorInfo } from '@/constants/generatorInfo'
 import type { GeneratorId } from '@/types/generators'
 
 // Import shared styles
 import '@/assets/styles/animations.css'
 
-const gameStore = useGameStore()
 const generatorStore = useGeneratorStore()
-const generatorUpgradeStore = useGeneratorUpgradeStore()
 
 // Get unlocked generators
 const unlockedGenerators = computed(() => generatorStore.unlockedGenerators)
-
-// Get the next unlockable generator
-const nextUnlockableGenerator = computed(() => generatorStore.nextUnlockableGenerator)
 
 // Get unlocked generator IDs for level cards
 const unlockedGeneratorIds = computed(() => {

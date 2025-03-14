@@ -1,13 +1,4 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { usePrestigeStore } from '@/stores/prestigeStore'
-import EvolutionStatusSection from '@/components/EvolutionStatusSection.vue'
-import UpgradeTabsNavigation from '@/components/UpgradeTabsNavigation.vue'
-import UpgradeFilters from '@/components/UpgradeFilters.vue'
-import UpgradeGrid from '@/components/UpgradeGrid.vue'
-import EvolutionConfirmationDialog from '@/components/EvolutionConfirmationDialog.vue'
-import AboutEvolutionDialog from '@/components/AboutEvolutionDialog.vue'
-
 const prestigeStore = usePrestigeStore()
 const evolutionUpgrades = computed(() => prestigeStore.evolutionUpgrades)
 
@@ -50,6 +41,7 @@ const getCategoryCount = (category: string): number => {
 const activeTab = ref('all')
 const showMaxed = ref(false)
 const showAffordable = ref(false)
+const showUnlocked = ref(true)
 
 // Confirmation dialog state
 const showConfirmation = ref(false)
@@ -86,6 +78,7 @@ const toggleAboutEvolution = () => {
 const resetFilters = () => {
   showMaxed.value = false
   showAffordable.value = false
+  showUnlocked.value = true
 }
 
 // Available categories
@@ -113,13 +106,13 @@ const categories = ['all', 'production', 'efficiency', 'automation', 'research',
       <div class="p-4">
         <!-- Filters -->
         <UpgradeFilters v-model:showMaxed="showMaxed" v-model:showAffordable="showAffordable"
-          @resetFilters="resetFilters" />
+          v-model:showUnlocked="showUnlocked" @resetFilters="resetFilters" />
 
         <!-- Upgrades Grid -->
         <div v-for="category in categories" :key="`panel-${category}`" :id="`panel-${category}`" role="tabpanel"
           :aria-labelledby="`tab-${category}`" :hidden="activeTab !== category">
           <UpgradeGrid :category="category" :showMaxed="showMaxed" :showAffordable="showAffordable"
-            @resetFilters="resetFilters" />
+            :showUnlocked="showUnlocked" @resetFilters="resetFilters" />
         </div>
       </div>
     </div>

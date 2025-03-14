@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useAdventureStore } from '@/stores/adventureStore'
-import { formatDecimal } from '@/utils/decimalUtils'
-
 const adventureStore = useAdventureStore()
 
 // Computed properties for formatted values

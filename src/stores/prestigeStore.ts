@@ -17,7 +17,7 @@ export interface EvolutionUpgrade {
   maxLevel: Decimal | null // null means no max level
   effect: (level: Decimal) => Decimal // Returns multiplier based on level
   icon: string
-  unlocked: boolean
+  isUnlocked: () => boolean // Function to determine if upgrade is unlocked
   category: 'production' | 'efficiency' | 'automation' | 'research' | 'synergy' | 'prestige'
 }
 
@@ -59,6 +59,63 @@ export const usePrestigeStore = defineStore('prestige', () => {
     return createDecimal(requirement)
   })
 
+  // Define a function to check if a specific upgrade is unlocked
+  const isUpgradeUnlocked = (upgradeId: string): boolean => {
+    // Basic upgrades are always unlocked
+    const basicUpgrades = [
+      'foodProcessing',
+      'efficientQueens',
+      'shorterLoops',
+      'strongerSoldiers',
+      'mutatedWorkers',
+      'nurseryEfficiency',
+      'colonyExpansion',
+      'exponentialGrowth',
+      'compoundEvolution',
+      'unlockMegacolony',
+      'cycleTimeReduction',
+      'epBoost',
+      'cycleFoodReduction',
+      'startingFood',
+      'epSquared',
+      'autoWorker',
+      'autoNursery',
+      'autoQueenChamber',
+      'autoColony',
+      'bulkAutomation',
+      'generatorSynergy',
+      'evolutionSynergy',
+      'prestigeAcceleration',
+    ]
+
+    if (basicUpgrades.includes(upgradeId)) {
+      return true
+    }
+
+    // Check for advanced generator unlocks and their related upgrades
+    const megaColonyUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockMegacolony')
+    const hiveMindUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockHivemind')
+    const antopolisUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockAntopolis')
+
+    // Mega Colony related upgrades
+    if (['autoMegacolony', 'megacolonyEfficiency', 'unlockHivemind'].includes(upgradeId)) {
+      return megaColonyUpgrade ? megaColonyUpgrade.level.gt(0) : false
+    }
+
+    // Hive Mind related upgrades
+    if (['autoHivemind', 'hivemindEfficiency', 'unlockAntopolis'].includes(upgradeId)) {
+      return hiveMindUpgrade ? hiveMindUpgrade.level.gt(0) : false
+    }
+
+    // Antopolis related upgrades
+    if (['autoAntopolis', 'antopolisEfficiency'].includes(upgradeId)) {
+      return antopolisUpgrade ? antopolisUpgrade.level.gt(0) : false
+    }
+
+    // Default to false for any other upgrades
+    return false
+  }
+
   // Evolution upgrades
   const evolutionUpgrades = ref<EvolutionUpgrade[]>([
     {
@@ -71,7 +128,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.1)), // 1 + (level * 0.1)
       icon: 'i-heroicons-cake',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     {
@@ -84,7 +141,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.15)), // 1 + (level * 0.15)
       icon: 'i-heroicons-crown',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     {
@@ -97,7 +154,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(20),
       effect: level => createDecimal(1).add(level.mul(0.05)), // 1 + (level * 0.05)
       icon: 'i-heroicons-clock',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'efficiency',
     },
     {
@@ -110,7 +167,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: null, // No max level
       effect: level => createDecimal(1).add(level.mul(0.05)), // 1 + (level * 0.05)
       icon: 'i-heroicons-shield-check',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     {
@@ -123,7 +180,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).add(level.mul(0.2)), // 1 + (level * 0.2)
       icon: 'i-heroicons-bug-ant',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     // New generator-specific upgrades
@@ -137,7 +194,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).add(level.mul(0.25)),
       icon: 'i-heroicons-home-modern',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     {
@@ -150,7 +207,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).add(level.mul(0.3)),
       icon: 'i-heroicons-building',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     // Exponential scaling upgrades
@@ -164,7 +221,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(10),
       effect: level => createDecimal(2).pow(level), // 2^level (2, 4, 8, 16, etc.)
       icon: 'i-heroicons-chart-bar',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     {
@@ -177,7 +234,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1.5).pow(level), // 1.5^level
       icon: 'i-heroicons-arrow-trending-up',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'production',
     },
     // Advanced generator unlocks
@@ -190,7 +247,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(1),
       effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
       icon: 'i-heroicons-building-office-2',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'research',
     },
     {
@@ -202,7 +259,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(1),
       effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
       icon: 'i-heroicons-cpu-chip',
-      unlocked: false, // Only unlocked after purchasing Mega Colony
+      isUnlocked: () => isUpgradeUnlocked('unlockHivemind'),
       category: 'research',
     },
     {
@@ -214,7 +271,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(1),
       effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
       icon: 'i-heroicons-building-library',
-      unlocked: false, // Only unlocked after purchasing Hive Mind
+      isUnlocked: () => isUpgradeUnlocked('unlockAntopolis'),
       category: 'research',
     },
     // Advanced generator efficiency upgrades
@@ -228,7 +285,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(20),
       effect: level => createDecimal(1).add(level.mul(0.4)),
       icon: 'i-heroicons-building-office',
-      unlocked: false, // Only unlocked after purchasing Mega Colony
+      isUnlocked: () => isUpgradeUnlocked('megacolonyEfficiency'),
       category: 'production',
     },
     {
@@ -241,7 +298,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(20),
       effect: level => createDecimal(1).add(level.mul(0.5)),
       icon: 'i-heroicons-brain',
-      unlocked: false, // Only unlocked after purchasing Hive Mind
+      isUnlocked: () => isUpgradeUnlocked('hivemindEfficiency'),
       category: 'production',
     },
     {
@@ -254,7 +311,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(20),
       effect: level => createDecimal(1).add(level.mul(0.6)),
       icon: 'i-heroicons-building-storefront',
-      unlocked: false, // Only unlocked after purchasing Antopolis
+      isUnlocked: () => isUpgradeUnlocked('antopolisEfficiency'),
       category: 'production',
     },
     // Cycle and EP upgrades
@@ -268,7 +325,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(20),
       effect: level => createDecimal(0.2).mul(level), // 0.2s reduction per level
       icon: 'i-heroicons-clock-solid',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'efficiency',
     },
     {
@@ -281,7 +338,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.1)), // +10% per level
       icon: 'i-heroicons-star',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'prestige',
     },
     {
@@ -294,7 +351,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).sub(level.mul(0.05).min(0.75)), // Max 75% reduction
       icon: 'i-heroicons-arrow-down-circle',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'efficiency',
     },
     {
@@ -307,7 +364,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(10),
       effect: level => createDecimal(10).pow(level), // 10^level
       icon: 'i-heroicons-banknotes',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'prestige',
     },
     {
@@ -320,7 +377,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(5),
       effect: level => createDecimal(1).add(level.mul(0.01)), // Each level adds 1% of current EP as a multiplier
       icon: 'i-heroicons-sparkles',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'prestige',
     },
     // Auto-purchase upgrades
@@ -334,7 +391,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
       icon: 'i-heroicons-cog-6-tooth',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'automation',
     },
     {
@@ -347,7 +404,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
       icon: 'i-heroicons-cog-6-tooth',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'automation',
     },
     {
@@ -360,7 +417,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
       icon: 'i-heroicons-cog-6-tooth',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'automation',
     },
     {
@@ -373,7 +430,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
       icon: 'i-heroicons-cog-6-tooth',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'automation',
     },
     {
@@ -386,7 +443,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
       icon: 'i-heroicons-cog-6-tooth',
-      unlocked: false, // Only unlocked after purchasing Mega Colony
+      isUnlocked: () => isUpgradeUnlocked('autoMegacolony'),
       category: 'automation',
     },
     {
@@ -399,7 +456,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
       icon: 'i-heroicons-cog-6-tooth',
-      unlocked: false, // Only unlocked after purchasing Hive Mind
+      isUnlocked: () => isUpgradeUnlocked('autoHivemind'),
       category: 'automation',
     },
     {
@@ -412,7 +469,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
       icon: 'i-heroicons-cog-6-tooth',
-      unlocked: false, // Only unlocked after purchasing Antopolis
+      isUnlocked: () => isUpgradeUnlocked('autoAntopolis'),
       category: 'automation',
     },
     // Bulk automation upgrades
@@ -426,7 +483,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(10),
       effect: level => createDecimal(1).add(level.mul(4)), // 1 + 4*level (5x, 9x, 13x, etc.)
       icon: 'i-heroicons-bolt',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'automation',
     },
     // Synergy upgrades
@@ -440,7 +497,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(20),
       effect: level => createDecimal(1).add(level.mul(0.02)), // 1 + 0.02*level per generator type
       icon: 'i-heroicons-puzzle-piece',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'synergy',
     },
     {
@@ -453,7 +510,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).add(level.mul(0.01)), // 1 + 0.01*level per evolution
       icon: 'i-heroicons-fire',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'synergy',
     },
     // Prestige acceleration
@@ -467,7 +524,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       maxLevel: createDecimal(10),
       effect: level => level, // Level directly determines starting cycles
       icon: 'i-heroicons-rocket-launch',
-      unlocked: true,
+      isUnlocked: () => true,
       category: 'prestige',
     },
   ])
@@ -680,7 +737,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
         id: upgrade.id,
         level: upgrade.level.toString(),
         cost: upgrade.cost.toString(),
-        unlocked: upgrade.unlocked,
       })),
     }
   }
@@ -720,73 +776,8 @@ export const usePrestigeStore = defineStore('prestige', () => {
         if (upgrade) {
           upgrade.level = createDecimal(savedUpgrade.level)
           upgrade.cost = createDecimal(savedUpgrade.cost)
-
-          // Load unlocked status if available
-          if (savedUpgrade.unlocked !== undefined) {
-            upgrade.unlocked = savedUpgrade.unlocked
-          }
-
-          // Ensure all upgrades have a category (for backward compatibility)
-          if (!upgrade.category) {
-            // Assign default categories based on ID patterns
-            if (upgrade.id.startsWith('unlock')) {
-              upgrade.category = 'research'
-            } else if (upgrade.id.startsWith('auto')) {
-              upgrade.category = 'automation'
-            } else if (['foodProcessing', 'efficientQueens', 'mutatedWorkers'].includes(upgrade.id)) {
-              upgrade.category = 'production'
-            } else if (upgrade.id.includes('Synergy')) {
-              upgrade.category = 'synergy'
-            } else if (['epBoost', 'startingFood', 'epSquared', 'prestigeAcceleration'].includes(upgrade.id)) {
-              upgrade.category = 'prestige'
-            } else {
-              upgrade.category = 'efficiency'
-            }
-          }
         }
       })
-
-      // Ensure auto-purchase upgrades are unlocked if their corresponding generator unlock is purchased
-      const megaColonyUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockMegacolony')
-      const hiveMindUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockHivemind')
-      const antopolisUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockAntopolis')
-
-      const autoMegacolonyUpgrade = evolutionUpgrades.value.find(u => u.id === 'autoMegacolony')
-      const autoHivemindUpgrade = evolutionUpgrades.value.find(u => u.id === 'autoHivemind')
-      const autoAntopolisUpgrade = evolutionUpgrades.value.find(u => u.id === 'autoAntopolis')
-
-      // Get efficiency upgrades
-      const megacolonyEfficiencyUpgrade = evolutionUpgrades.value.find(u => u.id === 'megacolonyEfficiency')
-      const hivemindEfficiencyUpgrade = evolutionUpgrades.value.find(u => u.id === 'hivemindEfficiency')
-      const antopolisEfficiencyUpgrade = evolutionUpgrades.value.find(u => u.id === 'antopolisEfficiency')
-
-      // Unlock auto-purchase upgrades based on generator unlock status
-      if (megaColonyUpgrade && megaColonyUpgrade.level.gt(0)) {
-        if (autoMegacolonyUpgrade) {
-          autoMegacolonyUpgrade.unlocked = true
-        }
-        if (megacolonyEfficiencyUpgrade) {
-          megacolonyEfficiencyUpgrade.unlocked = true
-        }
-      }
-
-      if (hiveMindUpgrade && hiveMindUpgrade.level.gt(0)) {
-        if (autoHivemindUpgrade) {
-          autoHivemindUpgrade.unlocked = true
-        }
-        if (hivemindEfficiencyUpgrade) {
-          hivemindEfficiencyUpgrade.unlocked = true
-        }
-      }
-
-      if (antopolisUpgrade && antopolisUpgrade.level.gt(0)) {
-        if (autoAntopolisUpgrade) {
-          autoAntopolisUpgrade.unlocked = true
-        }
-        if (antopolisEfficiencyUpgrade) {
-          antopolisEfficiencyUpgrade.unlocked = true
-        }
-      }
     }
   }
 
@@ -889,14 +880,13 @@ export const usePrestigeStore = defineStore('prestige', () => {
       return false
     }
 
+    // Check if the upgrade is unlocked
+    if (!upgrade.isUnlocked()) {
+      return false
+    }
+
     // Check dependencies for advanced generator upgrades
     if (upgradeId === 'unlockHivemind') {
-      // Check if Mega Colony upgrade has been purchased
-      const megaColonyUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockMegacolony')
-      if (!megaColonyUpgrade || megaColonyUpgrade.level.eq(0)) {
-        return false // Cannot purchase Hive Mind upgrade without Mega Colony upgrade
-      }
-
       // Also check if player has at least one Mega Colony
       const generatorStore = useGeneratorStore()
       const megacolony = generatorStore.getGenerator('megacolony')
@@ -904,35 +894,11 @@ export const usePrestigeStore = defineStore('prestige', () => {
         return false // Cannot purchase Hive Mind upgrade without having at least one Mega Colony
       }
     } else if (upgradeId === 'unlockAntopolis') {
-      // Check if Hive Mind upgrade has been purchased
-      const hiveMindUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockHivemind')
-      if (!hiveMindUpgrade || hiveMindUpgrade.level.eq(0)) {
-        return false // Cannot purchase Antopolis upgrade without Hive Mind upgrade
-      }
-
       // Also check if player has at least one Hive Mind
       const generatorStore = useGeneratorStore()
       const hivemind = generatorStore.getGenerator('hivemind')
       if (!hivemind || hivemind.count.eq(0)) {
         return false // Cannot purchase Antopolis upgrade without having at least one Hive Mind
-      }
-    } else if (upgradeId === 'megacolonyEfficiency') {
-      // Check if Mega Colony upgrade has been purchased
-      const megaColonyUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockMegacolony')
-      if (!megaColonyUpgrade || megaColonyUpgrade.level.eq(0)) {
-        return false // Cannot purchase Mega Colony efficiency without Mega Colony upgrade
-      }
-    } else if (upgradeId === 'hivemindEfficiency') {
-      // Check if Hive Mind upgrade has been purchased
-      const hiveMindUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockHivemind')
-      if (!hiveMindUpgrade || hiveMindUpgrade.level.eq(0)) {
-        return false // Cannot purchase Hive Mind efficiency without Hive Mind upgrade
-      }
-    } else if (upgradeId === 'antopolisEfficiency') {
-      // Check if Antopolis upgrade has been purchased
-      const antopolisUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockAntopolis')
-      if (!antopolisUpgrade || antopolisUpgrade.level.eq(0)) {
-        return false // Cannot purchase Antopolis efficiency without Antopolis upgrade
       }
     }
 
@@ -940,7 +906,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
     evolutionPoints.value = evolutionPoints.value.sub(upgrade.cost)
     upgrade.level = upgrade.level.add(1)
 
-    // Increase cost for next level (cost increases by 50% per level)
+    // Increase cost for next level
     if (upgrade.costMultiplier) {
       upgrade.cost = upgrade.costMultiplier({ cost: upgrade.cost, level: upgrade.level })
     } else {
@@ -957,24 +923,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
         // Keep unlocked as false to not break nextUnlockableGenerator
         megacolony.unlocked = false
       }
-
-      // Unlock the next upgrade in the sequence
-      const hivemindUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockHivemind')
-      if (hivemindUpgrade) {
-        hivemindUpgrade.unlocked = true
-      }
-
-      // Also unlock the corresponding auto-purchase upgrade
-      const autoMegacolonyUpgrade = evolutionUpgrades.value.find(u => u.id === 'autoMegacolony')
-      if (autoMegacolonyUpgrade) {
-        autoMegacolonyUpgrade.unlocked = true
-      }
-
-      // Unlock the corresponding efficiency upgrade
-      const megacolonyEfficiencyUpgrade = evolutionUpgrades.value.find(u => u.id === 'megacolonyEfficiency')
-      if (megacolonyEfficiencyUpgrade) {
-        megacolonyEfficiencyUpgrade.unlocked = true
-      }
     } else if (upgradeId === 'unlockHivemind') {
       // Make Hive Mind generator purchasable
       const generatorStore = useGeneratorStore()
@@ -984,24 +932,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
         // Keep unlocked as false to not break nextUnlockableGenerator
         hivemind.unlocked = false
       }
-
-      // Unlock the next upgrade in the sequence
-      const antopolisUpgrade = evolutionUpgrades.value.find(u => u.id === 'unlockAntopolis')
-      if (antopolisUpgrade) {
-        antopolisUpgrade.unlocked = true
-      }
-
-      // Also unlock the corresponding auto-purchase upgrade
-      const autoHivemindUpgrade = evolutionUpgrades.value.find(u => u.id === 'autoHivemind')
-      if (autoHivemindUpgrade) {
-        autoHivemindUpgrade.unlocked = true
-      }
-
-      // Unlock the corresponding efficiency upgrade
-      const hivemindEfficiencyUpgrade = evolutionUpgrades.value.find(u => u.id === 'hivemindEfficiency')
-      if (hivemindEfficiencyUpgrade) {
-        hivemindEfficiencyUpgrade.unlocked = true
-      }
     } else if (upgradeId === 'unlockAntopolis') {
       // Make Antopolis generator purchasable
       const generatorStore = useGeneratorStore()
@@ -1010,18 +940,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
         antopolis.purchasable = true
         // Keep unlocked as false to not break nextUnlockableGenerator
         antopolis.unlocked = false
-      }
-
-      // Also unlock the corresponding auto-purchase upgrade
-      const autoAntopolisUpgrade = evolutionUpgrades.value.find(u => u.id === 'autoAntopolis')
-      if (autoAntopolisUpgrade) {
-        autoAntopolisUpgrade.unlocked = true
-      }
-
-      // Unlock the corresponding efficiency upgrade
-      const antopolisEfficiencyUpgrade = evolutionUpgrades.value.find(u => u.id === 'antopolisEfficiency')
-      if (antopolisEfficiencyUpgrade) {
-        antopolisEfficiencyUpgrade.unlocked = true
       }
     }
 
@@ -1053,5 +971,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
     formatFoodForNextLoop,
     getState,
     loadState,
+    isUpgradeUnlocked,
   }
 })

@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useGameStore } from '@/stores/gameStore'
-import { useGeneratorStore } from '@/stores/generatorStore'
-import { usePrestigeStore } from '@/stores/prestigeStore'
-import { formatDecimal } from '@/utils/decimalUtils'
-
 // Navigation items for the footer
 const navItems = ref([
   { name: 'Home', icon: 'i-heroicons-home', route: '/' },
@@ -90,7 +84,7 @@ onUnmounted(() => {
           <div class="flex items-center bg-amber-900/20 rounded-full px-2 py-1">
             <span class="i-heroicons-arrow-trending-up text-amber-300 mr-1"></span>
             <span class="text-xs md:text-sm font-medium">{{ formatDecimal(generatorStore.foodPerSecond, 1)
-              }}/trip</span>
+            }}/trip</span>
           </div>
 
           <!-- Evolution Count -->

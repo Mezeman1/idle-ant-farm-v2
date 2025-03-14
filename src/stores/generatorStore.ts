@@ -48,7 +48,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       count: createDecimal(0),
       manualPurchases: createDecimal(0),
       baseCost: createDecimal(100),
-      costGrowth: createDecimal(1.15),
+      costGrowth: createDecimal(1.1),
       baseProduction: createDecimal(1),
       unlocked: false,
       purchasable: false,
@@ -63,7 +63,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       count: createDecimal(0),
       manualPurchases: createDecimal(0),
       baseCost: createDecimal(1000),
-      costGrowth: createDecimal(1.2),
+      costGrowth: createDecimal(1.1),
       baseProduction: createDecimal(1),
       unlocked: false,
       purchasable: false,
@@ -78,7 +78,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       count: createDecimal(0),
       manualPurchases: createDecimal(0),
       baseCost: createDecimal(10000),
-      costGrowth: createDecimal(1.25),
+      costGrowth: createDecimal(1.1),
       baseProduction: createDecimal(1),
       unlocked: false,
       purchasable: false,
@@ -94,7 +94,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       count: createDecimal(0),
       manualPurchases: createDecimal(0),
       baseCost: createDecimal(100000),
-      costGrowth: createDecimal(1.3),
+      costGrowth: createDecimal(1.2),
       baseProduction: createDecimal(1),
       unlocked: false,
       purchasable: false,
@@ -109,7 +109,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       count: createDecimal(0),
       manualPurchases: createDecimal(0),
       baseCost: createDecimal(1000000),
-      costGrowth: createDecimal(1.35),
+      costGrowth: createDecimal(1.2),
       baseProduction: createDecimal(1),
       unlocked: false,
       purchasable: false,
@@ -124,7 +124,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       count: createDecimal(0),
       manualPurchases: createDecimal(0),
       baseCost: createDecimal(10000000),
-      costGrowth: createDecimal(1.4),
+      costGrowth: createDecimal(1.2),
       baseProduction: createDecimal(1),
       unlocked: false,
       purchasable: false,
@@ -703,12 +703,23 @@ export const useGeneratorStore = defineStore('generator', () => {
     }
   }
 
+  // Get total points available
+
+  const totalPointsAvailable = computed(() => {
+    let total = 0
+    Object.values(useGeneratorUpgradeStore().generatorPoints).forEach((points: Decimal) => {
+      total += points.toNumber()
+    })
+    return total
+  })
+
   return {
     generators,
     unlockedGenerators,
     nextUnlockableGenerator,
     food,
     foodPerSecond,
+    totalPointsAvailable,
     getGenerator,
     getGeneratorCost,
     buyGenerator,

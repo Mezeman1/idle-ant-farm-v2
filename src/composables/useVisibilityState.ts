@@ -1,6 +1,3 @@
-import { onMounted, onUnmounted, ref } from 'vue'
-import { useSaveSystem } from '@/stores/saveSystem'
-
 /**
  * Composable to handle app visibility state changes
  * Triggers offline progress calculations when app returns to foreground

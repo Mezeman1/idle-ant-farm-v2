@@ -1,13 +1,4 @@
 <script setup lang="ts">
-// Home page for the idle ant farm game
-import { computed } from 'vue'
-import { useGameStore } from '@/stores/gameStore'
-import { useGeneratorStore } from '@/stores/generatorStore'
-import { usePrestigeStore } from '@/stores/prestigeStore'
-import HomeColonyStatusCard from '@/components/HomeColonyStatusCard.vue'
-import MetamorphosisCard from '@/components/MetamorphosisCard.vue'
-import AntHierarchySection from '@/components/AntHierarchySection.vue'
-
 // Import shared styles
 import '@/assets/styles/animations.css'
 
