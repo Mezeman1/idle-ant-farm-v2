@@ -84,6 +84,7 @@ declare global {
   const unref: typeof import('vue')['unref']
   const useAdventureStore: typeof import('./src/stores/adventureStore')['useAdventureStore']
   const useAttrs: typeof import('vue')['useAttrs']
+  const useBugStore: typeof import('./src/stores/bugStore')['useBugStore']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDarkMode: typeof import('./src/composables/useDarkMode')['useDarkMode']
@@ -211,6 +212,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAdventureStore: UnwrapRef<typeof import('./src/stores/adventureStore')['useAdventureStore']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useBugStore: UnwrapRef<typeof import('./src/stores/bugStore')['useBugStore']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDarkMode: UnwrapRef<typeof import('./src/composables/useDarkMode')['useDarkMode']>

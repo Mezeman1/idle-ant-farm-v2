@@ -18,6 +18,7 @@ export const useGameStore = defineStore('game', () => {
     return Math.max(1, baseTickDuration.value - reduction)
   })
   const tickProgress = ref(0) // Current progress (0 to 1)
+  const adventureTickProgress = ref(0) // Adventure progress (0 to 1)
   const lastTickTime = ref(Date.now())
   const isRunning = ref(true)
 
@@ -26,8 +27,13 @@ export const useGameStore = defineStore('game', () => {
 
   // Computed properties
   const progressPercentage = computed(() => Math.round(tickProgress.value * 100))
+  const adventureProgressPercentage = computed(() => Math.round(adventureTickProgress.value * 100))
   const timeRemaining = computed(() => {
     const remaining = tickDuration.value * (1 - tickProgress.value)
+    return remaining.toFixed(1)
+  })
+  const adventureTimeRemaining = computed(() => {
+    const remaining = (tickDuration.value / 2) * (1 - adventureTickProgress.value)
     return remaining.toFixed(1)
   })
 
@@ -54,10 +60,6 @@ export const useGameStore = defineStore('game', () => {
     const generatorUpgradeStore = useGeneratorUpgradeStore()
     generatorUpgradeStore.updateWorkerProgress(1) // 1 tick of progress for worker level
 
-    // Call the adventure store's tick function
-    const adventureStore = useAdventureStore()
-    adventureStore.tick()
-
     // Trigger debounced save
     const saveSystem = useSaveSystem()
     saveSystem.debouncedSave()
@@ -74,12 +76,22 @@ export const useGameStore = defineStore('game', () => {
     const now = Date.now()
     const elapsed = (now - lastTickTime.value) / 1000 // Convert to seconds
 
-    // Calculate new progress
+    // Calculate new progress for main tick
     tickProgress.value += elapsed / tickDuration.value
+
+    // Calculate new progress for adventure tick (twice as fast)
+    adventureTickProgress.value += elapsed / (tickDuration.value / 2)
 
     // If progress reaches or exceeds 1, trigger a tick
     if (tickProgress.value >= 1) {
       tick()
+    }
+
+    // If adventure progress reaches or exceeds 1, trigger an adventure tick
+    if (adventureTickProgress.value >= 1) {
+      const adventureStore = useAdventureStore()
+      adventureStore.tick()
+      adventureTickProgress.value = 0
     }
 
     // Update last tick time
@@ -116,11 +128,14 @@ export const useGameStore = defineStore('game', () => {
   return {
     tickDuration,
     tickProgress,
+    adventureTickProgress,
     isRunning,
     totalTicks,
     formattedTotalTicks,
     progressPercentage,
+    adventureProgressPercentage,
     timeRemaining,
+    adventureTimeRemaining,
     tick,
     updateProgress,
     toggleRunning,
