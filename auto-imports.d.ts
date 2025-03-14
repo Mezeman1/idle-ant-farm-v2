@@ -95,6 +95,7 @@ declare global {
   const useInventoryStore: typeof import('./src/stores/inventoryStore')['useInventoryStore']
   const useLink: typeof import('vue-router')['useLink']
   const useModel: typeof import('vue')['useModel']
+  const useMultiplierStore: typeof import('./src/stores/multiplierStore')['useMultiplierStore']
   const usePWAEvents: typeof import('./src/composables/usePWAEvents')['usePWAEvents']
   const usePrestigeStore: typeof import('./src/stores/prestigeStore')['usePrestigeStore']
   const useRoute: typeof import('vue-router')['useRoute']
@@ -121,6 +122,9 @@ declare global {
   // @ts-ignore
   export type { Generator } from './src/stores/generatorStore'
   import('./src/stores/generatorStore')
+  // @ts-ignore
+  export type { MultiplierBreakdown } from './src/stores/multiplierStore'
+  import('./src/stores/multiplierStore')
   // @ts-ignore
   export type { EvolutionUpgrade } from './src/stores/prestigeStore'
   import('./src/stores/prestigeStore')
@@ -220,6 +224,7 @@ declare module 'vue' {
     readonly useInventoryStore: UnwrapRef<typeof import('./src/stores/inventoryStore')['useInventoryStore']>
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useMultiplierStore: UnwrapRef<typeof import('./src/stores/multiplierStore')['useMultiplierStore']>
     readonly usePWAEvents: UnwrapRef<typeof import('./src/composables/usePWAEvents')['usePWAEvents']>
     readonly usePrestigeStore: UnwrapRef<typeof import('./src/stores/prestigeStore')['usePrestigeStore']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>

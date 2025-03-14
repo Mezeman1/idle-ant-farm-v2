@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useGeneratorStore } from '@/stores/generatorStore'
-import { usePrestigeStore } from '@/stores/prestigeStore'
 import type { Generator } from '@/stores/generatorStore'
-import { formatDecimal, formatPercentage } from '@/utils/decimalUtils'
-import HoldableButton from '@/components/HoldableButton.vue'
 
 const props = defineProps<{
   generator: Generator
@@ -12,6 +7,24 @@ const props = defineProps<{
 
 const generatorStore = useGeneratorStore()
 const prestigeStore = usePrestigeStore()
+const multiplierStore = useMultiplierStore()
+
+// Tooltip state
+const showTooltip = ref(false)
+const tooltipX = ref(0)
+const tooltipY = ref(0)
+
+// Function to show tooltip
+const handleShowTooltip = (event: MouseEvent) => {
+  showTooltip.value = true
+  tooltipX.value = event.clientX
+  tooltipY.value = event.clientY - 10 // Offset to position above cursor
+}
+
+// Function to hide tooltip
+const handleHideTooltip = () => {
+  showTooltip.value = false
+}
 
 // Computed properties
 const cost = computed(() => {
@@ -46,19 +59,14 @@ const formattedProduction = computed(() => {
   return formatDecimal(props.generator.baseProduction, 1)
 })
 
-// Get the production multiplier
+// Get the production multiplier using the multiplier store
 const productionMultiplier = computed(() => {
-  return generatorStore.getProductionMultiplier(props.generator.id)
+  return multiplierStore.getProductionMultiplier(props.generator.id)
 })
 
 // Format the production multiplier
 const formattedProductionMultiplier = computed(() => {
-  const multiplier = productionMultiplier.value
-  if (multiplier.lt(1000)) {
-    return `${multiplier.toFixed(2)}x`
-  } else {
-    return formatDecimal(multiplier, 2) + 'x'
-  }
+  return multiplierStore.getFormattedMultiplier(props.generator.id)
 })
 
 // Calculate actual production with multipliers
@@ -71,83 +79,9 @@ const formattedActualProduction = computed(() => {
   return formatDecimal(actualProduction.value, 1)
 })
 
-// Get multiplier breakdown for tooltip
+// Get multiplier breakdown for tooltip using the multiplier store
 const multiplierBreakdown = computed(() => {
-  const breakdown = []
-  const prestigeStore = usePrestigeStore()
-
-  // Add general multipliers
-  const strongerSoldiers = prestigeStore.getUpgradeMultiplier('strongerSoldiers')
-  if (strongerSoldiers.gt(1)) {
-    breakdown.push(`Stronger Soldiers: ${formatDecimal(strongerSoldiers, 2)}x`)
-  }
-
-  // Add exponential multipliers
-  const exponentialGrowth = prestigeStore.getUpgradeMultiplier('exponentialGrowth')
-  if (exponentialGrowth.gt(1)) {
-    breakdown.push(`Exponential Growth: ${formatDecimal(exponentialGrowth, 2)}x`)
-  }
-
-  const compoundEvolution = prestigeStore.getUpgradeMultiplier('compoundEvolution')
-  if (compoundEvolution.gt(1)) {
-    breakdown.push(`Compound Evolution: ${formatDecimal(compoundEvolution, 2)}x`)
-  }
-
-  // Add synergy multipliers
-  const generatorSynergy = prestigeStore.getAllMultipliers()['generatorSynergyBonus']
-  if (generatorSynergy && generatorSynergy.gt(1)) {
-    breakdown.push(`Generator Synergy: ${formatDecimal(generatorSynergy, 2)}x`)
-  }
-
-  const evolutionSynergy = prestigeStore.getAllMultipliers()['evolutionSynergyBonus']
-  if (evolutionSynergy && evolutionSynergy.gt(1)) {
-    breakdown.push(`Evolution Synergy: ${formatDecimal(evolutionSynergy, 2)}x`)
-  }
-
-  // Add generator-specific multipliers
-  if (props.generator.id === 'worker') {
-    const foodProcessing = prestigeStore.getUpgradeMultiplier('foodProcessing')
-    if (foodProcessing.gt(1)) {
-      breakdown.push(`Food Processing: ${formatDecimal(foodProcessing, 2)}x`)
-    }
-
-    const mutatedWorkers = prestigeStore.getUpgradeMultiplier('mutatedWorkers')
-    if (mutatedWorkers.gt(1)) {
-      breakdown.push(`Mutated Workers: ${formatDecimal(mutatedWorkers, 2)}x`)
-    }
-  } else if (props.generator.id === 'nursery') {
-    const nurseryEfficiency = prestigeStore.getUpgradeMultiplier('nurseryEfficiency')
-    if (nurseryEfficiency.gt(1)) {
-      breakdown.push(`Nursery Efficiency: ${formatDecimal(nurseryEfficiency, 2)}x`)
-    }
-  } else if (props.generator.id === 'queenChamber') {
-    const efficientQueens = prestigeStore.getUpgradeMultiplier('efficientQueens')
-    if (efficientQueens.gt(1)) {
-      breakdown.push(`Efficient Queens: ${formatDecimal(efficientQueens, 2)}x`)
-    }
-  } else if (props.generator.id === 'colony') {
-    const colonyExpansion = prestigeStore.getUpgradeMultiplier('colonyExpansion')
-    if (colonyExpansion.gt(1)) {
-      breakdown.push(`Colony Expansion: ${formatDecimal(colonyExpansion, 2)}x`)
-    }
-  } else if (props.generator.id === 'megacolony') {
-    const megacolonyEfficiency = prestigeStore.getUpgradeMultiplier('megacolonyEfficiency')
-    if (megacolonyEfficiency.gt(1)) {
-      breakdown.push(`Mega Colony Optimization: ${formatDecimal(megacolonyEfficiency, 2)}x`)
-    }
-  } else if (props.generator.id === 'hivemind') {
-    const hivemindEfficiency = prestigeStore.getUpgradeMultiplier('hivemindEfficiency')
-    if (hivemindEfficiency.gt(1)) {
-      breakdown.push(`Hive Mind Optimization: ${formatDecimal(hivemindEfficiency, 2)}x`)
-    }
-  } else if (props.generator.id === 'antopolis') {
-    const antopolisEfficiency = prestigeStore.getUpgradeMultiplier('antopolisEfficiency')
-    if (antopolisEfficiency.gt(1)) {
-      breakdown.push(`Antopolis Optimization: ${formatDecimal(antopolisEfficiency, 2)}x`)
-    }
-  }
-
-  return breakdown
+  return multiplierStore.getMultiplierBreakdown(props.generator.id)
 })
 
 // Check if auto-purchase is available for this generator
@@ -216,6 +150,13 @@ const productionType = computed(() => {
     default: return 'resources'
   }
 })
+
+// Computed property for button class
+const buttonClass = computed(() => {
+  return canAfford.value && !hasMissingDependency.value
+    ? 'w-full py-1.5 px-2.5 rounded text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white'
+    : 'w-full py-1.5 px-2.5 rounded text-xs font-medium bg-gray-200 text-gray-500 cursor-not-allowed'
+})
 </script>
 
 <template>
@@ -245,23 +186,11 @@ const productionType = computed(() => {
           <div class="text-right text-amber-700">{{ formattedActualProduction }} {{ productionType }}/trip</div>
 
           <div class="font-medium text-amber-600">Base × Multiplier:</div>
-          <div class="text-right text-amber-600 group relative">
+          <div class="text-right text-amber-600">
             {{ formattedProduction }} ×
-            <span class="cursor-help underline decoration-dotted" v-if="multiplierBreakdown.length > 0">
+            <span v-if="multiplierBreakdown.length > 0" class="cursor-help underline decoration-dotted"
+              @mouseenter="handleShowTooltip" @mouseleave="handleHideTooltip">
               {{ formattedProductionMultiplier }}
-              <!-- Tooltip for multiplier breakdown -->
-              <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-48 bg-amber-50 border border-amber-200
-                          rounded shadow-lg p-2 text-xs text-amber-800 hidden group-hover:block z-10">
-                <div class="font-bold mb-1 text-amber-900">Multiplier Breakdown:</div>
-                <div v-for="(item, index) in multiplierBreakdown" :key="index" class="flex justify-between mb-0.5">
-                  <span>{{ item.split(':')[0] }}:</span>
-                  <span class="font-medium">{{ item.split(':')[1] }}</span>
-                </div>
-                <div class="border-t border-amber-200 mt-1 pt-1 flex justify-between font-bold text-amber-900">
-                  <span>Total:</span>
-                  <span>{{ formattedProductionMultiplier }}</span>
-                </div>
-              </div>
             </span>
             <span v-else>{{ formattedProductionMultiplier }}</span>
           </div>
@@ -294,9 +223,7 @@ const productionType = computed(() => {
           {{ dependencyMessage }}
         </div>
 
-        <HoldableButton @action="buyGenerator" :disabled="!canAfford || hasMissingDependency" :class="canAfford && !hasMissingDependency
-          ? 'w-full py-1.5 px-2.5 rounded text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white'
-          : 'w-full py-1.5 px-2.5 rounded text-xs font-medium bg-gray-200 text-gray-500 cursor-not-allowed'"
+        <HoldableButton @action="buyGenerator" :disabled="!canAfford || hasMissingDependency" :class="buttonClass"
           :initial-delay="400" :repeat-interval="150" :accelerate="true" :min-interval="30">
           <span class="i-heroicons-shopping-cart text-xs mr-1"></span>
           Buy for {{ formattedCost }} food
@@ -304,4 +231,21 @@ const productionType = computed(() => {
       </div>
     </div>
   </div>
+
+  <!-- Teleported tooltip -->
+  <Teleport to="body">
+    <div v-if="showTooltip && multiplierBreakdown.length > 0"
+      class="fixed bg-amber-50 border border-amber-200 rounded shadow-lg p-2 text-xs text-amber-800 z-50"
+      :style="{ top: `${tooltipY}px`, left: `${tooltipX}px`, transform: 'translate(-50%, -100%)' }">
+      <div class="font-bold mb-1 text-amber-900">Multiplier Breakdown:</div>
+      <div v-for="(item, index) in multiplierBreakdown" :key="index" class="flex justify-between mb-0.5">
+        <span>{{ item.name }}:</span>
+        <span class="font-medium">{{ item.formatted }}</span>
+      </div>
+      <div class="border-t border-amber-200 mt-1 pt-1 flex justify-between font-bold text-amber-900">
+        <span>Total:</span>
+        <span>{{ formattedProductionMultiplier }}</span>
+      </div>
+    </div>
+  </Teleport>
 </template>
