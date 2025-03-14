@@ -603,7 +603,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
         'Unlock an additional equipment slot. Each level unlocks one more slot, up to a maximum of 10 slots.',
       baseCost: createDecimal(1000),
       cost: createDecimal(1000),
-      level: createDecimal(0),
+      level: createDecimal(1),
       maxLevel: createDecimal(10),
       effect: (level: Decimal) => {
         // Each level unlocks one slot

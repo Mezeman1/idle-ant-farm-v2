@@ -57,6 +57,13 @@ export const usePrestigeStore = defineStore('prestige', () => {
     return upgrade.effect(upgrade.level)
   }
 
+  const getUpgradeCount = (upgradeId: string) => {
+    const upgrade = evolutionUpgrades.value.find(u => u.id === upgradeId)
+    if (!upgrade) return createDecimal(0) // Default count is 0
+
+    return upgrade.level
+  }
+
   // Get all active multipliers
   const getAllMultipliers = () => {
     const multipliers: Record<string, Decimal> = {}
@@ -508,5 +515,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
     getState,
     loadState,
     isUpgradeUnlocked,
+    getUpgradeCount,
   }
 })
