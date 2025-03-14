@@ -96,17 +96,4 @@ export const items: Record<string, Item> = {
     },
     quantity: createDecimal(1),
   },
-
-  // Consumables
-  health_potion: {
-    id: 'health_potion',
-    name: 'Health Potion',
-    description: 'Restores 50 health when used.',
-    type: 'consumable',
-    rarity: 'common',
-    stats: {
-      health: createDecimal(50),
-    },
-    quantity: createDecimal(1),
-  },
 }

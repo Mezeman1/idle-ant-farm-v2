@@ -31,12 +31,6 @@ export const bugs: Bug[] = [
         minQuantity: 1,
         maxQuantity: 1,
       },
-      {
-        itemId: 'health_potion',
-        chance: 0.3,
-        minQuantity: 1,
-        maxQuantity: 2,
-      },
     ],
   },
   {
@@ -60,12 +54,6 @@ export const bugs: Bug[] = [
         minQuantity: 1,
         maxQuantity: 1,
       },
-      {
-        itemId: 'health_potion',
-        chance: 0.3,
-        minQuantity: 1,
-        maxQuantity: 2,
-      },
     ],
   },
   {
@@ -88,12 +76,6 @@ export const bugs: Bug[] = [
         chance: 0.3,
         minQuantity: 1,
         maxQuantity: 1,
-      },
-      {
-        itemId: 'health_potion',
-        chance: 0.3,
-        minQuantity: 1,
-        maxQuantity: 2,
       },
     ],
   },

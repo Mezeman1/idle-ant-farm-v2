@@ -46,8 +46,6 @@ export const useInventoryStore = defineStore('inventory', () => {
     // Create new slots array
     const newSlots: EquipmentSlot[] = []
     const maxSlots = maxEquipmentSlots.value
-    console.log('Max slots:', maxSlots)
-    console.log('Unlocked equipment slots:', unlockedEquipmentSlots.value)
     // Initialize new slots while preserving equipped items
     for (let i = 0; i < maxSlots; i++) {
       const existingSlot = currentEquippedItems.find(slot => slot.id === i)
@@ -116,21 +114,14 @@ export const useInventoryStore = defineStore('inventory', () => {
 
     // Process each item in the inventory
     inventory.value.forEach(item => {
-      if (item.type === 'consumable') {
-        // For consumables, stack quantities
-        const existingItem = itemMap.get(item.id)
-        if (existingItem) {
-          const currentQuantity = existingItem.quantity || Decimal.fromNumber(1)
-          const newQuantity = item.quantity || Decimal.fromNumber(1)
-          existingItem.quantity = currentQuantity.plus(newQuantity)
-        } else {
-          itemMap.set(item.id, { ...item })
-        }
+      // For consumables, stack quantities
+      const existingItem = itemMap.get(item.id)
+      if (existingItem) {
+        const currentQuantity = existingItem.quantity || Decimal.fromNumber(1)
+        const newQuantity = item.quantity || Decimal.fromNumber(1)
+        existingItem.quantity = currentQuantity.plus(newQuantity)
       } else {
-        // For equipment, just keep one copy
-        if (!itemMap.has(item.id)) {
-          itemMap.set(item.id, { ...item })
-        }
+        itemMap.set(item.id, { ...item })
       }
     })
 
