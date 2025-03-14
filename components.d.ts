@@ -31,6 +31,7 @@ declare module 'vue' {
     ItemModal: typeof import('./src/components/ItemModal.vue')['default']
     LockedSlotModal: typeof import('./src/components/LockedSlotModal.vue')['default']
     MetamorphosisCard: typeof import('./src/components/MetamorphosisCard.vue')['default']
+    MultiplierBreakdownModal: typeof import('./src/components/MultiplierBreakdownModal.vue')['default']
     NextUnlockableGenerator: typeof import('./src/components/NextUnlockableGenerator.vue')['default']
     OfflineProgressModal: typeof import('./src/components/OfflineProgressModal.vue')['default']
     PWAInstallButton: typeof import('./src/components/PWAInstallButton.vue')['default']

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Generator } from '@/stores/generatorStore'
+import MultiplierBreakdownModal from './MultiplierBreakdownModal.vue'
 
 const props = defineProps<{
   generator: Generator
@@ -185,13 +186,13 @@ const buttonClass = computed(() => {
         <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 mb-1.5">
           <div class="font-medium text-amber-700 dark:text-amber-400">Production:</div>
           <div class="text-right text-amber-700 dark:text-amber-400">{{ formattedActualProduction }} {{ productionType
-          }}/trip</div>
+            }}/trip</div>
 
           <div class="font-medium text-amber-600 dark:text-amber-500">Base × Multiplier:</div>
           <div class="text-right text-amber-600 dark:text-amber-500">
             {{ formattedProduction }} ×
-            <span v-if="multiplierBreakdown.length > 0" class="cursor-help underline decoration-dotted"
-              @mouseenter="handleShowTooltip" @mouseleave="handleHideTooltip">
+            <span v-if="multiplierBreakdown.length > 0" class="cursor-pointer underline decoration-dotted"
+              @click="showTooltip = true">
               {{ formattedProductionMultiplier }}
             </span>
             <span v-else>{{ formattedProductionMultiplier }}</span>
@@ -235,27 +236,8 @@ const buttonClass = computed(() => {
     </div>
   </div>
 
-  <!-- Teleported tooltip -->
-  <Teleport to="body">
-    <div v-if="showTooltip && multiplierBreakdown.length > 0"
-      class="fixed bg-amber-50 dark:bg-gray-800 border-2 border-amber-300 dark:border-amber-600 rounded-lg shadow-xl p-3 text-sm text-amber-800 dark:text-amber-300 z-50 min-w-[200px]"
-      :style="{ top: `${tooltipY}px`, left: `${tooltipX}px`, transform: 'translate(-50%, -100%)' }">
-      <div class="font-bold mb-2 text-amber-900 dark:text-amber-200 text-base flex items-center">
-        <span class="i-heroicons-chart-bar mr-1.5"></span>
-        Multiplier Breakdown
-      </div>
-      <div class="space-y-1.5">
-        <div v-for="(item, index) in multiplierBreakdown" :key="index"
-          class="flex justify-between items-center py-0.5 px-2 rounded bg-amber-100/50 dark:bg-amber-900/30">
-          <span class="text-amber-700 dark:text-amber-400">{{ item.name }}</span>
-          <span class="font-medium text-amber-900 dark:text-amber-200">{{ item.formatted }}</span>
-        </div>
-      </div>
-      <div
-        class="border-t-2 border-amber-200 dark:border-amber-700 mt-2 pt-2 flex justify-between items-center font-bold text-amber-900 dark:text-amber-200 text-base">
-        <span>Total Multiplier</span>
-        <span class="bg-amber-200 dark:bg-amber-700 px-2 py-0.5 rounded">{{ formattedProductionMultiplier }}</span>
-      </div>
-    </div>
-  </Teleport>
+  <!-- Multiplier Breakdown Modal -->
+  <MultiplierBreakdownModal v-if="multiplierBreakdown.length > 0" :show="showTooltip"
+    :multiplier-breakdown="multiplierBreakdown" :total-multiplier="formattedProductionMultiplier"
+    @close="showTooltip = false" />
 </template>
