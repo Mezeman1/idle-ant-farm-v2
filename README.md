@@ -81,6 +81,22 @@ The game uses sophisticated biological models:
 
 ## Development
 
+### Debug Mode
+
+The game includes a debug mode for development purposes. In debug mode, you can:
+
+- Adjust game speed (0.5x to 100x) to speed up testing
+- Access additional debugging features
+
+Debug mode is enabled by default in the development environment and disabled in production.
+
+### Environment Variables
+
+The following environment variables can be configured:
+
+- `VITE_DEBUG_MODE`: Set to "true" to enable debug mode
+- `VITE_VERSION`: The current version of the game
+
 ### Prerequisites
 
 - Node.js (v18+)

@@ -95,6 +95,7 @@ declare global {
   const useHeadSafe: typeof import('@unhead/vue')['useHeadSafe']
   const useId: typeof import('vue')['useId']
   const useInventoryStore: typeof import('./src/stores/inventoryStore')['useInventoryStore']
+  const useItemStore: typeof import('./src/stores/itemStore')['useItemStore']
   const useLink: typeof import('vue-router')['useLink']
   const useModel: typeof import('vue')['useModel']
   const useMultiplierStore: typeof import('./src/stores/multiplierStore')['useMultiplierStore']
@@ -122,8 +123,17 @@ declare global {
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { Bug } from './src/stores/bugStore'
+  import('./src/stores/bugStore')
+  // @ts-ignore
   export type { Generator } from './src/stores/generatorStore'
   import('./src/stores/generatorStore')
+  // @ts-ignore
+  export type { EquipmentSlot } from './src/stores/inventoryStore'
+  import('./src/stores/inventoryStore')
+  // @ts-ignore
+  export type { Item } from './src/stores/itemStore'
+  import('./src/stores/itemStore')
   // @ts-ignore
   export type { MultiplierBreakdown } from './src/stores/multiplierStore'
   import('./src/stores/multiplierStore')
@@ -223,6 +233,7 @@ declare module 'vue' {
     readonly useHeadSafe: UnwrapRef<typeof import('@unhead/vue')['useHeadSafe']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useInventoryStore: UnwrapRef<typeof import('./src/stores/inventoryStore')['useInventoryStore']>
+    readonly useItemStore: UnwrapRef<typeof import('./src/stores/itemStore')['useItemStore']>
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMultiplierStore: UnwrapRef<typeof import('./src/stores/multiplierStore')['useMultiplierStore']>

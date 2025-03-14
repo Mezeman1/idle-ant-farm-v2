@@ -46,7 +46,8 @@ export const useInventoryStore = defineStore('inventory', () => {
     // Create new slots array
     const newSlots: EquipmentSlot[] = []
     const maxSlots = maxEquipmentSlots.value
-
+    console.log('Max slots:', maxSlots)
+    console.log('Unlocked equipment slots:', unlockedEquipmentSlots.value)
     // Initialize new slots while preserving equipped items
     for (let i = 0; i < maxSlots; i++) {
       const existingSlot = currentEquippedItems.find(slot => slot.id === i)
@@ -60,11 +61,6 @@ export const useInventoryStore = defineStore('inventory', () => {
     // Update equipment slots
     equipmentSlots.value = newSlots
   }
-
-  // Watch for changes in maxEquipmentSlots and reinitialize slots
-  watch(maxEquipmentSlots, () => {
-    initializeEquipmentSlots()
-  })
 
   const getItem = (itemId: string): Item | undefined => {
     return itemStore.getItem(itemId)
@@ -217,16 +213,15 @@ export const useInventoryStore = defineStore('inventory', () => {
 
     // Finally apply the saved equipment state
     if (state.equipmentSlots) {
-      console.log('Loading equipment slots:', state.equipmentSlots)
       state.equipmentSlots.forEach((savedSlot: any, index: number) => {
-        console.log('Loading equipment slot:', savedSlot)
         if (equipmentSlots.value[index]) {
-          console.log('Equipment slot found:', equipmentSlots.value[index])
           equipmentSlots.value[index].item = savedSlot.item
           equipmentSlots.value[index].locked = savedSlot.locked
         }
       })
     }
+
+    initializeEquipmentSlots()
 
     // Load inventory state last
     if (state.inventory) {
@@ -262,5 +257,6 @@ export const useInventoryStore = defineStore('inventory', () => {
     getState,
     loadState,
     getItem,
+    initializeEquipmentSlots,
   }
 })

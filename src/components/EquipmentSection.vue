@@ -10,6 +10,10 @@ const props = defineProps<{
 const inventoryStore = useInventoryStore()
 const itemStore = useItemStore()
 
+watch(inventoryStore.unlockedEquipmentSlots, (newSlots) => {
+  inventoryStore.initializeEquipmentSlots()
+})
+
 const getItemDetails = (itemId: string) => {
   return itemStore.getItem(itemId)
 }

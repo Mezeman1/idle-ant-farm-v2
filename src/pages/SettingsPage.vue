@@ -7,6 +7,20 @@ import DarkModeToggle from '@/components/DarkModeToggle.vue'
 const saveSystem = useSaveSystem()
 const gameStore = useGameStore()
 
+// Debug mode check
+const isDebugMode = import.meta.env.VITE_DEBUG_MODE === 'true'
+const gameVersion = import.meta.env.VITE_VERSION || '0.1.0'
+
+// Game speed controls (for debug mode)
+const gameSpeed = ref(1)
+const availableSpeeds = [0.5, 1, 2, 5, 10, 25, 50, 100]
+
+// Function to change game speed
+const setGameSpeed = (speed: number) => {
+  gameSpeed.value = speed
+  gameStore.setGameSpeed(speed)
+}
+
 // For import/export functionality
 const exportedSave = ref('')
 const importSave = ref('')
@@ -142,6 +156,11 @@ onMounted(() => {
       elapsedTime: saveSystem.offlineProgressElapsedTime,
       ticks: saveSystem.offlineProgressTotalTicks
     }
+  }
+
+  // Initialize game speed from store if in debug mode
+  if (isDebugMode) {
+    gameSpeed.value = gameStore.gameSpeed
   }
 })
 </script>
@@ -339,6 +358,37 @@ onMounted(() => {
       </div>
     </section>
 
+    <!-- Debug Mode Section (only visible in debug mode) -->
+    <section v-if="isDebugMode"
+      class="bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 rounded-xl p-3 shadow-md">
+      <h2 class="text-base font-bold mb-2 flex items-center text-purple-800 dark:text-purple-200">
+        <span class="i-heroicons-bug-ant text-purple-700 dark:text-purple-300 mr-2"></span>
+        Debug Controls
+      </h2>
+
+      <div
+        class="bg-white/80 dark:bg-gray-800/80 p-2 rounded-lg shadow-sm border border-purple-200 dark:border-purple-700">
+        <div class="text-sm font-medium mb-1 text-purple-800 dark:text-purple-200">Game Speed</div>
+        <div class="text-xs text-purple-600 dark:text-purple-400 mb-2">
+          Adjust game speed for faster development and testing
+        </div>
+
+        <div class="flex flex-wrap gap-1">
+          <button v-for="speed in availableSpeeds" :key="speed" @click="setGameSpeed(speed)"
+            class="py-1 px-2 text-xs rounded-md font-medium transition-colors"
+            :class="gameSpeed === speed ?
+              'bg-purple-600 text-white' :
+              'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-800 dark:text-purple-200 dark:hover:bg-purple-700'">
+            {{ speed }}x
+          </button>
+        </div>
+
+        <div class="mt-2 text-xs text-purple-700 dark:text-purple-300 font-medium">
+          Current speed: {{ gameSpeed }}x
+        </div>
+      </div>
+    </section>
+
     <section
       class="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 shadow-md">
       <h2 class="text-base font-bold mb-2 flex items-center">
@@ -350,7 +400,7 @@ onMounted(() => {
         <div
           class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
           <div class="text-xs text-gray-800 dark:text-gray-400">Game Version:</div>
-          <div class="text-sm font-medium">v0.1.0</div>
+          <div class="text-sm font-medium">v{{ gameVersion }}</div>
         </div>
 
         <div

@@ -11,11 +11,12 @@ import { useAdventureStore } from './adventureStore'
 export const useGameStore = defineStore('game', () => {
   // Progress tracking
   const baseTickDuration = ref(10) // Base duration in seconds
+  const gameSpeed = ref(1) // Game speed multiplier (for debug mode)
   const tickDuration = computed(() => {
     const prestigeStore = usePrestigeStore()
     const reduction = prestigeStore.getUpgradeMultiplier('cycleTimeReduction').toNumber()
-    // Ensure tick duration doesn't go below 1 second
-    return Math.max(1, baseTickDuration.value - reduction)
+    // Apply game speed multiplier and ensure tick duration doesn't go below 0.1 seconds
+    return Math.max(0.1, (baseTickDuration.value - reduction) / gameSpeed.value)
   })
   const tickProgress = ref(0) // Current progress (0 to 1)
   const adventureTickProgress = ref(0) // Adventure progress (0 to 1)
@@ -106,11 +107,18 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  // Set game speed (for debug mode)
+  function setGameSpeed(speed: number) {
+    gameSpeed.value = speed
+    console.log(`Game speed set to ${speed}x`)
+  }
+
   // Get state for saving
   const getState = () => {
     return {
       totalTicks: totalTicks.value.toString(),
       baseTickDuration: baseTickDuration.value,
+      gameSpeed: gameSpeed.value,
     }
   }
 
@@ -122,6 +130,10 @@ export const useGameStore = defineStore('game', () => {
 
     if (state.baseTickDuration) {
       baseTickDuration.value = state.baseTickDuration
+    }
+
+    if (state.gameSpeed) {
+      gameSpeed.value = state.gameSpeed
     }
   }
 
@@ -136,6 +148,8 @@ export const useGameStore = defineStore('game', () => {
     adventureProgressPercentage,
     timeRemaining,
     adventureTimeRemaining,
+    gameSpeed,
+    setGameSpeed,
     tick,
     updateProgress,
     toggleRunning,
