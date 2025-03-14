@@ -6,11 +6,19 @@ import { useGeneratorStore } from './generatorStore'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
 import type { Generator } from '@/stores/generatorStore'
+import type { EvolutionUpgrade } from '@/stores/prestigeStore'
 
 export interface MultiplierBreakdown {
   name: string
   value: Decimal
   formatted: string
+}
+
+interface MultiplierSource {
+  id: string
+  name: string
+  getMultiplier: (generatorId: string) => Decimal
+  appliesTo: (generatorId: string) => boolean
 }
 
 export const useMultiplierStore = defineStore('multiplier', () => {
@@ -19,13 +27,185 @@ export const useMultiplierStore = defineStore('multiplier', () => {
   const prestigeStore = usePrestigeStore()
   const generatorUpgradeStore = useGeneratorUpgradeStore()
 
+  // Define global multipliers that apply to all generators
+  const getGlobalMultipliers = (): MultiplierSource[] => {
+    const globalMultipliers: MultiplierSource[] = []
+
+    // Get all prestige upgrades
+    const allPrestigeMultipliers = prestigeStore.getAllMultipliers()
+    const allUpgrades = prestigeStore.evolutionUpgrades
+
+    // Process each prestige upgrade
+    allUpgrades.forEach(upgrade => {
+      // Skip upgrades with no level purchased
+      if (upgrade.level.eq(0)) return
+
+      // Skip upgrades that don't affect production
+      if (upgrade.category !== 'production' && upgrade.category !== 'synergy') return
+
+      // If the upgrade has no appliesTo field or it's an empty array, it applies globally
+      if (!upgrade.appliesTo || upgrade.appliesTo.length === 0) {
+        // Special handling for synergy upgrades which are calculated differently
+        if (upgrade.id === 'generatorSynergy' || upgrade.id === 'evolutionSynergy') {
+          const synergyId = upgrade.id === 'generatorSynergy' ? 'generatorSynergyBonus' : 'evolutionSynergyBonus'
+          if (allPrestigeMultipliers[synergyId] && allPrestigeMultipliers[synergyId].gt(1)) {
+            globalMultipliers.push({
+              id: synergyId,
+              name: upgrade.name,
+              getMultiplier: () => allPrestigeMultipliers[synergyId] || createDecimal(1),
+              appliesTo: () => true,
+            })
+          }
+        } else {
+          // Regular global upgrade
+          globalMultipliers.push({
+            id: upgrade.id,
+            name: upgrade.name,
+            getMultiplier: () => prestigeStore.getUpgradeMultiplier(upgrade.id),
+            appliesTo: () => true,
+          })
+        }
+      }
+    })
+
+    return globalMultipliers
+  }
+
+  // Get generator-specific multipliers from prestige upgrades
+  const getPrestigeMultipliers = (): MultiplierSource[] => {
+    const multipliers: MultiplierSource[] = []
+
+    // Get all prestige upgrades
+    const allUpgrades = prestigeStore.evolutionUpgrades
+
+    // Process each prestige upgrade
+    allUpgrades.forEach(upgrade => {
+      // Skip upgrades with no level purchased
+      if (upgrade.level.eq(0)) return
+
+      // Skip upgrades that don't affect production
+      if (upgrade.category !== 'production' && upgrade.category !== 'synergy') return
+
+      // If the upgrade has an appliesTo field with specific generators, add it for each generator
+      if (upgrade.appliesTo && upgrade.appliesTo.length > 0) {
+        multipliers.push({
+          id: upgrade.id,
+          name: upgrade.name,
+          getMultiplier: () => prestigeStore.getUpgradeMultiplier(upgrade.id),
+          appliesTo: generatorId => upgrade.appliesTo?.includes(generatorId) || false,
+        })
+      }
+    })
+
+    // Add the advanced efficiency multiplier for high-tier generators
+    multipliers.push({
+      id: 'advancedEfficiency',
+      name: 'Advanced Efficiency',
+      getMultiplier: () => prestigeStore.getUpgradeMultiplier('strongerSoldiers'),
+      appliesTo: generatorId => {
+        const generator = generatorStore.getGenerator(generatorId)
+        return generator ? generator.tier > 4 : false
+      },
+    })
+
+    return multipliers
+  }
+
+  // Get generator-specific multipliers from generator upgrades
+  const getGeneratorUpgradeMultipliers = (): MultiplierSource[] => {
+    const multipliers: MultiplierSource[] = []
+
+    // Get all generator upgrades
+    const allUpgrades = generatorUpgradeStore.generatorUpgrades
+
+    // Filter for upgrades that affect production (not cost reduction or other effects)
+    const productionUpgrades = allUpgrades.filter(upgrade => {
+      // Exclude upgrades that are known to affect costs or have other non-production effects
+      const nonProductionKeywords = ['Training', 'Expansion', 'Longevity', 'Automation', 'Fertility', 'Dominance']
+
+      // Check if the upgrade ID contains any of the non-production keywords
+      return !nonProductionKeywords.some(keyword => upgrade.id.includes(keyword))
+    })
+
+    // Create multiplier sources for each production upgrade
+    productionUpgrades.forEach(upgrade => {
+      // Only include upgrades that have been purchased (level > 0)
+      if (upgrade.level.gt(0)) {
+        multipliers.push({
+          id: upgrade.id,
+          name: upgrade.name,
+          getMultiplier: () => generatorUpgradeStore.getUpgradeMultiplier(upgrade.id),
+          appliesTo: generatorId => generatorId === upgrade.generatorId,
+        })
+      }
+    })
+
+    return multipliers
+  }
+
+  // Get special multipliers like tier bonuses
+  const getSpecialMultipliers = (): MultiplierSource[] => {
+    return [
+      // Tier bonus for advanced generators
+      {
+        id: 'tierBonus',
+        name: 'Tier Bonus',
+        getMultiplier: generatorId => {
+          const generator = generatorStore.getGenerator(generatorId)
+          if (generator && generator.tier > 4) {
+            const tierBonusValue = 1 + (generator.tier - 4) * 0.1 // +10% per tier above colony
+            return createDecimal(tierBonusValue)
+          }
+          return createDecimal(1)
+        },
+        appliesTo: generatorId => {
+          const generator = generatorStore.getGenerator(generatorId)
+          return generator ? generator.tier > 4 : false
+        },
+      },
+    ]
+  }
+
+  // Combine all multiplier sources
+  const getMultiplierSources = (): MultiplierSource[] => {
+    return [
+      ...getGlobalMultipliers(),
+      ...getPrestigeMultipliers(),
+      ...getGeneratorUpgradeMultipliers(),
+      ...getSpecialMultipliers(),
+    ]
+  }
+
+  /**
+   * Calculate the total production multiplier for a specific generator
+   * by combining all applicable multiplier sources
+   * @param generatorId The ID of the generator
+   * @returns The total production multiplier
+   */
+  const calculateTotalMultiplier = (generatorId: string): Decimal => {
+    let totalMultiplier = createDecimal(1)
+    const multiplierSources = getMultiplierSources()
+
+    // Apply each multiplier source that applies to this generator
+    for (const source of multiplierSources) {
+      if (source.appliesTo(generatorId)) {
+        const value = source.getMultiplier(generatorId)
+        if (value.gt(1)) {
+          totalMultiplier = totalMultiplier.mul(value)
+        }
+      }
+    }
+
+    return totalMultiplier
+  }
+
   /**
    * Get the total production multiplier for a specific generator
    * @param generatorId The ID of the generator
    * @returns The total production multiplier
    */
   const getProductionMultiplier = (generatorId: string): Decimal => {
-    return generatorStore.getProductionMultiplier(generatorId)
+    return calculateTotalMultiplier(generatorId)
   }
 
   /**
@@ -49,291 +229,23 @@ export const useMultiplierStore = defineStore('multiplier', () => {
    */
   const getMultiplierBreakdown = (generatorId: string): MultiplierBreakdown[] => {
     const breakdown: MultiplierBreakdown[] = []
+    const multiplierSources = getMultiplierSources()
 
-    // Add general multipliers from prestige store
-    const strongerSoldiers = prestigeStore.getUpgradeMultiplier('strongerSoldiers')
-    if (strongerSoldiers.gt(1)) {
-      breakdown.push({
-        name: 'Stronger Soldiers',
-        value: strongerSoldiers,
-        formatted: formatDecimal(strongerSoldiers, 2) + 'x',
-      })
-    }
+    // Process each multiplier source
+    for (const source of multiplierSources) {
+      // Check if this multiplier applies to the current generator
+      if (source.appliesTo(generatorId)) {
+        // Get the multiplier value
+        const value = source.getMultiplier(generatorId)
 
-    // Add exponential multipliers
-    const exponentialGrowth = prestigeStore.getUpgradeMultiplier('exponentialGrowth')
-    if (exponentialGrowth.gt(1)) {
-      breakdown.push({
-        name: 'Exponential Growth',
-        value: exponentialGrowth,
-        formatted: formatDecimal(exponentialGrowth, 2) + 'x',
-      })
-    }
-
-    const compoundEvolution = prestigeStore.getUpgradeMultiplier('compoundEvolution')
-    if (compoundEvolution.gt(1)) {
-      breakdown.push({
-        name: 'Compound Evolution',
-        value: compoundEvolution,
-        formatted: formatDecimal(compoundEvolution, 2) + 'x',
-      })
-    }
-
-    // Add synergy multipliers
-    const generatorSynergy = prestigeStore.getAllMultipliers()['generatorSynergyBonus']
-    if (generatorSynergy && generatorSynergy.gt(1)) {
-      breakdown.push({
-        name: 'Generator Synergy',
-        value: generatorSynergy,
-        formatted: formatDecimal(generatorSynergy, 2) + 'x',
-      })
-    }
-
-    const evolutionSynergy = prestigeStore.getAllMultipliers()['evolutionSynergyBonus']
-    if (evolutionSynergy && evolutionSynergy.gt(1)) {
-      breakdown.push({
-        name: 'Evolution Synergy',
-        value: evolutionSynergy,
-        formatted: formatDecimal(evolutionSynergy, 2) + 'x',
-      })
-    }
-
-    // Add generator-specific multipliers from both stores
-    if (generatorId === 'worker') {
-      // Worker-specific prestige upgrades
-      const foodProcessing = prestigeStore.getUpgradeMultiplier('foodProcessing')
-      if (foodProcessing.gt(1)) {
-        breakdown.push({
-          name: 'Food Processing',
-          value: foodProcessing,
-          formatted: formatDecimal(foodProcessing, 2) + 'x',
-        })
-      }
-
-      const mutatedWorkers = prestigeStore.getUpgradeMultiplier('mutatedWorkers')
-      if (mutatedWorkers.gt(1)) {
-        breakdown.push({
-          name: 'Mutated Workers',
-          value: mutatedWorkers,
-          formatted: formatDecimal(mutatedWorkers, 2) + 'x',
-        })
-      }
-
-      // Worker-specific generator upgrades
-      const workerEfficiency = generatorUpgradeStore.getUpgradeMultiplier('workerEfficiency')
-      if (workerEfficiency.gt(1)) {
-        breakdown.push({
-          name: 'Worker Efficiency',
-          value: workerEfficiency,
-          formatted: formatDecimal(workerEfficiency, 2) + 'x',
-        })
-      }
-
-      const workerForaging = generatorUpgradeStore.getUpgradeMultiplier('workerForaging')
-      if (workerForaging.gt(1)) {
-        breakdown.push({
-          name: 'Advanced Foraging',
-          value: workerForaging,
-          formatted: formatDecimal(workerForaging, 2) + 'x',
-        })
-      }
-
-      const workerEndurance = generatorUpgradeStore.getUpgradeMultiplier('workerEndurance')
-      if (workerEndurance.gt(1)) {
-        breakdown.push({
-          name: 'Worker Endurance',
-          value: workerEndurance,
-          formatted: formatDecimal(workerEndurance, 2) + 'x',
-        })
-      }
-    } else if (generatorId === 'nursery') {
-      // Nursery-specific prestige upgrades
-      const nurseryEfficiencyPrestige = prestigeStore.getUpgradeMultiplier('nurseryEfficiency')
-      if (nurseryEfficiencyPrestige.gt(1)) {
-        breakdown.push({
-          name: 'Advanced Nursery Techniques',
-          value: nurseryEfficiencyPrestige,
-          formatted: formatDecimal(nurseryEfficiencyPrestige, 2) + 'x',
-        })
-      }
-
-      // Nursery-specific generator upgrades
-      const nurseryEfficiency = generatorUpgradeStore.getUpgradeMultiplier('nurseryEfficiency')
-      if (nurseryEfficiency.gt(1)) {
-        breakdown.push({
-          name: 'Nursery Efficiency',
-          value: nurseryEfficiency,
-          formatted: formatDecimal(nurseryEfficiency, 2) + 'x',
-        })
-      }
-
-      const nurseryNutrition = generatorUpgradeStore.getUpgradeMultiplier('nurseryNutrition')
-      if (nurseryNutrition.gt(1)) {
-        breakdown.push({
-          name: 'Larval Nutrition',
-          value: nurseryNutrition,
-          formatted: formatDecimal(nurseryNutrition, 2) + 'x',
-        })
-      }
-
-      const nurseryCapacity = generatorUpgradeStore.getUpgradeMultiplier('nurseryCapacity')
-      if (nurseryCapacity.gt(1)) {
-        breakdown.push({
-          name: 'Nursery Capacity',
-          value: nurseryCapacity,
-          formatted: formatDecimal(nurseryCapacity, 2) + 'x',
-        })
-      }
-    } else if (generatorId === 'queenChamber') {
-      // Queen-specific prestige upgrades
-      const efficientQueens = prestigeStore.getUpgradeMultiplier('efficientQueens')
-      if (efficientQueens.gt(1)) {
-        breakdown.push({
-          name: 'Efficient Queens',
-          value: efficientQueens,
-          formatted: formatDecimal(efficientQueens, 2) + 'x',
-        })
-      }
-
-      // Queen-specific generator upgrades
-      const queenChamberEfficiency = generatorUpgradeStore.getUpgradeMultiplier('queenChamberEfficiency')
-      if (queenChamberEfficiency.gt(1)) {
-        breakdown.push({
-          name: 'Queen Efficiency',
-          value: queenChamberEfficiency,
-          formatted: formatDecimal(queenChamberEfficiency, 2) + 'x',
-        })
-      }
-
-      const queenChamberRoyalJelly = generatorUpgradeStore.getUpgradeMultiplier('queenChamberRoyalJelly')
-      if (queenChamberRoyalJelly.gt(1)) {
-        breakdown.push({
-          name: 'Royal Jelly',
-          value: queenChamberRoyalJelly,
-          formatted: formatDecimal(queenChamberRoyalJelly, 2) + 'x',
-        })
-      }
-
-      const queenChamberGuards = generatorUpgradeStore.getUpgradeMultiplier('queenChamberGuards')
-      if (queenChamberGuards.gt(1)) {
-        breakdown.push({
-          name: 'Royal Guards',
-          value: queenChamberGuards,
-          formatted: formatDecimal(queenChamberGuards, 2) + 'x',
-        })
-      }
-    } else if (generatorId === 'colony') {
-      // Colony-specific prestige upgrades
-      const colonyExpansion = prestigeStore.getUpgradeMultiplier('colonyExpansion')
-      if (colonyExpansion.gt(1)) {
-        breakdown.push({
-          name: 'Colony Expansion Tactics',
-          value: colonyExpansion,
-          formatted: formatDecimal(colonyExpansion, 2) + 'x',
-        })
-      }
-
-      // Colony-specific generator upgrades
-      const colonyEfficiency = generatorUpgradeStore.getUpgradeMultiplier('colonyEfficiency')
-      if (colonyEfficiency.gt(1)) {
-        breakdown.push({
-          name: 'Colony Efficiency',
-          value: colonyEfficiency,
-          formatted: formatDecimal(colonyEfficiency, 2) + 'x',
-        })
-      }
-    } else if (generatorId === 'megacolony') {
-      // Megacolony-specific prestige upgrades
-      const megacolonyEfficiency = prestigeStore.getUpgradeMultiplier('megacolonyEfficiency')
-      if (megacolonyEfficiency.gt(1)) {
-        breakdown.push({
-          name: 'Mega Colony Optimization',
-          value: megacolonyEfficiency,
-          formatted: formatDecimal(megacolonyEfficiency, 2) + 'x',
-        })
-      }
-
-      // Tier bonus for advanced generators
-      const generator = generatorStore.getGenerator(generatorId)
-      if (generator) {
-        const tierBonusValue = 1 + (generator.tier - 4) * 0.1 // +10% per tier above colony
-        const tierBonus = createDecimal(tierBonusValue)
-        breakdown.push({
-          name: 'Tier Bonus',
-          value: tierBonus,
-          formatted: tierBonusValue.toFixed(2) + 'x',
-        })
-      }
-
-      // Additional stronger soldiers bonus for advanced generators
-      if (strongerSoldiers.gt(1)) {
-        breakdown.push({
-          name: 'Advanced Efficiency',
-          value: strongerSoldiers,
-          formatted: formatDecimal(strongerSoldiers, 2) + 'x',
-        })
-      }
-    } else if (generatorId === 'hivemind') {
-      // Hivemind-specific prestige upgrades
-      const hivemindEfficiency = prestigeStore.getUpgradeMultiplier('hivemindEfficiency')
-      if (hivemindEfficiency.gt(1)) {
-        breakdown.push({
-          name: 'Hive Mind Optimization',
-          value: hivemindEfficiency,
-          formatted: formatDecimal(hivemindEfficiency, 2) + 'x',
-        })
-      }
-
-      // Tier bonus for advanced generators
-      const generator = generatorStore.getGenerator(generatorId)
-      if (generator) {
-        const tierBonusValue = 1 + (generator.tier - 4) * 0.1 // +10% per tier above colony
-        const tierBonus = createDecimal(tierBonusValue)
-        breakdown.push({
-          name: 'Tier Bonus',
-          value: tierBonus,
-          formatted: tierBonusValue.toFixed(2) + 'x',
-        })
-      }
-
-      // Additional stronger soldiers bonus for advanced generators
-      if (strongerSoldiers.gt(1)) {
-        breakdown.push({
-          name: 'Advanced Efficiency',
-          value: strongerSoldiers,
-          formatted: formatDecimal(strongerSoldiers, 2) + 'x',
-        })
-      }
-    } else if (generatorId === 'antopolis') {
-      // Antopolis-specific prestige upgrades
-      const antopolisEfficiency = prestigeStore.getUpgradeMultiplier('antopolisEfficiency')
-      if (antopolisEfficiency.gt(1)) {
-        breakdown.push({
-          name: 'Antopolis Optimization',
-          value: antopolisEfficiency,
-          formatted: formatDecimal(antopolisEfficiency, 2) + 'x',
-        })
-      }
-
-      // Tier bonus for advanced generators
-      const generator = generatorStore.getGenerator(generatorId)
-      if (generator) {
-        const tierBonusValue = 1 + (generator.tier - 4) * 0.1 // +10% per tier above colony
-        const tierBonus = createDecimal(tierBonusValue)
-        breakdown.push({
-          name: 'Tier Bonus',
-          value: tierBonus,
-          formatted: tierBonusValue.toFixed(2) + 'x',
-        })
-      }
-
-      // Additional stronger soldiers bonus for advanced generators
-      if (strongerSoldiers.gt(1)) {
-        breakdown.push({
-          name: 'Advanced Efficiency',
-          value: strongerSoldiers,
-          formatted: formatDecimal(strongerSoldiers, 2) + 'x',
-        })
+        // Only add to breakdown if it provides a bonus (greater than 1)
+        if (value.gt(1)) {
+          breakdown.push({
+            name: source.name,
+            value: value,
+            formatted: formatDecimal(value, 2) + 'x',
+          })
+        }
       }
     }
 

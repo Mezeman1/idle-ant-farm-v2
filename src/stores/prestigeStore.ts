@@ -19,6 +19,9 @@ export interface EvolutionUpgrade {
   icon: string
   isUnlocked: () => boolean // Function to determine if upgrade is unlocked
   category: 'production' | 'efficiency' | 'automation' | 'research' | 'synergy' | 'prestige'
+  // New field to specify which generators this upgrade applies to
+  // If empty or undefined, it applies globally to all generators
+  appliesTo?: string[]
 }
 
 export const usePrestigeStore = defineStore('prestige', () => {
@@ -130,6 +133,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       icon: 'i-heroicons-cake',
       isUnlocked: () => true,
       category: 'production',
+      appliesTo: ['worker'], // This upgrade only applies to worker ants
     },
     {
       id: 'efficientQueens',
@@ -143,6 +147,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       icon: 'i-heroicons-crown',
       isUnlocked: () => true,
       category: 'production',
+      appliesTo: ['queenChamber'], // This upgrade only applies to queen chambers
     },
     {
       id: 'shorterLoops',
@@ -156,6 +161,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
       icon: 'i-heroicons-clock',
       isUnlocked: () => true,
       category: 'efficiency',
+      // No appliesTo field means this doesn't directly affect any generator
     },
     {
       id: 'strongerSoldiers',
@@ -169,75 +175,78 @@ export const usePrestigeStore = defineStore('prestige', () => {
       icon: 'i-heroicons-shield-check',
       isUnlocked: () => true,
       category: 'production',
+      // No appliesTo field means this applies globally to all generators
     },
     {
       id: 'mutatedWorkers',
       name: 'Mutated Worker Ants',
-      description: 'Worker ants are 20% more efficient per level',
-      cost: createDecimal(3),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.5).pow(context.level)),
+      description: 'Worker ants produce 20% more food per level',
+      cost: createDecimal(8),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.7).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).add(level.mul(0.2)), // 1 + (level * 0.2)
-      icon: 'i-heroicons-bug-ant',
+      icon: 'i-heroicons-sparkles',
       isUnlocked: () => true,
       category: 'production',
+      appliesTo: ['worker'], // This upgrade only applies to worker ants
     },
-    // New generator-specific upgrades
     {
       id: 'nurseryEfficiency',
       name: 'Advanced Nursery Techniques',
-      description: 'Nurseries are 25% more efficient per level',
-      cost: createDecimal(4),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.55).pow(context.level)),
+      description: 'Nurseries produce 25% more worker ants per level',
+      cost: createDecimal(10),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.75).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(15),
-      effect: level => createDecimal(1).add(level.mul(0.25)),
-      icon: 'i-heroicons-home-modern',
+      effect: level => createDecimal(1).add(level.mul(0.25)), // 1 + (level * 0.25)
+      icon: 'i-heroicons-beaker',
       isUnlocked: () => true,
       category: 'production',
+      appliesTo: ['nursery'], // This upgrade only applies to nurseries
     },
     {
       id: 'colonyExpansion',
       name: 'Colony Expansion Tactics',
-      description: 'Colonies are 30% more efficient per level',
-      cost: createDecimal(8),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.6).pow(context.level)),
+      description: 'Colonies produce 30% more queen chambers per level',
+      cost: createDecimal(15),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.8).pow(context.level)),
       level: createDecimal(0),
-      maxLevel: createDecimal(15),
-      effect: level => createDecimal(1).add(level.mul(0.3)),
-      icon: 'i-heroicons-building',
+      maxLevel: createDecimal(10),
+      effect: level => createDecimal(1).add(level.mul(0.3)), // 1 + (level * 0.3)
+      icon: 'i-heroicons-map',
       isUnlocked: () => true,
       category: 'production',
+      appliesTo: ['colony'], // This upgrade only applies to colonies
     },
-    // Exponential scaling upgrades
     {
       id: 'exponentialGrowth',
       name: 'Exponential Growth',
-      description: 'Each level provides a stacking 2x multiplier to all food production',
-      cost: createDecimal(10_000),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(5).pow(context.level)),
+      description: 'All production increases by 2x per level',
+      cost: createDecimal(25),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(2).pow(level), // 2^level (2, 4, 8, 16, etc.)
       icon: 'i-heroicons-chart-bar',
       isUnlocked: () => true,
       category: 'production',
+      // No appliesTo field means this applies globally to all generators
     },
     {
       id: 'compoundEvolution',
       name: 'Compound Evolution',
-      description: 'Each level provides a stacking 1.5x multiplier to all generator production',
-      cost: createDecimal(50_000),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(4).pow(context.level)),
+      description: 'All production increases by 2% per level, compounding with other upgrades',
+      cost: createDecimal(50),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2.5).pow(context.level)),
       level: createDecimal(0),
-      maxLevel: createDecimal(15),
-      effect: level => createDecimal(1.5).pow(level), // 1.5^level
+      maxLevel: createDecimal(5),
+      effect: level => createDecimal(1).add(level.mul(0.02)), // 1 + (level * 0.02)
       icon: 'i-heroicons-arrow-trending-up',
       isUnlocked: () => true,
       category: 'production',
+      // No appliesTo field means this applies globally to all generators
     },
-    // Advanced generator unlocks
     {
       id: 'unlockMegacolony',
       name: 'Mega Colony Research',
@@ -274,47 +283,48 @@ export const usePrestigeStore = defineStore('prestige', () => {
       isUnlocked: () => isUpgradeUnlocked('unlockAntopolis'),
       category: 'research',
     },
-    // Advanced generator efficiency upgrades
     {
       id: 'megacolonyEfficiency',
       name: 'Mega Colony Optimization',
-      description: 'Mega Colonies are 40% more efficient per level',
-      cost: createDecimal(2000),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.7).pow(context.level)),
+      description: 'Mega Colonies produce 40% more colonies per level',
+      cost: createDecimal(100),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2).pow(context.level)),
       level: createDecimal(0),
-      maxLevel: createDecimal(20),
-      effect: level => createDecimal(1).add(level.mul(0.4)),
-      icon: 'i-heroicons-building-office',
+      maxLevel: createDecimal(10),
+      effect: level => createDecimal(1).add(level.mul(0.4)), // 1 + (level * 0.4)
+      icon: 'i-heroicons-building-office-2',
       isUnlocked: () => isUpgradeUnlocked('megacolonyEfficiency'),
       category: 'production',
+      appliesTo: ['megacolony'], // This upgrade only applies to mega colonies
     },
     {
       id: 'hivemindEfficiency',
       name: 'Hive Mind Optimization',
-      description: 'Hive Minds are 50% more efficient per level',
-      cost: createDecimal(2e6),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.8).pow(context.level)),
+      description: 'Hive Minds produce 50% more mega colonies per level',
+      cost: createDecimal(500),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2.2).pow(context.level)),
       level: createDecimal(0),
-      maxLevel: createDecimal(20),
-      effect: level => createDecimal(1).add(level.mul(0.5)),
-      icon: 'i-heroicons-brain',
+      maxLevel: createDecimal(10),
+      effect: level => createDecimal(1).add(level.mul(0.5)), // 1 + (level * 0.5)
+      icon: 'i-heroicons-cpu-chip',
       isUnlocked: () => isUpgradeUnlocked('hivemindEfficiency'),
       category: 'production',
+      appliesTo: ['hivemind'], // This upgrade only applies to hive minds
     },
     {
       id: 'antopolisEfficiency',
       name: 'Antopolis Optimization',
-      description: 'Antopolis are 60% more efficient per level',
-      cost: createDecimal(2e9),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.9).pow(context.level)),
+      description: 'Antopolis produces 60% more hive minds per level',
+      cost: createDecimal(2500),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2.5).pow(context.level)),
       level: createDecimal(0),
-      maxLevel: createDecimal(20),
-      effect: level => createDecimal(1).add(level.mul(0.6)),
-      icon: 'i-heroicons-building-storefront',
+      maxLevel: createDecimal(10),
+      effect: level => createDecimal(1).add(level.mul(0.6)), // 1 + (level * 0.6)
+      icon: 'i-heroicons-building-library',
       isUnlocked: () => isUpgradeUnlocked('antopolisEfficiency'),
       category: 'production',
+      appliesTo: ['antopolis'], // This upgrade only applies to antopolis
     },
-    // Cycle and EP upgrades
     {
       id: 'cycleTimeReduction',
       name: 'Time Manipulation',
@@ -380,7 +390,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
       isUnlocked: () => true,
       category: 'prestige',
     },
-    // Auto-purchase upgrades
     {
       id: 'autoWorker',
       name: 'Worker Automation',
@@ -472,7 +481,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
       isUnlocked: () => isUpgradeUnlocked('autoAntopolis'),
       category: 'automation',
     },
-    // Bulk automation upgrades
     {
       id: 'bulkAutomation',
       name: 'Bulk Automation',
@@ -486,34 +494,34 @@ export const usePrestigeStore = defineStore('prestige', () => {
       isUnlocked: () => true,
       category: 'automation',
     },
-    // Synergy upgrades
     {
       id: 'generatorSynergy',
       name: 'Generator Synergy',
-      description: 'Each generator type boosts the efficiency of all others by 2% per level',
-      cost: createDecimal(75),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.7).pow(context.level)),
+      description: 'Each generator type boosts all others by 2% per level',
+      cost: createDecimal(100),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(3).pow(context.level)),
       level: createDecimal(0),
-      maxLevel: createDecimal(20),
-      effect: level => createDecimal(1).add(level.mul(0.02)), // 1 + 0.02*level per generator type
+      maxLevel: createDecimal(5),
+      effect: level => createDecimal(1).add(level.mul(0.02)), // Base effect, actual calculation in getAllMultipliers
       icon: 'i-heroicons-puzzle-piece',
       isUnlocked: () => true,
       category: 'synergy',
+      // No appliesTo field means this is handled specially in getAllMultipliers
     },
     {
       id: 'evolutionSynergy',
       name: 'Evolution Synergy',
-      description: 'Each evolution completed boosts all production by 1% per level',
-      cost: createDecimal(150),
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.8).pow(context.level)),
+      description: 'Each evolution completed boosts production by 1% per level',
+      cost: createDecimal(200),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(3).pow(context.level)),
       level: createDecimal(0),
-      maxLevel: createDecimal(15),
-      effect: level => createDecimal(1).add(level.mul(0.01)), // 1 + 0.01*level per evolution
-      icon: 'i-heroicons-fire',
+      maxLevel: createDecimal(5),
+      effect: level => createDecimal(1).add(level.mul(0.01)), // Base effect, actual calculation in getAllMultipliers
+      icon: 'i-heroicons-arrow-path',
       isUnlocked: () => true,
       category: 'synergy',
+      // No appliesTo field means this is handled specially in getAllMultipliers
     },
-    // Prestige acceleration
     {
       id: 'prestigeAcceleration',
       name: 'Prestige Acceleration',

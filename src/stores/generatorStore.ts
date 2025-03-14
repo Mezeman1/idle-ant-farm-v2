@@ -4,6 +4,7 @@ import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal, calculateCost, calculateGeneratorCost } from '@/utils/decimalUtils'
 import { usePrestigeStore } from './prestigeStore'
 import { useGeneratorUpgradeStore } from './generatorUpgradeStore'
+import { useMultiplierStore } from './multiplierStore'
 
 // Generator types
 export interface Generator {
@@ -139,31 +140,18 @@ export const useGeneratorStore = defineStore('generator', () => {
     // Worker ants produce food directly
     const workerAnts = generators.value[0]
 
-    // Apply prestige multipliers
-    let multiplier = createDecimal(1)
     try {
-      const prestigeStore = usePrestigeStore()
-      const generatorUpgradeStore = useGeneratorUpgradeStore()
+      // Use the multiplierStore to get the worker ant multiplier
+      const multiplierStore = useMultiplierStore()
+      const multiplier = multiplierStore.getProductionMultiplier('worker')
 
-      // Apply food processing multiplier
-      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('foodProcessing'))
-
-      // Apply mutated workers multiplier
-      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('mutatedWorkers'))
-
-      // Apply stronger soldiers multiplier (general efficiency)
-      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-
-      // Apply worker efficiency upgrades
-      multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEfficiency'))
-      multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerForaging'))
-      multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEndurance'))
+      // Calculate food production: count * baseProduction * multiplier
+      return workerAnts.count.mul(workerAnts.baseProduction).mul(multiplier)
     } catch (error) {
-      // Stores might not be initialized yet
-      console.error('Error applying multipliers:', error)
+      // Fallback to basic calculation if there's an error
+      console.error('Error calculating food production:', error)
+      return workerAnts.count.mul(workerAnts.baseProduction)
     }
-
-    return workerAnts.count.mul(workerAnts.baseProduction).mul(multiplier)
   })
 
   // Get a specific generator by ID
@@ -320,90 +308,10 @@ export const useGeneratorStore = defineStore('generator', () => {
 
   // Process generator production for a tick
   const tick = () => {
-    // Get prestige multipliers
-    let generalMultiplier = createDecimal(1)
-    let queenMultiplier = createDecimal(1)
-
     try {
       const prestigeStore = usePrestigeStore()
       const generatorUpgradeStore = useGeneratorUpgradeStore()
-
-      // Apply stronger soldiers multiplier (general efficiency)
-      generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-
-      // Apply exponential growth multiplier (affects all production)
-      generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('exponentialGrowth'))
-
-      // Apply compound evolution multiplier (affects all generators)
-      generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('compoundEvolution'))
-
-      // Apply generator synergy bonus
-      generalMultiplier = generalMultiplier.mul(
-        prestigeStore.getAllMultipliers()['generatorSynergyBonus'] || createDecimal(1)
-      )
-
-      // Apply evolution synergy bonus
-      generalMultiplier = generalMultiplier.mul(
-        prestigeStore.getAllMultipliers()['evolutionSynergyBonus'] || createDecimal(1)
-      )
-
-      // Apply efficient queens multiplier
-      queenMultiplier = queenMultiplier.mul(prestigeStore.getUpgradeMultiplier('efficientQueens'))
-
-      // Apply generator-specific upgrade multipliers
-      for (const generator of generators.value) {
-        if (generator.id === 'worker') {
-          // Apply worker efficiency multiplier
-          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEfficiency'))
-          // Apply mutated workers multiplier
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('mutatedWorkers'))
-        } else if (generator.id === 'nursery') {
-          // Apply nursery efficiency multiplier
-          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('nurseryEfficiency'))
-          // Apply new nursery efficiency prestige upgrade
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('nurseryEfficiency'))
-        } else if (generator.id === 'queenChamber') {
-          // Apply queen efficiency multiplier
-          generalMultiplier = generalMultiplier.mul(
-            generatorUpgradeStore.getUpgradeMultiplier('queenChamberEfficiency')
-          )
-        } else if (generator.id === 'colony') {
-          // Apply colony efficiency multiplier
-          generalMultiplier = generalMultiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('colonyEfficiency'))
-          // Apply colony expansion prestige upgrade
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('colonyExpansion'))
-        } else if (generator.id === 'megacolony') {
-          // Apply megacolony efficiency prestige upgrade
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('megacolonyEfficiency'))
-
-          // For advanced generators, apply a stronger multiplier based on their tier
-          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
-          generalMultiplier = generalMultiplier.mul(tierBonus)
-
-          // Also apply the stronger soldiers multiplier as a general efficiency bonus
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-        } else if (generator.id === 'hivemind') {
-          // Apply hivemind efficiency prestige upgrade
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('hivemindEfficiency'))
-
-          // For advanced generators, apply a stronger multiplier based on their tier
-          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
-          generalMultiplier = generalMultiplier.mul(tierBonus)
-
-          // Also apply the stronger soldiers multiplier as a general efficiency bonus
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-        } else if (generator.id === 'antopolis') {
-          // Apply antopolis efficiency prestige upgrade
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('antopolisEfficiency'))
-
-          // For advanced generators, apply a stronger multiplier based on their tier
-          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
-          generalMultiplier = generalMultiplier.mul(tierBonus)
-
-          // Also apply the stronger soldiers multiplier as a general efficiency bonus
-          generalMultiplier = generalMultiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-        }
-      }
+      const multiplierStore = useMultiplierStore()
 
       // Handle auto-purchasing from prestige upgrades
       // This needs to be done before production to ensure new generators contribute to this tick
@@ -436,7 +344,7 @@ export const useGeneratorStore = defineStore('generator', () => {
       }
     } catch (error) {
       // Stores might not be initialized yet
-      console.error('Error applying multipliers or auto-purchasing:', error)
+      console.error('Error applying auto-purchasing:', error)
     }
 
     // Track food gained in this tick for nursery progress
@@ -452,13 +360,8 @@ export const useGeneratorStore = defineStore('generator', () => {
         // Each generator produces units of the tier below it
         let production = generator.count.mul(generator.baseProduction)
 
-        // Apply general multiplier
-        production = production.mul(generalMultiplier)
-
-        // Apply queen multiplier for queen chambers
-        if (generator.id === 'queenChamber') {
-          production = production.mul(queenMultiplier)
-        }
+        // Apply multiplier from multiplierStore
+        production = production.mul(getProductionMultiplier(generator.id))
 
         // Add the produced units to the target generator
         addGeneratorAuto(targetGenerator.id, production)
@@ -543,96 +446,19 @@ export const useGeneratorStore = defineStore('generator', () => {
   }
 
   // Get the production multiplier for a specific generator
-  const getProductionMultiplier = (id: string) => {
-    let multiplier = createDecimal(1)
-
+  const getProductionMultiplier = (id: string): Decimal => {
     try {
-      const prestigeStore = usePrestigeStore()
-      const generatorUpgradeStore = useGeneratorUpgradeStore()
-
-      // Apply general prestige multiplier
-      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-
-      // Apply exponential growth multiplier (affects all production)
-      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('exponentialGrowth'))
-
-      // Apply compound evolution multiplier (affects all generators)
-      multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('compoundEvolution'))
-
-      // Apply generator synergy bonus
-      multiplier = multiplier.mul(prestigeStore.getAllMultipliers()['generatorSynergyBonus'] || createDecimal(1))
-
-      // Apply evolution synergy bonus
-      multiplier = multiplier.mul(prestigeStore.getAllMultipliers()['evolutionSynergyBonus'] || createDecimal(1))
-
-      // Apply generator-specific upgrade multipliers
-      if (id === 'worker') {
-        // Worker gets efficiency upgrades
-        multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEfficiency'))
-        multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerForaging'))
-        multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('workerEndurance'))
-
-        // Worker also gets prestige upgrades
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('foodProcessing'))
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('mutatedWorkers'))
-      } else if (id === 'nursery') {
-        multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('nurseryEfficiency'))
-        // Apply new nursery efficiency prestige upgrade
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('nurseryEfficiency'))
-      } else if (id === 'queenChamber') {
-        multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('queenChamberEfficiency'))
-        // Apply queen multiplier for queen chambers
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('efficientQueens'))
-      } else if (id === 'colony') {
-        multiplier = multiplier.mul(generatorUpgradeStore.getUpgradeMultiplier('colonyEfficiency'))
-        // Apply colony expansion prestige upgrade
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('colonyExpansion'))
-      } else if (id === 'megacolony') {
-        // Apply megacolony efficiency prestige upgrade
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('megacolonyEfficiency'))
-
-        // For advanced generators, apply a stronger multiplier based on their tier
-        const generator = getGenerator(id)
-        if (generator) {
-          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
-          multiplier = multiplier.mul(tierBonus)
-          // Also apply the stronger soldiers multiplier again as a general efficiency bonus
-          multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-        }
-      } else if (id === 'hivemind') {
-        // Apply hivemind efficiency prestige upgrade
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('hivemindEfficiency'))
-
-        // For advanced generators, apply a stronger multiplier based on their tier
-        const generator = getGenerator(id)
-        if (generator) {
-          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
-          multiplier = multiplier.mul(tierBonus)
-          // Also apply the stronger soldiers multiplier again as a general efficiency bonus
-          multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-        }
-      } else if (id === 'antopolis') {
-        // Apply antopolis efficiency prestige upgrade
-        multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('antopolisEfficiency'))
-
-        // For advanced generators, apply a stronger multiplier based on their tier
-        const generator = getGenerator(id)
-        if (generator) {
-          const tierBonus = createDecimal(1 + (generator.tier - 4) * 0.1) // +10% per tier above colony
-          multiplier = multiplier.mul(tierBonus)
-          // Also apply the stronger soldiers multiplier again as a general efficiency bonus
-          multiplier = multiplier.mul(prestigeStore.getUpgradeMultiplier('strongerSoldiers'))
-        }
-      }
+      // Use the multiplierStore to get all multipliers for this generator
+      const multiplierStore = useMultiplierStore()
+      return multiplierStore.getProductionMultiplier(id)
     } catch (error) {
       console.error('Error calculating production multiplier:', error)
+      return createDecimal(1) // Default to 1 if there's an error
     }
-
-    return multiplier
   }
 
   // Format the production multiplier for display
-  const formatProductionMultiplier = (id: string) => {
+  const formatProductionMultiplier = (id: string): string => {
     const multiplier = getProductionMultiplier(id)
     return `${formatDecimal(multiplier, 2)}x`
   }
