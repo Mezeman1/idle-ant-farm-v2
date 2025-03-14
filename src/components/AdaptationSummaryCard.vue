@@ -45,7 +45,8 @@ const highestLevelGenerator = computed(() => {
 </script>
 
 <template>
-  <section :class="['bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md dark:from-amber-900/30 dark:to-amber-800/30 dark:text-amber-50', className]">
+  <section
+    :class="['bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-3 shadow-md dark:from-amber-900/30 dark:to-amber-800/30 dark:text-amber-50', className]">
     <h2 class="text-base font-bold mb-2 flex items-center justify-between">
       <div class="flex items-center">
         <span class="i-heroicons-star text-amber-700 dark:text-amber-400 mr-2"></span>
@@ -59,7 +60,8 @@ const highestLevelGenerator = computed(() => {
 
     <div class="space-y-2">
       <div class="grid grid-cols-2 gap-2">
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+        <div
+          class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
           <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Total Points</div>
           <div class="text-sm font-bold flex items-center">
             <span class="i-heroicons-star text-amber-600 dark:text-amber-400 mr-1 text-xs"></span>
@@ -67,7 +69,8 @@ const highestLevelGenerator = computed(() => {
           </div>
         </div>
 
-        <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+        <div
+          class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
           <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Ant Types</div>
           <div class="text-sm font-bold flex items-center">
             <span class="i-heroicons-bug-ant text-amber-600 dark:text-amber-400 mr-1 text-xs"></span>
@@ -76,7 +79,8 @@ const highestLevelGenerator = computed(() => {
         </div>
       </div>
 
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+      <div
+        class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
         <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Highest Level</div>
         <div class="grid grid-cols-2 gap-1 mt-1">
           <div class="text-xs font-medium flex items-center">
@@ -89,7 +93,8 @@ const highestLevelGenerator = computed(() => {
         </div>
       </div>
 
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+      <div
+        class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
         <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Adaptation Benefits</div>
         <div class="text-xs text-amber-600 dark:text-amber-400 mt-1">
           • Increased production efficiency

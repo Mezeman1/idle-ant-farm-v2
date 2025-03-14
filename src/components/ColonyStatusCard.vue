@@ -49,7 +49,8 @@ const collectFood = () => {
     </h2>
 
     <div class="grid grid-cols-3 gap-2">
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+      <div
+        class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
         <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Food</div>
         <div class="text-sm font-bold flex items-center">
           <span class="i-heroicons-cake text-amber-600 dark:text-amber-400 mr-1 text-xs"></span>
@@ -57,7 +58,8 @@ const collectFood = () => {
         </div>
       </div>
 
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+      <div
+        class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
         <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Food/Trip</div>
         <div class="text-sm font-bold flex items-center">
           <span class="i-heroicons-arrow-trending-up text-amber-600 dark:text-amber-400 mr-1 text-xs"></span>
@@ -65,7 +67,8 @@ const collectFood = () => {
         </div>
       </div>
 
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+      <div
+        class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
         <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Worker Ants</div>
         <div class="text-sm font-bold flex items-center">
           <span class="i-heroicons-bug-ant text-amber-600 dark:text-amber-400 mr-1 text-xs"></span>
@@ -79,7 +82,8 @@ const collectFood = () => {
 
     <!-- Progress Bars Row -->
     <div class="grid grid-cols-2 gap-2 mt-2">
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+      <div
+        class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
         <div class="text-xs text-amber-700 dark:text-amber-300 font-medium flex justify-between">
           <span>Ant Types</span>
           <span>{{ generatorStore.unlockedGenerators.length }}</span>
@@ -93,7 +97,8 @@ const collectFood = () => {
         </div>
       </div>
 
-      <div class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
+      <div
+        class="bg-white/80 p-2 rounded-lg shadow-sm border border-amber-200 dark:bg-gray-800/80 dark:border-amber-700">
         <div class="text-xs text-amber-700 dark:text-amber-300 font-medium flex justify-between">
           <span>Adaptation Progress</span>
           <span>{{ generatorStore.totalPointsAvailable }} points</span>
