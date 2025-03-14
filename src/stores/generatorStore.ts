@@ -173,7 +173,7 @@ export const useGeneratorStore = defineStore('generator', () => {
 
   // Get all unlocked generators
   const unlockedGenerators = computed(() => {
-    return generators.value.filter(g => g.unlocked || g.purchasable)
+    return generators.value.filter(g => g.unlocked)
   })
 
   // Get the next unlockable generator

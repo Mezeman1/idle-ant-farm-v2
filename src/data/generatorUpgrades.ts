@@ -28,18 +28,6 @@ export const generatorUpgrades: GeneratorUpgrade[] = [
     unlocked: true,
   },
   {
-    id: 'workerReproduction',
-    generatorId: 'worker',
-    name: 'Worker Reproduction',
-    description: 'Workers occasionally reproduce on their own',
-    cost: createDecimal(3),
-    level: createDecimal(0),
-    maxLevel: createDecimal(5),
-    effect: level => createDecimal(level.mul(0.01)), // 1% chance per level to generate a free worker per tick
-    icon: 'i-heroicons-heart',
-    unlocked: true,
-  },
-  {
     id: 'workerForaging',
     generatorId: 'worker',
     name: 'Advanced Foraging',
