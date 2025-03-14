@@ -15,9 +15,35 @@ export function createDecimal(value: number | string | Decimal): Decimal {
  * Formats a Decimal value for display with optional precision
  */
 export function formatDecimal(value: Decimal, precision: number = 2): string {
+  // Handle null or undefined values
+  if (!value) {
+    return '0'
+  }
+
+  // Try to safely check if the value is valid
+  try {
+    // This will throw an error if value is NaN
+    if (value.eq(value).toString() === 'false') {
+      return '0'
+    }
+  } catch (e) {
+    return '0'
+  }
+
+  // Handle zero or very small values
+  if (value.eq(0) || value.lt(0.01)) {
+    if (value.eq(0)) return '0'
+    return value.toExponential(precision)
+  }
+
   if (value.lt(1e3)) {
-    // For very small numbers, show exact value without suffix
-    return value.toFixed(precision)
+    // For small numbers, show exact value without suffix
+    // Remove trailing zeros for cleaner display
+    const fixed = value.toFixed(precision)
+    if (fixed.includes('.')) {
+      return fixed.replace(/\.?0+$/, '')
+    }
+    return fixed
   } else if (value.lt(1e6)) {
     // For thousands, show with K suffix
     return `${value.div(1e3).toFixed(precision)}K`
@@ -30,6 +56,18 @@ export function formatDecimal(value: Decimal, precision: number = 2): string {
   } else if (value.lt(1e15)) {
     // For trillions, show with T suffix
     return `${value.div(1e12).toFixed(precision)}T`
+  } else if (value.lt(1e18)) {
+    // For quadrillions, show with Qa suffix
+    return `${value.div(1e15).toFixed(precision)}Qa`
+  } else if (value.lt(1e21)) {
+    // For quintillions, show with Qi suffix
+    return `${value.div(1e18).toFixed(precision)}Qi`
+  } else if (value.lt(1e24)) {
+    // For sextillions, show with Sx suffix
+    return `${value.div(1e21).toFixed(precision)}Sx`
+  } else if (value.lt(1e27)) {
+    // For septillions, show with Sp suffix
+    return `${value.div(1e24).toFixed(precision)}Sp`
   } else {
     // For very large numbers, use scientific notation
     return value.toExponential(precision)

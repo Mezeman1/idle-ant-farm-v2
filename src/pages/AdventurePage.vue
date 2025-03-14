@@ -4,13 +4,14 @@ import { useBugStore } from '@/stores/bugStore'
 import { useGameStore } from '@/stores/gameStore'
 import { useItemStore } from '@/stores/itemStore'
 import { formatDecimal } from '@/utils/decimalUtils'
-import { computed, ref, onMounted, nextTick, watch } from 'vue'
+import { computed, ref, onMounted, nextTick, watch, onUpdated } from 'vue'
 
 const adventureStore = useAdventureStore()
 const gameStore = useGameStore()
 const bugStore = useBugStore()
 const itemStore = useItemStore()
 const logContainer = ref<HTMLElement | null>(null)
+const lastLogCount = ref(0)
 
 // Drop table modal state
 const selectedBug = ref<any>(null)
@@ -71,25 +72,109 @@ const healthPercentage = computed(() => {
 
 const enemyHealthPercentage = computed(() => bugStore.getBugHealthPercentage)
 
-const scrollToBottom = async () => {
-  await nextTick()
-  if (logContainer.value) {
-    logContainer.value.scrollTop = logContainer.value.scrollHeight
+// Mobile view state
+const showCombatLog = ref(true)
+const showAllEnemies = ref(false)
+
+const toggleCombatLog = () => {
+  showCombatLog.value = !showCombatLog.value
+  if (showCombatLog.value) {
+    nextTick(() => {
+      scrollToBottom()
+    })
   }
 }
 
+const toggleEnemyList = () => {
+  showAllEnemies.value = !showAllEnemies.value
+}
+
+// Display a limited number of enemies by default
+const visibleEnemies = computed(() => {
+  if (showAllEnemies.value) {
+    return bugStore.bugs
+  }
+  return bugStore.bugs.slice(0, 3)
+})
+
+// Aggressive scroll to bottom implementation
+const scrollToBottom = () => {
+  if (!logContainer.value) return
+
+  // Use requestAnimationFrame to ensure we're in the next paint cycle
+  requestAnimationFrame(() => {
+    if (logContainer.value) {
+      logContainer.value.scrollTop = logContainer.value.scrollHeight
+    }
+  })
+}
+
+// Even more aggressive scroll with multiple attempts
+const forceScrollToBottom = () => {
+  // Immediate attempt
+  if (logContainer.value) {
+    logContainer.value.scrollTop = logContainer.value.scrollHeight
+  }
+
+  // Try again after a short delay
+  setTimeout(() => {
+    if (logContainer.value) {
+      logContainer.value.scrollTop = logContainer.value.scrollHeight
+    }
+  }, 50)
+
+  // And again after a longer delay
+  setTimeout(() => {
+    if (logContainer.value) {
+      logContainer.value.scrollTop = logContainer.value.scrollHeight
+    }
+  }, 150)
+}
+
+// Check for new logs on every component update
+onUpdated(() => {
+  const currentLogCount = adventureStore.logs.length
+  if (currentLogCount > lastLogCount.value) {
+    lastLogCount.value = currentLogCount
+    forceScrollToBottom()
+  }
+})
+
 onMounted(() => {
-  scrollToBottom()
+  lastLogCount.value = adventureStore.logs.length
+  forceScrollToBottom()
+
+  // Set up a MutationObserver to watch for changes to the log container
+  if (logContainer.value) {
+    const observer = new MutationObserver(() => {
+      forceScrollToBottom()
+    })
+
+    observer.observe(logContainer.value, {
+      childList: true,
+      subtree: true
+    })
+  }
 })
 
 // Watch for new logs and scroll to bottom
-watch(() => adventureStore.logs.length, () => {
-  scrollToBottom()
+watch(() => adventureStore.logs.length, (newLength, oldLength) => {
+  if (newLength > oldLength) {
+    lastLogCount.value = newLength
+    forceScrollToBottom()
+  }
+}, { flush: 'post' })
+
+// Also watch for combat log visibility
+watch(() => showCombatLog.value, (isVisible) => {
+  if (isVisible) {
+    forceScrollToBottom()
+  }
 })
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 px-2 sm:px-0">
     <h1 class="text-xl font-bold mb-2 flex items-center">
       <span class="i-heroicons-shield-exclamation text-red-700 dark:text-red-500 mr-2"></span>
       Adventure
@@ -107,7 +192,7 @@ watch(() => adventureStore.logs.length, () => {
           {{ gameStore.adventureTimeRemaining }}s
         </span>
       </div>
-      <div class="w-full h-1.5 bg-red-900/30 dark:bg-red-950/50 rounded-full overflow-hidden">
+      <div class="w-full h-2 bg-red-900/30 dark:bg-red-950/50 rounded-full overflow-hidden">
         <div
           class="h-full bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-400 transition-all duration-100 ease-linear"
           :style="{ width: `${gameStore.adventureProgressPercentage}%` }"></div>
@@ -117,17 +202,70 @@ watch(() => adventureStore.logs.length, () => {
       </div>
     </div>
 
+    <!-- Active Combat Status (Moved to top when in combat) -->
+    <section v-if="adventureStore.isInCombat && bugStore.selectedBug"
+      class="bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/40 dark:to-amber-800/30 rounded-xl p-3 shadow-md border-2 border-amber-300 dark:border-amber-700">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-base font-bold flex items-center">
+          <span class="i-heroicons-bolt text-amber-700 dark:text-amber-500 mr-2"></span>
+          Active Combat
+        </h2>
+        <span
+          class="text-xs bg-amber-200 dark:bg-amber-900/50 px-2 py-1 rounded-full text-amber-800 dark:text-amber-300 font-medium">
+          In Combat
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2 mb-2">
+        <span class="i-heroicons-bug-ant text-amber-600 dark:text-amber-400 text-lg"></span>
+        <span class="font-medium text-amber-800 dark:text-amber-300 text-sm">{{ bugStore.selectedBug.name }}</span>
+      </div>
+
+      <!-- Enemy Health Bar -->
+      <div class="mb-2">
+        <div class="flex justify-between text-xs text-amber-700 dark:text-amber-400 mb-1">
+          <span>Enemy Health</span>
+          <span>{{ Math.round(enemyHealthPercentage) }}%</span>
+        </div>
+        <div class="h-3 bg-amber-100 dark:bg-amber-900/50 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-gradient-to-r from-amber-600 to-amber-500 dark:from-amber-500 dark:to-amber-400 transition-all duration-300 ease-out"
+            :style="{ width: `${enemyHealthPercentage}%` }"></div>
+        </div>
+        <div class="text-xs text-amber-700 dark:text-amber-400 mt-1">
+          {{ formattedEnemyHealth }} / {{ formattedEnemyMaxHealth }}
+        </div>
+      </div>
+
+      <!-- Enemy Stats -->
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg text-amber-700 dark:text-amber-400">
+          <div class="font-medium">Damage</div>
+          <div>{{ formattedEnemyDamage }}</div>
+        </div>
+        <div class="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg text-amber-700 dark:text-amber-400">
+          <div class="font-medium">Reward</div>
+          <div>{{ formatDecimal(bugStore.selectedBug.maxHealth.mul(0.1)) }}</div>
+        </div>
+      </div>
+
+      <div class="text-xs text-amber-700 dark:text-amber-400 mt-3 bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg">
+        <span class="i-heroicons-information-circle mr-1 inline-block"></span>
+        To change enemies, select a different bug from the Adventure Map below.
+      </div>
+    </section>
+
     <!-- Main Dashboard - Player Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Left Column: Player Stats -->
       <section
-        class="bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/40 dark:to-red-800/30 rounded-xl p-3 shadow-md md:col-span-2">
+        class="bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/40 dark:to-red-800/30 rounded-xl p-3 shadow-md lg:col-span-2">
         <h2 class="text-base font-bold mb-2 flex items-center">
           <span class="i-heroicons-user-circle text-red-700 dark:text-red-500 mr-2"></span>
           Player Stats
         </h2>
 
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <div
             class="bg-white/80 dark:bg-gray-800/80 p-2 rounded-lg shadow-sm border border-red-200 dark:border-red-700">
             <div class="text-xs text-red-700 dark:text-red-400 font-medium">Health</div>
@@ -172,7 +310,7 @@ watch(() => adventureStore.logs.length, () => {
             <span>Health</span>
             <span>{{ Math.round(healthPercentage) }}%</span>
           </div>
-          <div class="h-2 bg-red-100 dark:bg-red-900/50 rounded-full mt-1 overflow-hidden">
+          <div class="h-3 bg-red-100 dark:bg-red-900/50 rounded-full mt-1 overflow-hidden">
             <div
               class="h-full bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-400 transition-all duration-300 ease-out"
               :style="{ width: `${healthPercentage}%` }"></div>
@@ -194,36 +332,25 @@ watch(() => adventureStore.logs.length, () => {
           </div>
         </div>
 
-        <!-- Combat Status -->
-        <div v-if="adventureStore.isInCombat && bugStore.selectedBug" class="mt-4">
-          <h3 class="text-sm font-bold mb-2 text-red-700 dark:text-red-500">Current Enemy: {{ bugStore.selectedBug.name
-            }}</h3>
-          <div
-            class="bg-white/80 dark:bg-gray-800/80 p-2 rounded-lg shadow-sm border border-red-200 dark:border-red-700">
-            <div class="text-xs text-red-700 dark:text-red-400 font-medium">Enemy Health</div>
-            <div class="h-2 bg-red-100 dark:bg-red-900/50 rounded-full mt-1 overflow-hidden">
-              <div
-                class="h-full bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-400 transition-all duration-300 ease-out"
-                :style="{ width: `${enemyHealthPercentage}%` }"></div>
-            </div>
-            <div class="text-xs text-red-600 dark:text-red-400 mt-1">
-              {{ formattedEnemyHealth }} / {{ formattedEnemyMaxHealth }}
-            </div>
-            <div class="text-xs text-red-700 dark:text-red-400 mt-2">Damage: {{ formattedEnemyDamage }}</div>
-          </div>
-        </div>
+        <!-- Combat Status (Removed from here, moved to top) -->
       </section>
 
       <!-- Right Column: Combat Log -->
       <section
         class="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 shadow-md">
-        <h2 class="text-base font-bold mb-2 flex items-center">
-          <span class="i-heroicons-document-text text-gray-700 dark:text-gray-300 mr-2"></span>
-          Combat Log
-        </h2>
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-base font-bold flex items-center">
+            <span class="i-heroicons-document-text text-gray-700 dark:text-gray-300 mr-2"></span>
+            Combat Log
+          </h2>
+          <button @click="toggleCombatLog"
+            class="md:hidden text-gray-600 dark:text-gray-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span :class="showCombatLog ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"></span>
+          </button>
+        </div>
 
-        <div ref="logContainer"
-          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 h-48 overflow-y-auto">
+        <div v-if="showCombatLog" ref="logContainer"
+          class="bg-white/80 dark:bg-gray-900/80 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 h-48 sm:h-64 overflow-y-auto scroll-smooth">
           <div v-if="adventureStore.logs.length === 0" class="text-xs text-gray-600 dark:text-gray-400">
             <p class="mb-1">• Adventure mode initialized</p>
             <p class="mb-1">• Select an enemy to begin combat</p>
@@ -242,10 +369,12 @@ watch(() => adventureStore.logs.length, () => {
                 {{ log.message }}
               </span>
             </div>
+            <!-- Invisible element to help with scrolling -->
+            <div class="h-1" id="log-end"></div>
           </div>
         </div>
 
-        <div
+        <div v-if="showCombatLog"
           class="mt-2 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-600">
           <span class="i-heroicons-information-circle text-gray-600 dark:text-gray-400 mr-1 inline-block"></span>
           Combat is turn-based. Your damage scales with your ant count!
@@ -256,98 +385,60 @@ watch(() => adventureStore.logs.length, () => {
     <!-- Adventure Map Section -->
     <section
       class="bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/40 dark:to-blue-800/30 rounded-xl p-3 shadow-md">
-      <h2 class="text-base font-bold mb-2 flex items-center">
-        <span class="i-heroicons-map text-blue-700 dark:text-blue-500 mr-2"></span>
-        Adventure Map
-      </h2>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-base font-bold flex items-center">
+          <span class="i-heroicons-map text-blue-700 dark:text-blue-500 mr-2"></span>
+          Adventure Map
+        </h2>
+        <button @click="toggleEnemyList"
+          class="text-blue-600 dark:text-blue-400 text-xs px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors flex items-center">
+          <span class="mr-1">{{ showAllEnemies ? 'Show Less' : 'Show All' }}</span>
+          <span :class="showAllEnemies ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"></span>
+        </button>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Bug Selection -->
-        <div
-          class="bg-white/80 dark:bg-gray-800/80 p-4 rounded-lg shadow-sm border border-blue-200 dark:border-blue-700">
-          <h3 class="text-sm font-bold mb-3 text-blue-700 dark:text-blue-500">Available Enemies</h3>
-          <div class="space-y-3">
-            <div v-for="bug in bugStore.bugs" :key="bug.id"
-              class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center">
-                  <span class="i-heroicons-bug-ant text-blue-600 dark:text-blue-400 mr-2"></span>
-                  <span class="font-medium text-blue-700 dark:text-blue-300">{{ bug.name }}</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <button @click="showDropTableModal(bug)"
-                    class="p-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors">
-                    <span class="i-heroicons-information-circle text-blue-600 dark:text-blue-400"></span>
-                  </button>
-                  <button @click="adventureStore.toggleAutoCombat(bug.id)" :class="[
-                    adventureStore.autoCombatEnabled && adventureStore.selectedBugId === bug.id
-                      ? 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
-                      : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800',
-                    'px-3 py-1 rounded-lg text-white text-sm font-medium transition-colors duration-200'
-                  ]">
-                    {{ adventureStore.autoCombatEnabled && adventureStore.selectedBugId === bug.id ? 'Stop Fighting' :
-                      'Auto Fight' }}
-                  </button>
-                </div>
-              </div>
-              <div class="text-xs text-blue-600 dark:text-blue-400 space-y-1">
-                <p>Health: {{ formatDecimal(bug.maxHealth) }}</p>
-                <p>Damage: {{ formatDecimal(bug.damage) }}</p>
-                <p class="text-blue-500 dark:text-blue-300">{{ bug.description }}</p>
-              </div>
+      <!-- Bug Selection - Compact List -->
+      <div class="space-y-3">
+        <div v-for="bug in visibleEnemies" :key="bug.id"
+          class="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg shadow-sm border border-blue-200 dark:border-blue-700"
+          :class="{ 'border-2 border-green-400 dark:border-green-500': adventureStore.selectedBugId === bug.id && adventureStore.isInCombat }">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+            <div class="flex items-center">
+              <span class="i-heroicons-bug-ant text-blue-600 dark:text-blue-400 mr-2 text-lg"></span>
+              <span class="font-medium text-blue-700 dark:text-blue-300">{{ bug.name }}</span>
+              <span v-if="adventureStore.selectedBugId === bug.id && adventureStore.isInCombat"
+                class="ml-2 text-xs bg-green-100 dark:bg-green-900/50 px-2 py-0.5 rounded-full text-green-700 dark:text-green-400">
+                Active
+              </span>
             </div>
+            <div class="flex items-center space-x-2">
+              <button @click="showDropTableModal(bug)"
+                class="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors">
+                <span class="i-heroicons-information-circle text-blue-600 dark:text-blue-400 text-lg"></span>
+              </button>
+              <button @click="adventureStore.toggleAutoCombat(bug.id)"
+                class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors duration-200 flex-grow sm:flex-grow-0">
+                Fight
+              </button>
+            </div>
+          </div>
+          <div class="text-xs text-blue-600 dark:text-blue-400 space-y-1">
+            <div class="grid grid-cols-2 gap-2">
+              <p>Health: {{ formatDecimal(bug.maxHealth) }}</p>
+              <p>Damage: {{ formatDecimal(bug.damage) }}</p>
+            </div>
+            <p class="text-blue-500 dark:text-blue-300 mt-1">{{ bug.description }}</p>
           </div>
         </div>
 
-        <!-- Combat Status -->
-        <div
-          class="bg-white/80 dark:bg-gray-800/80 p-4 rounded-lg shadow-sm border border-blue-200 dark:border-blue-700">
-          <h3 class="text-sm font-bold mb-3 text-blue-700 dark:text-blue-500">Combat Status</h3>
-
-          <!-- Current Enemy -->
-          <div v-if="adventureStore.isInCombat && bugStore.selectedBug" class="mb-4">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center">
-                <span class="i-heroicons-bug-ant text-blue-600 dark:text-blue-400 mr-2"></span>
-                <span class="font-medium text-blue-700 dark:text-blue-300">{{ bugStore.selectedBug.name }}</span>
-              </div>
-              <span class="text-xs text-blue-600 dark:text-blue-400">In Combat</span>
-            </div>
-
-            <!-- Enemy Health Bar -->
-            <div class="mb-2">
-              <div class="flex justify-between text-xs text-blue-600 dark:text-blue-400 mb-1">
-                <span>Health</span>
-                <span>{{ Math.round(enemyHealthPercentage) }}%</span>
-              </div>
-              <div class="h-2 bg-blue-100 dark:bg-blue-900/50 rounded-full overflow-hidden">
-                <div
-                  class="h-full bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-400 transition-all duration-300 ease-out"
-                  :style="{ width: `${enemyHealthPercentage}%` }"></div>
-              </div>
-              <div class="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                {{ formattedEnemyHealth }} / {{ formattedEnemyMaxHealth }}
-              </div>
-            </div>
-
-            <!-- Enemy Stats -->
-            <div class="grid grid-cols-2 gap-2 text-xs text-blue-600 dark:text-blue-400">
-              <div class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
-                <div class="font-medium">Damage</div>
-                <div>{{ formattedEnemyDamage }}</div>
-              </div>
-              <div class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
-                <div class="font-medium">Reward</div>
-                <div>{{ formatDecimal(bugStore.selectedBug.maxHealth.mul(0.1)) }}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- No Combat -->
-          <div v-else class="text-center py-4">
-            <p class="text-sm text-blue-600 dark:text-blue-400 mb-2">No active combat</p>
-            <p class="text-xs text-blue-500 dark:text-blue-300">Select an enemy to begin fighting</p>
-          </div>
+        <!-- Show More/Less Button -->
+        <div v-if="bugStore.bugs.length > 3" class="flex justify-center">
+          <button @click="toggleEnemyList"
+            class="text-blue-600 dark:text-blue-400 px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors flex items-center">
+            <span class="mr-1">{{ showAllEnemies ? 'Show Less' : `Show ${bugStore.bugs.length - 3} More Enemies`
+            }}</span>
+            <span :class="showAllEnemies ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"></span>
+          </button>
         </div>
       </div>
     </section>
@@ -356,14 +447,18 @@ watch(() => adventureStore.logs.length, () => {
     <div v-if="selectedBug"
       class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-5 mx-auto border border-blue-200 dark:border-blue-700">
-        <h3
-          class="text-base font-bold mb-3 flex items-center text-blue-800 dark:text-blue-300 pb-2 border-b border-blue-200 dark:border-blue-700">
-          <span class="i-heroicons-bug-ant text-blue-600 dark:text-blue-400 mr-2"></span>
-          {{ selectedBug.name }} Drop Table
-        </h3>
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-4 sm:p-5 mx-auto border border-blue-200 dark:border-blue-700 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-2 border-b border-blue-200 dark:border-blue-700">
+          <h3 class="text-base font-bold flex items-center text-blue-800 dark:text-blue-300">
+            <span class="i-heroicons-bug-ant text-blue-600 dark:text-blue-400 mr-2"></span>
+            {{ selectedBug.name }} Drop Table
+          </h3>
+          <button @click="hideDropTableModal" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span class="i-heroicons-x-mark text-gray-600 dark:text-gray-400 text-lg"></span>
+          </button>
+        </div>
 
-        <div class="space-y-3">
+        <div class="space-y-3 mt-3">
           <div class="text-sm text-gray-700 dark:text-gray-300">
             {{ selectedBug.description }}
           </div>
@@ -390,7 +485,7 @@ watch(() => adventureStore.logs.length, () => {
 
         <div class="flex justify-end mt-4">
           <button @click="hideDropTableModal"
-            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-lg text-white text-sm font-medium transition-colors">
             Close
           </button>
         </div>

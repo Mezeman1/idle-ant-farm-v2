@@ -76,6 +76,10 @@ export const useBugStore = defineStore('bug', () => {
     }
   }
 
+  const getBugById = (id: string) => {
+    return bugsRef.value.find(bug => bug.id === id)
+  }
+
   return {
     bugs: bugsRef,
     selectedBug,
@@ -87,5 +91,6 @@ export const useBugStore = defineStore('bug', () => {
     getRandomDrops,
     loadState,
     getState,
+    getBugById,
   }
 })
