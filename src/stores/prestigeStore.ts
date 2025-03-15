@@ -179,11 +179,13 @@ export const usePrestigeStore = defineStore('prestige', () => {
     // Increment foraging cycles completed
     loopsCompleted.value = loopsCompleted.value.add(1)
 
-    // Increase foraging trips required for next cycle (by 0.5 trips per cycle)
-    ticksPerLoop.value = ticksPerLoop.value.add(0.5)
+    // Increase foraging trips required for next cycle (by 10% trips per cycle)
+    ticksPerLoop.value = ticksPerLoop.value.mul(1.1)
 
-    // Increase food required for next cycle (exponential growth: ^1.1)
-    const baseFoodIncrease = foodForNextLoop.value.pow(1.1)
+    // Increase food required for next cycle 1000×10^(loop count^1.5)
+    const baseFoodIncrease = createDecimal(1000).mul(
+      createDecimal(1.1).pow(createDecimal(loopsCompleted.value).pow(1.1))
+    )
 
     // Apply Cycle Food Reduction upgrade
     const cycleFoodReductionMultiplier = getUpgradeMultiplier('cycleFoodReduction')

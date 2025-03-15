@@ -26,6 +26,13 @@ export interface Item {
   }
 }
 
+// Define the interface for equipment slots to avoid circular imports
+interface EquipmentSlot {
+  id: number
+  item: string | null
+  locked: boolean
+}
+
 export const useItemStore = defineStore('item', () => {
   const itemsRef = ref<Record<string, Item>>(items)
 
@@ -41,41 +48,6 @@ export const useItemStore = defineStore('item', () => {
       ...baseItem,
       quantity,
     }
-  }
-
-  // Get all special modifiers from equipped items
-  const getSpecialModifiers = () => {
-    const modifiers: Record<string, Decimal> = {
-      epBoost: Decimal.fromNumber(1), // Default is 1 (no boost)
-      global: Decimal.fromNumber(1), // Default is 1 (no boost)
-    }
-
-    // Iterate through all items and collect special modifiers
-    Object.values(itemsRef.value).forEach(item => {
-      if (item.quantity && item.quantity.gt(0) && item.specialModifiers) {
-        // Apply EP boost modifier
-        if (item.specialModifiers.epBoost) {
-          modifiers.epBoost = modifiers.epBoost.mul(item.specialModifiers.epBoost)
-        }
-
-        // Apply global production modifier
-        if (item.specialModifiers.global) {
-          modifiers.global = modifiers.global.mul(item.specialModifiers.global)
-        }
-
-        // Apply any other special modifiers
-        Object.entries(item.specialModifiers).forEach(([key, value]) => {
-          if (key !== 'epBoost' && key !== 'global' && value !== undefined) {
-            if (!modifiers[key]) {
-              modifiers[key] = Decimal.fromNumber(1)
-            }
-            modifiers[key] = modifiers[key].mul(value)
-          }
-        })
-      }
-    })
-
-    return modifiers
   }
 
   // Rarity color utilities
@@ -111,7 +83,6 @@ export const useItemStore = defineStore('item', () => {
     items: itemsRef,
     getItem,
     createItem,
-    getSpecialModifiers,
     getRarityColor,
     getRarityBackground,
   }

@@ -48,6 +48,16 @@ const formattedCurrentTicks = computed(() => {
 const formattedTicksPerLoop = computed(() => {
   return formatDecimal(prestigeStore.ticksPerLoop, 1)
 })
+
+// Format current food
+const formattedCurrentFood = computed(() => {
+  return formatDecimal(generatorStore.food, 0)
+})
+
+// Format food required for next loop
+const formattedFoodForNextLoop = computed(() => {
+  return formatDecimal(prestigeStore.foodForNextLoop, 0)
+})
 </script>
 
 <template>
@@ -128,7 +138,12 @@ const formattedTicksPerLoop = computed(() => {
                 <span v-if="isSmallScreen">Cycle Prog</span>
                 <span v-else>Cycle Progress</span>
               </div>
-              <div class="text-2xs sm:text-xs text-purple-800 dark:text-purple-300">{{ loopProgressPercentage }}%</div>
+              <div class="text-2xs sm:text-xs text-purple-800 dark:text-purple-300">
+                <span>{{ loopProgressPercentage }}%</span>
+                <span class="ml-1 text-purple-500 dark:text-purple-400">
+                  ({{ formattedCurrentTicks }}/{{ formattedTicksPerLoop }})
+                </span>
+              </div>
             </div>
             <div class="h-1.5 sm:h-2 bg-purple-100 dark:bg-purple-900/50 rounded-full overflow-hidden">
               <div class="h-full bg-purple-600 dark:bg-purple-500 transition-all duration-300 ease-out"
@@ -144,7 +159,12 @@ const formattedTicksPerLoop = computed(() => {
                 <span v-if="isSmallScreen">Food Prog</span>
                 <span v-else>Food Progress</span>
               </div>
-              <div class="text-2xs sm:text-xs text-purple-800 dark:text-purple-300">{{ foodProgressPercentage }}%</div>
+              <div class="text-2xs sm:text-xs text-purple-800 dark:text-purple-300">
+                <span>{{ foodProgressPercentage }}%</span>
+                <span class="ml-1 text-purple-500 dark:text-purple-400">
+                  ({{ formattedCurrentFood }}/{{ formattedFoodForNextLoop }})
+                </span>
+              </div>
             </div>
             <div class="h-1.5 sm:h-2 bg-purple-100 dark:bg-purple-900/50 rounded-full overflow-hidden">
               <div class="h-full bg-purple-600 dark:bg-purple-500 transition-all duration-300 ease-out"

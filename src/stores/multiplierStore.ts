@@ -73,7 +73,7 @@ export const useMultiplierStore = defineStore('multiplier', () => {
     })
 
     // Add global production multiplier from items
-    const specialModifiers = itemStore.getSpecialModifiers()
+    const specialModifiers = inventoryStore.totalSpecialModifiers
     if (specialModifiers.global && specialModifiers.global.gt(1)) {
       globalMultipliers.push({
         id: 'item_global_multiplier',
@@ -301,7 +301,7 @@ export const useMultiplierStore = defineStore('multiplier', () => {
    * @returns The EP boost multiplier
    */
   const getEPBoostMultiplier = (): Decimal => {
-    const specialModifiers = itemStore.getSpecialModifiers()
+    const specialModifiers = inventoryStore.totalSpecialModifiers
     return specialModifiers.epBoost || createDecimal(1)
   }
 

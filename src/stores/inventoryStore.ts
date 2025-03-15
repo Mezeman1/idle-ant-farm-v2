@@ -117,6 +117,44 @@ export const useInventoryStore = defineStore('inventory', () => {
     return Object.fromEntries(Object.entries(modifiers).filter(([_, value]) => value.gt(1)))
   })
 
+  // Get all special modifiers from equipped items
+  const totalSpecialModifiers = computed(() => {
+    const modifiers: Record<string, Decimal> = {
+      epBoost: Decimal.fromNumber(1), // Default is 1 (no boost)
+      global: Decimal.fromNumber(1), // Default is 1 (no boost)
+    }
+
+    // Iterate through equipped items only
+    equipmentSlots.value.forEach(slot => {
+      if (slot.item) {
+        const item = getItem(slot.item)
+        if (item?.specialModifiers) {
+          // Apply EP boost modifier
+          if (item.specialModifiers.epBoost) {
+            modifiers.epBoost = modifiers.epBoost.mul(item.specialModifiers.epBoost)
+          }
+
+          // Apply global production modifier
+          if (item.specialModifiers.global) {
+            modifiers.global = modifiers.global.mul(item.specialModifiers.global)
+          }
+
+          // Apply any other special modifiers
+          Object.entries(item.specialModifiers).forEach(([key, value]) => {
+            if (key !== 'epBoost' && key !== 'global' && value !== undefined) {
+              if (!modifiers[key]) {
+                modifiers[key] = Decimal.fromNumber(1)
+              }
+              modifiers[key] = modifiers[key].mul(value)
+            }
+          })
+        }
+      }
+    })
+
+    return modifiers
+  })
+
   const stackItems = () => {
     // Create a map to store unique items by ID
     const itemMap = new Map<string, Item>()
@@ -252,6 +290,7 @@ export const useInventoryStore = defineStore('inventory', () => {
     unlockedEquipmentSlots,
     totalStats,
     totalProductionModifiers,
+    totalSpecialModifiers,
     addItem,
     removeItem,
     equipItem,

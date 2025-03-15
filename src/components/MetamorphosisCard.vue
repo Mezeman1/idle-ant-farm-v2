@@ -50,7 +50,7 @@ const isSmallScreen = computed(() => width.value < 640)
             {{ prestigeStore.formatEP() }}
           </div>
         </div>
-      </div>
+      </div>  
 
       <div
         class="bg-white/80 dark:bg-gray-800/80 p-1.5 sm:p-2 rounded-lg shadow-sm border border-purple-200 dark:border-purple-700">
