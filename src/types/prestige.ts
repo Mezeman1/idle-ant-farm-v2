@@ -10,6 +10,7 @@ export interface PrestigeUpgrade {
   level: Decimal
   maxLevel: Decimal | null // null means no max level
   effect: (level: Decimal) => Decimal // Returns multiplier based on level
+  formatEffect: (effectValue: Decimal) => string // Format the effect value for display
   icon: string
   isUnlocked: () => boolean // Function to determine if upgrade is unlocked
   category: 'production' | 'efficiency' | 'automation' | 'research' | 'synergy' | 'prestige'

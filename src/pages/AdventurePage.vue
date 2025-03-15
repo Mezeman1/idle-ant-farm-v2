@@ -164,13 +164,6 @@ watch(() => adventureStore.logs.length, (newLength, oldLength) => {
     forceScrollToBottom()
   }
 }, { flush: 'post' })
-
-// Also watch for combat log visibility
-watch(() => showCombatLog.value, (isVisible) => {
-  if (isVisible) {
-    forceScrollToBottom()
-  }
-})
 </script>
 
 <template>
@@ -436,7 +429,7 @@ watch(() => showCombatLog.value, (isVisible) => {
           <button @click="toggleEnemyList"
             class="text-blue-600 dark:text-blue-400 px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors flex items-center">
             <span class="mr-1">{{ showAllEnemies ? 'Show Less' : `Show ${bugStore.bugs.length - 3} More Enemies`
-            }}</span>
+              }}</span>
             <span :class="showAllEnemies ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"></span>
           </button>
         </div>

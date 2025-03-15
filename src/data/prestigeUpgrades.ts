@@ -1,6 +1,44 @@
 import { createDecimal } from '@/utils/decimalUtils'
 import type { PrestigeUpgrade } from '@/types/prestige'
 import Decimal from 'break_infinity.js'
+import { formatDecimal, formatPercentage } from '@/utils/decimalUtils'
+
+// Helper functions for formatting effects
+const formatPercentageEffect = (effectValue: Decimal): string => {
+  const percentage = (effectValue.toNumber() - 1) * 100
+  if (percentage >= 1000) {
+    return `+${formatPercentage(percentage)}`
+  } else {
+    return `+${percentage.toFixed(0)}%`
+  }
+}
+
+const formatReductionPercentageEffect = (effectValue: Decimal): string => {
+  // For reduction effects, the value is typically less than 1
+  // So we calculate how much is being reduced (1 - value)
+  const percentage = (1 - effectValue.toNumber()) * 100
+  if (percentage >= 1000) {
+    return `-${formatPercentage(percentage)}`
+  } else {
+    return `-${percentage.toFixed(0)}%`
+  }
+}
+
+const formatMultiplierEffect = (effectValue: Decimal): string => {
+  return `${formatDecimal(effectValue, 2)}x`
+}
+
+const formatCountEffect = (effectValue: Decimal): string => {
+  return `${formatDecimal(effectValue, 0)}`
+}
+
+const formatSecondsEffect = (effectValue: Decimal): string => {
+  return `${formatDecimal(effectValue, 1)}s`
+}
+
+const formatUnlockEffect = (effectValue: Decimal): string => {
+  return effectValue.gt(0) ? 'Unlocked' : 'Locked'
+}
 
 // Define a function to check if a specific upgrade is unlocked
 const isUpgradeUnlocked = (upgradeId: string, upgrades: PrestigeUpgrade[]): boolean => {
@@ -29,6 +67,7 @@ const isUpgradeUnlocked = (upgradeId: string, upgrades: PrestigeUpgrade[]): bool
     'generatorSynergy',
     'evolutionSynergy',
     'prestigeAcceleration',
+    'inventorySlots',
   ]
 
   if (basicUpgrades.includes(upgradeId)) {
@@ -53,6 +92,24 @@ const isUpgradeUnlocked = (upgradeId: string, upgrades: PrestigeUpgrade[]): bool
   // Antopolis related upgrades
   if (['autoAntopolis', 'antopolisEfficiency'].includes(upgradeId)) {
     return antopolisUpgrade ? antopolisUpgrade.level.gt(0) : false
+  }
+
+  // Advanced versions of upgrades that require the basic version to be maxed
+  if (upgradeId === 'foodProcessingAdvanced') {
+    return isUpgradeMaxed('foodProcessing', upgrades)
+  }
+
+  if (upgradeId === 'efficientQueensAdvanced') {
+    return isUpgradeMaxed('efficientQueens', upgrades)
+  }
+
+  if (upgradeId === 'cycleTimeReductionAdvanced') {
+    return isUpgradeMaxed('cycleTimeReduction', upgrades)
+  }
+
+  // Equipment slots upgrade is always available
+  if (upgradeId === 'equipmentSlots') {
+    return true
   }
 
   // Default to false for any other upgrades
@@ -97,6 +154,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.1)), // 1 + (level * 0.1)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-cake',
       isUnlocked: () => true,
       category: 'production',
@@ -112,6 +170,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.2)), // 1 + (level * 0.2)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-cake',
       isUnlocked: () => isUpgradeMaxed('foodProcessing', upgrades), // foodProcessing is maxed out
       category: 'production',
@@ -127,6 +186,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.15)), // 1 + (level * 0.15)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-crown',
       isUnlocked: () => true,
       category: 'production',
@@ -142,6 +202,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.3)), // 1 + (level * 0.3)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-crown',
       isUnlocked: () => isUpgradeMaxed('efficientQueens', upgrades), // efficientQueens is maxed out
       category: 'production',
@@ -157,6 +218,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(20),
       effect: level => createDecimal(1).add(level.mul(0.05)), // 1 + (level * 0.05)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-clock',
       isUnlocked: () => true,
       category: 'efficiency',
@@ -172,6 +234,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: null, // No max level
       effect: level => createDecimal(1).add(level.mul(0.05)), // 1 + (level * 0.05)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-shield-check',
       isUnlocked: () => true,
       category: 'production',
@@ -187,6 +250,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).add(level.mul(0.2)), // 1 + (level * 0.2)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-sparkles',
       isUnlocked: () => true,
       category: 'production',
@@ -202,6 +266,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).add(level.mul(0.25)), // 1 + (level * 0.25)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-beaker',
       isUnlocked: () => true,
       category: 'production',
@@ -217,6 +282,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(1).add(level.mul(0.3)), // 1 + (level * 0.3)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-map',
       isUnlocked: () => true,
       category: 'production',
@@ -232,6 +298,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(2).pow(level), // 2^level (2, 4, 8, 16, etc.)
+      formatEffect: formatMultiplierEffect,
       icon: 'i-heroicons-chart-bar',
       isUnlocked: () => true,
       category: 'production',
@@ -243,10 +310,11 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       description: 'All production increases by 2% per level, compounding with other upgrades',
       baseCost: createDecimal(50),
       cost: createDecimal(50), // Initialize cost to baseCost
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2.5).pow(context.level)),
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.5).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(5),
       effect: level => createDecimal(1).add(level.mul(0.02)), // 1 + (level * 0.02)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-arrow-trending-up',
       isUnlocked: () => true,
       category: 'production',
@@ -254,41 +322,44 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
     },
     {
       id: 'unlockMegacolony',
-      name: 'Mega Colony Research',
+      name: 'Mega Colony',
       description: 'Unlocks the Mega Colony generator',
       baseCost: createDecimal(1000),
       cost: createDecimal(1000), // Initialize cost to baseCost
       level: createDecimal(0),
       maxLevel: createDecimal(1),
       effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
+      formatEffect: formatUnlockEffect,
       icon: 'i-heroicons-building-office-2',
       isUnlocked: () => true,
       category: 'research',
     },
     {
       id: 'unlockHivemind',
-      name: 'Hive Mind Research',
+      name: 'Hive Mind',
       description: 'Unlocks the Hive Mind generator',
-      baseCost: createDecimal(1e6),
-      cost: createDecimal(1e6), // Initialize cost to baseCost
-      level: createDecimal(0),
-      maxLevel: createDecimal(1),
-      effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
-      icon: 'i-heroicons-cpu-chip',
-      isUnlocked: () => isUpgradeUnlocked('unlockHivemind', upgrades),
-      category: 'research',
-    },
-    {
-      id: 'unlockAntopolis',
-      name: 'Antopolis Research',
-      description: 'Unlocks the Antopolis generator',
       baseCost: createDecimal(1e9),
       cost: createDecimal(1e9), // Initialize cost to baseCost
       level: createDecimal(0),
       maxLevel: createDecimal(1),
       effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
+      formatEffect: formatUnlockEffect,
+      icon: 'i-heroicons-cpu-chip',
+      isUnlocked: () => isUpgradeUnlocked('unlockMegacolony', upgrades),
+      category: 'research',
+    },
+    {
+      id: 'unlockAntopolis',
+      name: 'Antopolis',
+      description: 'Unlocks the Antopolis generator',
+      baseCost: createDecimal(1e12),
+      cost: createDecimal(1e12), // Initialize cost to baseCost
+      level: createDecimal(0),
+      maxLevel: createDecimal(1),
+      effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
+      formatEffect: formatUnlockEffect,
       icon: 'i-heroicons-building-library',
-      isUnlocked: () => isUpgradeUnlocked('unlockAntopolis', upgrades),
+      isUnlocked: () => isUpgradeUnlocked('unlockHivemind', upgrades),
       category: 'research',
     },
     {
@@ -301,6 +372,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(1).add(level.mul(0.4)), // 1 + (level * 0.4)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-building-office-2',
       isUnlocked: () => isUpgradeUnlocked('megacolonyEfficiency', upgrades),
       category: 'production',
@@ -316,6 +388,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(1).add(level.mul(0.5)), // 1 + (level * 0.5)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-cpu-chip',
       isUnlocked: () => isUpgradeUnlocked('hivemindEfficiency', upgrades),
       category: 'production',
@@ -331,6 +404,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(1).add(level.mul(0.6)), // 1 + (level * 0.6)
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-building-library',
       isUnlocked: () => isUpgradeUnlocked('antopolisEfficiency', upgrades),
       category: 'production',
@@ -346,6 +420,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(20),
       effect: level => createDecimal(0.2).mul(level), // 0.2s reduction per level
+      formatEffect: formatSecondsEffect,
       icon: 'i-heroicons-clock-solid',
       isUnlocked: () => true,
       category: 'efficiency',
@@ -360,6 +435,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(5),
       effect: level => createDecimal(0.4).mul(level), // 0.4s reduction per level
+      formatEffect: formatSecondsEffect,
       icon: 'i-heroicons-clock-solid',
       isUnlocked: () => isUpgradeMaxed('cycleTimeReduction', upgrades), // cycleTimeReduction is maxed out
       category: 'efficiency',
@@ -374,20 +450,22 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => createDecimal(1).add(level.mul(0.1)), // +10% per level
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-star',
       isUnlocked: () => true,
       category: 'prestige',
     },
     {
       id: 'cycleFoodReduction',
-      name: 'Efficient Cycle Completion',
-      description: 'Reduces food required for cycle completion by 5% per level',
-      baseCost: createDecimal(30),
-      cost: createDecimal(30), // Initialize cost to baseCost
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.6).pow(context.level)),
+      name: 'Cycle Food Reduction',
+      description: 'Reduces the food required for each cycle by 5% per level (max 75%)',
+      baseCost: createDecimal(50),
+      cost: createDecimal(50), // Initialize cost to baseCost
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(15),
       effect: level => createDecimal(1).sub(level.mul(0.05).min(0.75)), // Max 75% reduction
+      formatEffect: formatReductionPercentageEffect,
       icon: 'i-heroicons-arrow-down-circle',
       isUnlocked: () => true,
       category: 'efficiency',
@@ -395,13 +473,14 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
     {
       id: 'startingFood',
       name: 'Starting Resources',
-      description: 'Start with 10x more food after evolution per level',
-      baseCost: createDecimal(20),
-      cost: createDecimal(20), // Initialize cost to baseCost
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2.5).pow(context.level)),
+      description: 'Start with 10x more food per level after evolution',
+      baseCost: createDecimal(100),
+      cost: createDecimal(100), // Initialize cost to baseCost
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(1.5).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(10).pow(level), // 10^level
+      formatEffect: formatMultiplierEffect,
       icon: 'i-heroicons-banknotes',
       isUnlocked: () => true,
       category: 'prestige',
@@ -416,6 +495,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(5),
       effect: level => createDecimal(1).add(level.mul(0.01)), // Each level adds 1% of current EP as a multiplier
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-sparkles',
       isUnlocked: () => true,
       category: 'prestige',
@@ -430,6 +510,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-cog-6-tooth',
       isUnlocked: () => true,
       category: 'automation',
@@ -444,6 +525,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-cog-6-tooth',
       isUnlocked: () => true,
       category: 'automation',
@@ -458,6 +540,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-cog-6-tooth',
       isUnlocked: () => true,
       category: 'automation',
@@ -472,6 +555,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-cog-6-tooth',
       isUnlocked: () => true,
       category: 'automation',
@@ -486,6 +570,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-cog-6-tooth',
       isUnlocked: () => isUpgradeUnlocked('autoMegacolony', upgrades),
       category: 'automation',
@@ -500,6 +585,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-cog-6-tooth',
       isUnlocked: () => isUpgradeUnlocked('autoHivemind', upgrades),
       category: 'automation',
@@ -514,6 +600,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(25),
       effect: level => level, // Level directly determines purchases per tick
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-cog-6-tooth',
       isUnlocked: () => isUpgradeUnlocked('autoAntopolis', upgrades),
       category: 'automation',
@@ -521,13 +608,14 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
     {
       id: 'bulkAutomation',
       name: 'Bulk Automation',
-      description: 'Multiplies the effectiveness of all automation upgrades by 5x per level',
-      baseCost: createDecimal(500),
-      cost: createDecimal(500), // Initialize cost to baseCost
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2.5).pow(context.level)),
+      description: 'Multiplies the effectiveness of all automation upgrades',
+      baseCost: createDecimal(50),
+      cost: createDecimal(50), // Initialize cost to baseCost
+      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(1).add(level.mul(4)), // 1 + 4*level (5x, 9x, 13x, etc.)
+      formatEffect: formatMultiplierEffect,
       icon: 'i-heroicons-bolt',
       isUnlocked: () => true,
       category: 'automation',
@@ -542,6 +630,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(5),
       effect: level => createDecimal(1).add(level.mul(0.02)), // Base effect, actual calculation in getAllMultipliers
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-puzzle-piece',
       isUnlocked: () => true,
       category: 'synergy',
@@ -557,6 +646,7 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       level: createDecimal(0),
       maxLevel: createDecimal(5),
       effect: level => createDecimal(1).add(level.mul(0.01)), // Base effect, actual calculation in getAllMultipliers
+      formatEffect: formatPercentageEffect,
       icon: 'i-heroicons-arrow-path',
       isUnlocked: () => true,
       category: 'synergy',
@@ -565,13 +655,14 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
     {
       id: 'prestigeAcceleration',
       name: 'Prestige Acceleration',
-      description: 'Start with 1 completed cycle per level after evolution',
-      baseCost: createDecimal(200),
-      cost: createDecimal(200), // Initialize cost to baseCost
+      description: 'Start with more cycles completed after evolution',
+      baseCost: createDecimal(100),
+      cost: createDecimal(100), // Initialize cost to baseCost
       costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2).pow(context.level)),
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => level, // Level directly determines starting cycles
+      formatEffect: formatCountEffect,
       icon: 'i-heroicons-rocket-launch',
       isUnlocked: () => true,
       category: 'prestige',
@@ -587,6 +678,15 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       effect: (level: Decimal) => {
         // Each level adds 5 slots
         return level.mul(5)
+      },
+      formatEffect: effectValue => {
+        // For percentage-based upgrades, convert to percentage
+        const percentage = (effectValue.toNumber() - 5) * 100
+        if (percentage >= 1000) {
+          return `+${formatPercentage(percentage)}`
+        } else {
+          return `+${percentage.toFixed(0)} slots`
+        }
       },
       isUnlocked: () => true, // Always available
       costMultiplier: ({ cost, level }) => {
@@ -609,13 +709,14 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
         // Each level unlocks one slot
         return level
       },
-      isUnlocked: () => true, // Always available
-      costMultiplier: ({ cost, level }) => {
-        // More expensive exponential scaling: cost * (2 ^ level)
-        return cost.mul(createDecimal(2).pow(level))
+      formatEffect: effectValue => {
+        return `${formatDecimal(effectValue, 0)} slots`
       },
+      isUnlocked: () => true,
       icon: 'i-heroicons-shield-check',
       category: 'prestige',
+      costMultiplier: (context: any) =>
+        createDecimal(context.cost).mul(createDecimal(2).pow(createDecimal(2).pow(context.level))),
     },
   ]
 

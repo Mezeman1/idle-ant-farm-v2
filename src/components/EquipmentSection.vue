@@ -53,10 +53,6 @@ const hasWorkers = computed(() => {
   return count.gt(0)
 })
 
-watch(inventoryStore.unlockedEquipmentSlots, (newSlots) => {
-  inventoryStore.initializeEquipmentSlots()
-})
-
 const getItemDetails = (itemId: string) => {
   return itemStore.getItem(itemId)
 }

@@ -28,31 +28,7 @@ const formattedMaxLevel = computed(() => {
 
 const formattedEffect = computed(() => {
   const effect = props.upgrade.effect(props.upgrade.level)
-
-  // Handle special cases for different upgrade types
-  if (props.upgrade.id === 'exponentialGrowth' || props.upgrade.id === 'compoundEvolution') {
-    // For exponential upgrades, show the actual multiplier
-    return `${formatDecimal(effect, 2)}x`
-  } else if (props.upgrade.id === 'startingFood') {
-    // For starting food, show the actual multiplier
-    return `${formatDecimal(effect, 0)}x`
-  } else if (props.upgrade.id === 'prestigeAcceleration' ||
-    props.upgrade.id.startsWith('auto') ||
-    props.upgrade.id === 'bulkAutomation') {
-    // For automation upgrades, show the actual value
-    return `${formatDecimal(effect, 0)}`
-  } else if (props.upgrade.id === 'cycleTimeReduction') {
-    // For cycle time reduction, show seconds
-    return `${formatDecimal(effect, 1)}s`
-  } else {
-    // For percentage-based upgrades, convert to percentage
-    const percentage = (effect.toNumber() - 1) * 100
-    if (percentage >= 1000) {
-      return `+${formatPercentage(percentage)}`
-    } else {
-      return `+${percentage.toFixed(0)}%`
-    }
-  }
+  return props.upgrade.formatEffect(effect)
 })
 
 const canAfford = computed(() => {
@@ -194,6 +170,14 @@ const getButtonClasses = () => {
     default: return 'bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-800 text-white'
   }
 }
+
+const buttonClasses = computed(() => {
+  if (canAfford.value && !isMaxLevel.value && !hasDependencies.value) {
+    return getButtonClasses()
+  } else {
+    return 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+  }
+})
 </script>
 
 <template>
@@ -223,9 +207,7 @@ const getButtonClasses = () => {
         </div>
 
         <HoldableButton @action="purchaseUpgrade" :disabled="!canAfford || isMaxLevel || hasDependencies"
-          class="py-1 px-2 rounded text-xs font-medium transition-colors" :class="(canAfford && !isMaxLevel && !hasDependencies)
-            ? getButtonClasses()
-            : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'">
+          class="py-1 px-2 rounded text-xs font-medium transition-colors" :class="buttonClasses">
           <span v-if="isMaxLevel">Max</span>
           <template v-else>
             {{ formattedCost }} EP
