@@ -7,15 +7,31 @@ import { useAdventureUnlock } from '@/composables/useAdventureUnlock'
 import { useToast } from '@/composables/useToast'
 import { computed, ref } from 'vue'
 import { formatDecimal } from '@/utils/decimalUtils'
+import { useRouter } from 'vue-router'
 
 // Get stores
 const gameStore = useGameStore()
 const generatorStore = useGeneratorStore()
 const prestigeStore = usePrestigeStore()
 const { showToast } = useToast()
+const router = useRouter()
 
 // Check if adventure mode is unlocked
 const { isAdventureUnlocked } = useAdventureUnlock()
+
+// Handle settings button click
+const handleSettingsClick = () => {
+  if (router.currentRoute.value.path === '/settings') {
+    router.back()
+  } else {
+    router.push('/settings')
+  }
+}
+
+// Check if currently on settings page
+const isOnSettingsPage = computed(() => {
+  return router.currentRoute.value.path === '/settings'
+})
 
 // Handle click on disabled navigation items
 const handleDisabledClick = (name: string) => {
@@ -54,7 +70,6 @@ const navItems = computed(() => {
       disabled: !isAdventureUnlocked.value,
       tooltip: !isAdventureUnlocked.value ? 'Unlock Adventure Mode from the Upgrades tab (50 EP)' : ''
     },
-    { name: 'Settings', icon: 'i-heroicons-cog-6-tooth', route: '/settings', disabled: false },
   ]
 })
 
@@ -97,7 +112,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="{ 'dark': isDarkMode }" class="h-screen w-full">
+  <div :class="{ 'dark': isDarkMode }" class="h-screen w-full overflow-hidden">
     <div class="flex flex-col h-full bg-amber-50 dark:bg-gray-900 text-amber-900 dark:text-amber-100 font-sans w-full">
       <!-- Header -->
       <header
@@ -112,7 +127,19 @@ onUnmounted(() => {
         <div class="p-2 md:p-3">
           <!-- Title and Timer Row -->
           <div class="flex items-center justify-between mb-2">
-            <h1 class="text-lg md:text-xl font-extrabold tracking-tight">Idle Ant Farm</h1>
+            <div class="flex items-center gap-2">
+              <!-- Settings Button -->
+              <button @click="handleSettingsClick"
+                class="flex items-center justify-center cursor-pointer w-8 h-8 rounded-full bg-amber-900/20 dark:bg-amber-950/40 hover:bg-amber-900/30 dark:hover:bg-amber-950/50 transition-colors duration-200"
+                :title="isOnSettingsPage ? 'Back' : 'Settings'">
+                <span v-if="isOnSettingsPage"
+                  class="i-heroicons-x-mark text-amber-300 dark:text-amber-400 text-xl"></span>
+                <span v-else class="i-heroicons-cog-6-tooth text-amber-300 dark:text-amber-400 text-xl"></span>
+              </button>
+              <!-- Title -->
+              <h1 class="text-lg md:text-xl font-extrabold tracking-tight">Idle Ant Farm</h1>
+            </div>
+            <!-- Timer -->
             <span class="text-xs bg-amber-900/30 dark:bg-amber-950/50 px-2 py-0.5 rounded-full whitespace-nowrap">
               {{ gameStore.timeRemaining }}s
             </span>
@@ -154,7 +181,7 @@ onUnmounted(() => {
             <div class="flex items-center bg-amber-900/20 dark:bg-amber-950/40 rounded-full px-2 py-1">
               <span class="i-heroicons-arrow-trending-up text-amber-300 dark:text-amber-400 mr-1"></span>
               <span class="text-xs md:text-sm font-medium">{{ formatDecimal(generatorStore.foodPerSecond, 1)
-                }}/trip</span>
+              }}/trip</span>
             </div>
 
             <!-- Evolution Count -->

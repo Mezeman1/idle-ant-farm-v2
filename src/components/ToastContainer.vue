@@ -36,7 +36,7 @@ const getBgColor = (type: string) => {
 </script>
 
 <template>
-  <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-xs">
+  <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md">
     <TransitionGroup name="toast">
       <div v-for="toast in toasts" :key="toast.id"
         :class="['rounded-lg shadow-lg text-white p-3 flex items-start gap-2', getBgColor(toast.type)]">
