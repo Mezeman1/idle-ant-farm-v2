@@ -116,5 +116,7 @@ const isItemEquipped = (itemId: string) => {
     <!-- Item Modal -->
     <ItemModal v-if="selectedItem" :item="selectedItem" :is-item-equipped="isItemEquipped"
       :on-equip-action="handleEquipAction" :on-close="hideItemModal" />
+
+    <ScrollToTopButton :threshold="400" />
   </div>
 </template>

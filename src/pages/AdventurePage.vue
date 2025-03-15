@@ -484,5 +484,7 @@ watch(() => adventureStore.logs.length, (newLength, oldLength) => {
         </div>
       </div>
     </div>
+
+    <ScrollToTopButton :threshold="400" />
   </div>
 </template>

@@ -104,6 +104,7 @@ declare global {
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouter: typeof import('vue-router')['useRouter']
   const useSaveSystem: typeof import('./src/stores/saveSystem')['useSaveSystem']
+  const useScrollPosition: typeof import('./src/composables/useScrollPosition')['useScrollPosition']
   const useSeoMeta: typeof import('@unhead/vue')['useSeoMeta']
   const useServerHead: typeof import('@unhead/vue')['useServerHead']
   const useServerHeadSafe: typeof import('@unhead/vue')['useServerHeadSafe']
@@ -242,6 +243,7 @@ declare module 'vue' {
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useSaveSystem: UnwrapRef<typeof import('./src/stores/saveSystem')['useSaveSystem']>
+    readonly useScrollPosition: UnwrapRef<typeof import('./src/composables/useScrollPosition')['useScrollPosition']>
     readonly useSeoMeta: UnwrapRef<typeof import('@unhead/vue')['useSeoMeta']>
     readonly useServerHead: UnwrapRef<typeof import('@unhead/vue')['useServerHead']>
     readonly useServerHeadSafe: UnwrapRef<typeof import('@unhead/vue')['useServerHeadSafe']>

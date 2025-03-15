@@ -411,4 +411,6 @@ onMounted(() => {
       </div>
     </section>
   </div>
+
+  <ScrollToTopButton :threshold="400" />
 </template>

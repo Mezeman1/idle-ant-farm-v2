@@ -71,5 +71,8 @@ const toggleGeneratorInfo = () => {
     <!-- Generator Upgrade Modal -->
     <GeneratorUpgradeModal :show="showUpgradeModal" :selected-generator="selectedGenerator"
       :generator-info="generatorInfo" @close="closeUpgradeModal" />
+
+    <ScrollToTopButton :threshold="400" />
+
   </div>
 </template>

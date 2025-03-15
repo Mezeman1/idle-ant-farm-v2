@@ -24,6 +24,13 @@ export const useInventoryStore = defineStore('inventory', () => {
     return prestigeStore.getUpgradeCount('equipmentSlots')
   })
 
+  // Watch for changes in unlockedEquipmentSlots and reinitialize slots when it changes
+  watch(unlockedEquipmentSlots, (newValue, oldValue) => {
+    if (newValue && (!oldValue || !newValue.eq(oldValue))) {
+      initializeEquipmentSlots()
+    }
+  })
+
   // Calculate max inventory slots based on prestige upgrade
   const maxInventorySlots = computed(() => {
     const baseSlots = createDecimal(baseInventorySlots)
@@ -32,7 +39,9 @@ export const useInventoryStore = defineStore('inventory', () => {
   })
 
   // Calculate max equipment slots based on prestige upgrade
-  const maxEquipmentSlots = ref(baseEquipmentSlots)
+  const maxEquipmentSlots = computed(() => {
+    return baseEquipmentSlots
+  })
 
   // Initialize equipment slots
   const initializeEquipmentSlots = () => {
@@ -231,6 +240,9 @@ export const useInventoryStore = defineStore('inventory', () => {
     // Stack items after loading all state
     stackItems()
   }
+
+  // Initialize equipment slots when the store is created
+  initializeEquipmentSlots()
 
   return {
     inventory,

@@ -125,6 +125,8 @@ const categories = ['all', 'production', 'efficiency', 'automation', 'research',
 
     <!-- About Evolution Dialog -->
     <AboutEvolutionDialog :show="showAboutEvolution" @close="toggleAboutEvolution" />
+
+    <ScrollToTopButton :threshold="400" />
   </div>
 </template>
 

@@ -4,24 +4,24 @@ import { useScrollPosition } from '@/composables/useScrollPosition'
 
 // Props for customization
 interface Props {
-    /**
-     * Threshold in pixels after which the button appears
-     */
-    threshold?: number
-    /**
-     * CSS classes for the button
-     */
-    buttonClass?: string
-    /**
-     * Icon to display in the button
-     */
-    iconClass?: string
+  /**
+   * Threshold in pixels after which the button appears
+   */
+  threshold?: number
+  /**
+   * CSS classes for the button
+   */
+  buttonClass?: string
+  /**
+   * Icon to display in the button
+   */
+  iconClass?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    threshold: 300,
-    buttonClass: 'fixed bottom-4 right-4 bg-amber-600 hover:bg-amber-700 text-white rounded-full p-3 shadow-lg transition-all duration-200 z-50',
-    iconClass: 'i-heroicons-arrow-up w-5 h-5'
+  threshold: 300,
+  buttonClass: 'fixed bottom-4 right-4 bg-amber-600 hover:bg-amber-700 text-white rounded-full p-3 shadow-lg transition-all duration-200 z-50',
+  iconClass: 'i-heroicons-arrow-up w-5 h-5'
 })
 
 // Use the scroll position composable
@@ -32,36 +32,38 @@ const isVisible = ref(false)
 
 // Show button only when scrolled past threshold
 watch(scrollPosition, (newPosition) => {
-    isVisible.value = newPosition > props.threshold
+  isVisible.value = newPosition > props.threshold
 })
 
 /**
  * Scroll back to the top of the main content
  */
 const scrollToTop = () => {
-    const mainElement = document.querySelector('main')
-    if (mainElement) {
-        mainElement.scrollTo({ top: 0, behavior: 'smooth' })
-    }
+  const mainElement = document.querySelector('main')
+  if (mainElement) {
+    mainElement.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 </script>
 
 <template>
-    <Transition name="fade">
-        <button v-if="isVisible" @click="scrollToTop" :class="buttonClass" aria-label="Scroll to top">
-            <span :class="iconClass"></span>
-        </button>
-    </Transition>
+  <Transition name="fade">
+    <button v-if="isVisible" @click="scrollToTop" :class="buttonClass"
+      class="fixed bottom-20 right-6 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white rounded-full p-3 shadow-lg transition-all duration-200 z-50 flex items-center justify-center transform hover:scale-105 active:scale-95"
+      aria-label="Scroll to top">
+      <span :class="iconClass" class="w-5 h-5"></span>
+    </button>
+  </Transition>
 </template>
 
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
-    opacity: 0;
+  opacity: 0;
 }
 </style>
