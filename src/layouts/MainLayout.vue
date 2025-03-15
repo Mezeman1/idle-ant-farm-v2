@@ -112,7 +112,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="{ 'dark': isDarkMode }" class="h-screen w-full overflow-hidden">
+  <div :class="{ 'dark': isDarkMode }" class="h-dvh w-full overflow-hidden">
     <div class="flex flex-col h-full bg-amber-50 dark:bg-gray-900 text-amber-900 dark:text-amber-100 font-sans w-full">
       <!-- Header -->
       <header
@@ -181,7 +181,7 @@ onUnmounted(() => {
             <div class="flex items-center bg-amber-900/20 dark:bg-amber-950/40 rounded-full px-2 py-1">
               <span class="i-heroicons-arrow-trending-up text-amber-300 dark:text-amber-400 mr-1"></span>
               <span class="text-xs md:text-sm font-medium">{{ formatDecimal(generatorStore.foodPerSecond, 1)
-              }}/trip</span>
+                }}/trip</span>
             </div>
 
             <!-- Evolution Count -->
