@@ -176,12 +176,18 @@ export const usePrestigeStore = defineStore('prestige', () => {
 
   // Complete a foraging cycle and update requirements
   const completeLoop = () => {
+    console.log('completeLoop')
     // Increment foraging cycles completed
     loopsCompleted.value = loopsCompleted.value.add(1)
 
+    console.log('loopsCompleted', loopsCompleted.value)
+    console.log('ticksPerLoop', ticksPerLoop.value)
     // Increase foraging trips required for next cycle (by 10% trips per cycle)
-    ticksPerLoop.value = ticksPerLoop.value.mul(1.1)
-
+    ticksPerLoop.value = createDecimal(3)
+      .plus(loopsCompleted.value)
+      .mul(createDecimal(1.1).pow(createDecimal(loopsCompleted.value)))
+      .ceil()
+    console.log('ticksPerLoop', ticksPerLoop.value)
     // Increase food required for next cycle 1000×10^(loop count^1.5)
     const baseFoodIncrease = createDecimal(1000).mul(
       createDecimal(1.1).pow(createDecimal(loopsCompleted.value).pow(1.1))
@@ -202,8 +208,7 @@ export const usePrestigeStore = defineStore('prestige', () => {
 
     // Check if we have enough ticks for loop completion
     if (currentLoopTicks.value.gte(ticksPerLoop.value)) {
-      currentLoopTicks.value = createDecimal(0)
-      loopsCompleted.value = loopsCompleted.value.add(1)
+      completeLoop()
     }
 
     // Check if foraging cycle completed via food
