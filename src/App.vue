@@ -4,6 +4,7 @@ import MainLayout from '@/layouts/MainLayout.vue'
 import OfflineProgressModal from '@/components/OfflineProgressModal.vue'
 import PWAUpdateNotification from '@/components/PWAUpdateNotification.vue'
 import PWAInstallButton from '@/components/PWAInstallButton.vue'
+import ToastContainer from '@/components/ToastContainer.vue'
 import { useSaveSystem } from '@/stores/saveSystem'
 import { useVisibilityState } from '@/composables/useVisibilityState'
 import { useDarkMode } from '@/composables/useDarkMode'
@@ -48,4 +49,7 @@ const handleCloseOfflineModal = () => {
 
   <!-- PWA Install Button -->
   <PWAInstallButton />
+
+  <!-- Toast Notifications -->
+  <ToastContainer />
 </template>

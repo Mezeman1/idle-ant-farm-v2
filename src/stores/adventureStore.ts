@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useGeneratorStore } from './generatorStore'
 import { useBugStore } from './bugStore'
 import { useInventoryStore } from './inventoryStore'
+import { usePrestigeStore } from './prestigeStore'
 import Decimal from 'break_infinity.js'
 import { createDecimal, formatDecimal } from '@/utils/decimalUtils'
 
@@ -16,6 +17,14 @@ export const useAdventureStore = defineStore('adventure', () => {
   const generatorStore = useGeneratorStore()
   const bugStore = useBugStore()
   const inventoryStore = useInventoryStore()
+  const prestigeStore = usePrestigeStore()
+
+  // Check if adventure mode is unlocked
+  const isAdventureUnlocked = computed((): boolean => {
+    // Use the helper function in prestigeStore to check if the upgrade is purchased
+    const upgradeLevel = prestigeStore.getUpgradeCount('unlockAdventure')
+    return upgradeLevel.gt(0)
+  })
 
   const playerDamage = computed((): Decimal => {
     // Base damage from worker ants
@@ -110,6 +119,11 @@ export const useAdventureStore = defineStore('adventure', () => {
   }
 
   const tick = () => {
+    // Skip if adventure mode is not unlocked
+    if (!isAdventureUnlocked.value) {
+      return
+    }
+
     regenHealth()
 
     if (bugStore.selectedBug) {
@@ -252,6 +266,7 @@ export const useAdventureStore = defineStore('adventure', () => {
     autoCombatEnabled,
     selectedBugId,
     logs,
+    isAdventureUnlocked,
     tick,
     takeDamage,
     regenHealth,

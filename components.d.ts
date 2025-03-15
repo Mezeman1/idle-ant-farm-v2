@@ -39,6 +39,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollToTopButton: typeof import('./src/components/ScrollToTopButton.vue')['default']
+    ToastContainer: typeof import('./src/components/ToastContainer.vue')['default']
     UpgradeFilters: typeof import('./src/components/UpgradeFilters.vue')['default']
     UpgradeGrid: typeof import('./src/components/UpgradeGrid.vue')['default']
     UpgradeTabsNavigation: typeof import('./src/components/UpgradeTabsNavigation.vue')['default']

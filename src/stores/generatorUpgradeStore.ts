@@ -49,9 +49,9 @@ export const useGeneratorUpgradeStore = defineStore('generatorUpgrade', () => {
         growthRate = 1.5
         break
       case 'nursery':
-        baseRequirement = createDecimal(1000)
-        growthRate = 10
-        break
+        baseRequirement = createDecimal(10)
+        growthRate = 1.1
+        return createDecimal(baseRequirement).pow(level.toNumber()).pow(growthRate)
       case 'queenChamber':
         baseRequirement = createDecimal(10)
         growthRate = 1.3

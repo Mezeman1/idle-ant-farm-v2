@@ -1,20 +1,62 @@
 <script setup lang="ts">
 import { useDarkMode } from '@/composables/useDarkMode'
+import { usePrestigeStore } from '@/stores/prestigeStore'
+import { useGameStore } from '@/stores/gameStore'
+import { useGeneratorStore } from '@/stores/generatorStore'
+import { useAdventureUnlock } from '@/composables/useAdventureUnlock'
+import { useToast } from '@/composables/useToast'
+import { computed, ref } from 'vue'
+import { formatDecimal } from '@/utils/decimalUtils'
 
-// Navigation items for the footer
-const navItems = ref([
-  { name: 'Home', icon: 'i-heroicons-home', route: '/' },
-  { name: 'Colony', icon: 'i-heroicons-building-storefront', route: '/colony' },
-  { name: 'Upgrades', icon: 'i-heroicons-sparkles', route: '/upgrades' },
-  { name: 'Adventure', icon: 'i-heroicons-bolt', route: '/adventure' },
-  { name: 'Inventory', icon: 'i-heroicons-squares-2x2', route: '/inventory' },
-  { name: 'Settings', icon: 'i-heroicons-cog-6-tooth', route: '/settings' },
-])
-
-// Game store for progress tracking
+// Get stores
 const gameStore = useGameStore()
 const generatorStore = useGeneratorStore()
 const prestigeStore = usePrestigeStore()
+const { showToast } = useToast()
+
+// Check if adventure mode is unlocked
+const { isAdventureUnlocked } = useAdventureUnlock()
+
+// Handle click on disabled navigation items
+const handleDisabledClick = (name: string) => {
+  showToast(`You need to unlock ${name} Mode from the Upgrades tab (50 EP)`, 'info')
+}
+
+// Track which tooltip is currently shown (for mobile)
+const activeTooltipIndex = ref<number | null>(null)
+
+// Toggle tooltip visibility for mobile
+const toggleTooltip = (index: number) => {
+  if (activeTooltipIndex.value === index) {
+    activeTooltipIndex.value = null
+  } else {
+    activeTooltipIndex.value = index
+  }
+}
+
+// Navigation items for the footer
+const navItems = computed(() => {
+  return [
+    { name: 'Home', icon: 'i-heroicons-home', route: '/', disabled: false },
+    { name: 'Colony', icon: 'i-heroicons-building-storefront', route: '/colony', disabled: false },
+    { name: 'Upgrades', icon: 'i-heroicons-sparkles', route: '/upgrades', disabled: false },
+    {
+      name: 'Adventure',
+      icon: 'i-heroicons-bolt',
+      route: isAdventureUnlocked.value ? '/adventure' : '#',
+      disabled: !isAdventureUnlocked.value,
+      tooltip: !isAdventureUnlocked.value ? 'Unlock Adventure Mode from the Upgrades tab (50 EP)' : ''
+    },
+    {
+      name: 'Inventory',
+      icon: 'i-heroicons-squares-2x2',
+      route: isAdventureUnlocked.value ? '/inventory' : '#',
+      disabled: !isAdventureUnlocked.value,
+      tooltip: !isAdventureUnlocked.value ? 'Unlock Adventure Mode from the Upgrades tab (50 EP)' : ''
+    },
+    { name: 'Settings', icon: 'i-heroicons-cog-6-tooth', route: '/settings', disabled: false },
+  ]
+})
 
 // Initialize dark mode
 const { isDarkMode } = useDarkMode()
@@ -31,12 +73,26 @@ const updateGameLoop = () => {
 // Start and stop the game loop with component lifecycle
 onMounted(() => {
   animationFrameId = requestAnimationFrame(updateGameLoop)
+
+  // Add click handler to close tooltips when clicking outside
+  document.addEventListener('click', handleDocumentClick)
 })
+
+// Handle document clicks to close tooltips
+const handleDocumentClick = (event: MouseEvent) => {
+  // Only close if a tooltip is active and the click is not on a navigation item
+  if (activeTooltipIndex.value !== null && !(event.target as Element).closest('.nav-item')) {
+    activeTooltipIndex.value = null
+  }
+}
 
 onUnmounted(() => {
   if (animationFrameId !== null) {
     cancelAnimationFrame(animationFrameId)
   }
+
+  // Remove click handler
+  document.removeEventListener('click', handleDocumentClick)
 })
 </script>
 
@@ -119,15 +175,36 @@ onUnmounted(() => {
       <footer
         class="bg-gradient-to-r from-amber-800 to-amber-700 dark:from-amber-900 dark:to-amber-800 text-amber-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <nav class="flex justify-around items-center">
-          <template v-for="item in navItems" :key="item.name">
-            <router-link :to="item.route"
-              class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200 select-none" :class="{
-                'text-amber-300 border-t-2 border-amber-300 bg-amber-900/20 dark:bg-amber-950/40': $route.path === item.route,
-                'hover:bg-amber-900/10 dark:hover:bg-amber-950/30': $route.path !== item.route
-              }">
-              <span :class="[item.icon, 'text-xl']"></span>
-              <span class="text-xs mt-1 font-medium">{{ item.name }}</span>
-            </router-link>
+          <template v-for="(item, index) in navItems" :key="item.name">
+            <div class="relative w-full group nav-item" :title="item.tooltip">
+              <router-link v-if="!item.disabled" :to="item.route"
+                class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200 select-none" :class="{
+                  'text-amber-300 border-t-2 border-amber-300 bg-amber-900/20 dark:bg-amber-950/40': $route.path === item.route,
+                  'hover:bg-amber-900/10 dark:hover:bg-amber-950/30': $route.path !== item.route
+                }">
+                <span :class="[item.icon, 'text-xl']"></span>
+                <span class="text-xs mt-1 font-medium">{{ item.name }}</span>
+              </router-link>
+              <div v-else
+                class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200 select-none opacity-50 cursor-not-allowed"
+                @click.stop="toggleTooltip(index); handleDisabledClick(item.name)">
+                <span :class="[item.icon, 'text-xl']"></span>
+                <span class="text-xs mt-1 font-medium">{{ item.name }}</span>
+                <span
+                  class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-amber-900 text-amber-50 text-xs rounded px-3 py-2 w-max pointer-events-none z-10 shadow-lg"
+                  :class="[
+                    // Show on hover for desktop
+                    'opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+                    // Show on tap for mobile
+                    { 'opacity-100': activeTooltipIndex === index }
+                  ]">
+                  {{ item.tooltip }}
+                  <!-- Arrow pointing down -->
+                  <span
+                    class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-amber-900 rotate-45"></span>
+                </span>
+              </div>
+            </div>
           </template>
         </nav>
       </footer>

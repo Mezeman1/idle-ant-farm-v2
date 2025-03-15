@@ -81,19 +81,26 @@ export const useGameStore = defineStore('game', () => {
     // Calculate new progress for main tick
     tickProgress.value += elapsed / tickDuration.value
 
-    // Calculate new progress for adventure tick (twice as fast)
-    adventureTickProgress.value += elapsed / (tickDuration.value / 2)
+    // Get prestige store to check if adventure is unlocked
+    const prestigeStore = usePrestigeStore()
+    const isAdventureUnlocked = prestigeStore.getUpgradeCount('unlockAdventure').gt(0)
+
+    // Only update adventure progress if adventure mode is unlocked
+    if (isAdventureUnlocked) {
+      // Calculate new progress for adventure tick (twice as fast)
+      adventureTickProgress.value += elapsed / (tickDuration.value / 2)
+
+      // If adventure progress reaches or exceeds 1, trigger an adventure tick
+      if (adventureTickProgress.value >= 1) {
+        const adventureStore = useAdventureStore()
+        adventureStore.tick()
+        adventureTickProgress.value = 0
+      }
+    }
 
     // If progress reaches or exceeds 1, trigger a tick
     if (tickProgress.value >= 1) {
       tick()
-    }
-
-    // If adventure progress reaches or exceeds 1, trigger an adventure tick
-    if (adventureTickProgress.value >= 1) {
-      const adventureStore = useAdventureStore()
-      adventureStore.tick()
-      adventureTickProgress.value = 0
     }
 
     // Update last tick time

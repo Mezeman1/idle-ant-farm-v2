@@ -67,6 +67,7 @@ const isUpgradeUnlocked = (upgradeId: string, upgrades: PrestigeUpgrade[]): bool
     'evolutionSynergy',
     'prestigeAcceleration',
     'inventorySlots',
+    'unlockAdventure',
   ]
 
   if (basicUpgrades.includes(upgradeId)) {
@@ -701,6 +702,20 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       category: 'prestige',
       costMultiplier: (context: any) =>
         createDecimal(context.cost).mul(createDecimal(2).pow(createDecimal(2).pow(context.level))),
+    },
+    {
+      id: 'unlockAdventure',
+      name: 'Adventure Mode',
+      description: 'Unlock Adventure mode and the Inventory system',
+      baseCost: createDecimal(50),
+      cost: createDecimal(50),
+      level: createDecimal(0),
+      maxLevel: createDecimal(1),
+      effect: level => createDecimal(level), // 0 or 1 (unlocked or not)
+      formatEffect: formatUnlockEffect,
+      icon: 'i-heroicons-bolt',
+      isUnlocked: () => true,
+      category: 'research',
     },
   ]
 
