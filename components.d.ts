@@ -20,6 +20,7 @@ declare module 'vue' {
     EvolutionConfirmationDialog: typeof import('./src/components/EvolutionConfirmationDialog.vue')['default']
     EvolutionStatusSection: typeof import('./src/components/EvolutionStatusSection.vue')['default']
     EvolutionUpgradeItem: typeof import('./src/components/EvolutionUpgradeItem.vue')['default']
+    GdprConsentBanner: typeof import('./src/components/GdprConsentBanner.vue')['default']
     GeneratorInfoDialog: typeof import('./src/components/GeneratorInfoDialog.vue')['default']
     GeneratorItem: typeof import('./src/components/GeneratorItem.vue')['default']
     GeneratorUpgradeItem: typeof import('./src/components/GeneratorUpgradeItem.vue')['default']

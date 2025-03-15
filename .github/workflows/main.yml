@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: production # Example env variable
+      VITE_GOOGLE_ANALYTICS_ID: ${{ secrets.VITE_APP_GOOGLE_ANALYTICS_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

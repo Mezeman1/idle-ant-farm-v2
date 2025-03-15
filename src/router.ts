@@ -14,22 +14,37 @@ const routes = [
   {
     path: '/',
     component: IndexPage,
+    meta: {
+      title: 'Home',
+    },
   },
   {
     path: '/settings',
     component: SettingsPage,
+    meta: {
+      title: 'Settings',
+    },
   },
   {
     path: '/colony',
     component: ColonyPage,
+    meta: {
+      title: 'Colony',
+    },
   },
   {
     path: '/upgrades',
     component: UpgradesPage,
+    meta: {
+      title: 'Upgrades',
+    },
   },
   {
     path: '/adventure',
     component: AdventurePage,
+    meta: {
+      title: 'Adventure',
+    },
     beforeEnter: (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
       const { isAdventureUnlocked } = useAdventureUnlock()
 
@@ -52,6 +67,9 @@ const routes = [
   {
     path: '/inventory',
     component: InventoryPage,
+    meta: {
+      title: 'Inventory',
+    },
     beforeEnter: (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
       const { isAdventureUnlocked } = useAdventureUnlock()
 
@@ -76,6 +94,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// Add analytics tracking
+import { useAnalytics } from '@/composables/useAnalytics'
+
+// We need to wait until the router is ready to use the analytics
+// because the composable needs to be called within a Vue component or setup function
+router.isReady().then(() => {
+  // This will be executed after the router is ready
+  const { trackPageView } = useAnalytics()
+
+  router.afterEach(to => {
+    // Track page view with the route path and title
+    trackPageView(to.path, to.meta.title as string | undefined)
+  })
 })
 
 export default router

@@ -83,12 +83,15 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAdventureStore: typeof import('./src/stores/adventureStore')['useAdventureStore']
+  const useAdventureUnlock: typeof import('./src/composables/useAdventureUnlock')['useAdventureUnlock']
+  const useAnalytics: typeof import('./src/composables/useAnalytics')['useAnalytics']
   const useAttrs: typeof import('vue')['useAttrs']
   const useBugStore: typeof import('./src/stores/bugStore')['useBugStore']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDarkMode: typeof import('./src/composables/useDarkMode')['useDarkMode']
   const useGameStore: typeof import('./src/stores/gameStore')['useGameStore']
+  const useGdprConsent: typeof import('./src/composables/useGdprConsent')['useGdprConsent']
   const useGeneratorStore: typeof import('./src/stores/generatorStore')['useGeneratorStore']
   const useGeneratorUpgradeStore: typeof import('./src/stores/generatorUpgradeStore')['useGeneratorUpgradeStore']
   const useHead: typeof import('@unhead/vue')['useHead']
@@ -112,6 +115,7 @@ declare global {
   const useSlots: typeof import('vue')['useSlots']
   const useStore: typeof import('@/store')['useStore']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const useToast: typeof import('./src/composables/useToast')['useToast']
   const useVisibilityState: typeof import('./src/composables/useVisibilityState')['useVisibilityState']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
@@ -138,6 +142,9 @@ declare global {
   // @ts-ignore
   export type { MultiplierBreakdown } from './src/stores/multiplierStore'
   import('./src/stores/multiplierStore')
+  // @ts-ignore
+  export type { ConsentStatus } from './src/composables/useGdprConsent'
+  import('./src/composables/useGdprConsent')
 }
 
 // for vue template auto import
@@ -222,12 +229,15 @@ declare module 'vue' {
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAdventureStore: UnwrapRef<typeof import('./src/stores/adventureStore')['useAdventureStore']>
+    readonly useAdventureUnlock: UnwrapRef<typeof import('./src/composables/useAdventureUnlock')['useAdventureUnlock']>
+    readonly useAnalytics: UnwrapRef<typeof import('./src/composables/useAnalytics')['useAnalytics']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBugStore: UnwrapRef<typeof import('./src/stores/bugStore')['useBugStore']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDarkMode: UnwrapRef<typeof import('./src/composables/useDarkMode')['useDarkMode']>
     readonly useGameStore: UnwrapRef<typeof import('./src/stores/gameStore')['useGameStore']>
+    readonly useGdprConsent: UnwrapRef<typeof import('./src/composables/useGdprConsent')['useGdprConsent']>
     readonly useGeneratorStore: UnwrapRef<typeof import('./src/stores/generatorStore')['useGeneratorStore']>
     readonly useGeneratorUpgradeStore: UnwrapRef<typeof import('./src/stores/generatorUpgradeStore')['useGeneratorUpgradeStore']>
     readonly useHead: UnwrapRef<typeof import('@unhead/vue')['useHead']>
@@ -251,6 +261,7 @@ declare module 'vue' {
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useStore: UnwrapRef<typeof import('@/store')['useStore']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useToast: UnwrapRef<typeof import('./src/composables/useToast')['useToast']>
     readonly useVisibilityState: UnwrapRef<typeof import('./src/composables/useVisibilityState')['useVisibilityState']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>

@@ -3,7 +3,8 @@ import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { useSaveSystem } from '@/stores/saveSystem'
-
+import VueGtag from 'vue-gtag-next'
+import { useGdprConsent } from '@/composables/useGdprConsent'
 import '@/assets/base.css'
 
 const app = createApp(App)
@@ -11,6 +12,19 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
+
+// Initialize GDPR consent
+const { hasConsent } = useGdprConsent()
+
+// Configure Google Analytics with GDPR compliance
+app.use(VueGtag, {
+  property: {
+    id: import.meta.env.VITE_GOOGLE_ANALYTICS_ID || 'G-XXXXXXXXXX',
+  },
+  isEnabled: hasConsent(), // Only enable if consent is given
+  useDebugger: import.meta.env.VITE_DEBUG_MODE === 'true',
+  disableScriptLoad: !hasConsent(), // Don't load the script if no consent
+})
 
 app.mount('#app')
 

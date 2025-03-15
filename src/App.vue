@@ -5,6 +5,7 @@ import OfflineProgressModal from '@/components/OfflineProgressModal.vue'
 import PWAUpdateNotification from '@/components/PWAUpdateNotification.vue'
 import PWAInstallButton from '@/components/PWAInstallButton.vue'
 import ToastContainer from '@/components/ToastContainer.vue'
+import GdprConsentBanner from '@/components/GdprConsentBanner.vue'
 import { useSaveSystem } from '@/stores/saveSystem'
 import { useVisibilityState } from '@/composables/useVisibilityState'
 import { useDarkMode } from '@/composables/useDarkMode'
@@ -52,4 +53,7 @@ const handleCloseOfflineModal = () => {
 
   <!-- Toast Notifications -->
   <ToastContainer />
+
+  <!-- GDPR Consent Banner -->
+  <GdprConsentBanner />
 </template>
