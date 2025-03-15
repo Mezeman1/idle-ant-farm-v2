@@ -164,16 +164,6 @@ export const usePrestigeStore = defineStore('prestige', () => {
       totalEP = totalEP.mul(createDecimal(1).add(evolutionBonus))
     }
 
-    // Apply EP Squared upgrade (bonus based on current EP)
-    const epSquaredMultiplier = getUpgradeMultiplier('epSquared')
-    if (epSquaredMultiplier.gt(1)) {
-      // Calculate bonus based on current EP
-      // The effect is (1 + level*0.01), so we subtract 1 to get just the percentage
-      const epPercentage = epSquaredMultiplier.sub(1)
-      const epBonus = evolutionPoints.value.mul(epPercentage)
-      totalEP = totalEP.add(epBonus)
-    }
-
     // Apply EP boost from items
     const multiplierStore = useMultiplierStore()
     const itemEPBoost = multiplierStore.getEPBoostMultiplier()

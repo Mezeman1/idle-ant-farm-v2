@@ -58,7 +58,6 @@ const isUpgradeUnlocked = (upgradeId: string, upgrades: PrestigeUpgrade[]): bool
     'epBoost',
     'cycleFoodReduction',
     'startingFood',
-    'epSquared',
     'autoWorker',
     'autoNursery',
     'autoQueenChamber',
@@ -482,21 +481,6 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       effect: level => createDecimal(10).pow(level), // 10^level
       formatEffect: formatMultiplierEffect,
       icon: 'i-heroicons-banknotes',
-      isUnlocked: () => true,
-      category: 'prestige',
-    },
-    {
-      id: 'epSquared',
-      name: 'Squared Evolution',
-      description: 'Gain an additional EP multiplier based on your current EP',
-      baseCost: createDecimal(100),
-      cost: createDecimal(100), // Initialize cost to baseCost
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(3).pow(context.level)),
-      level: createDecimal(0),
-      maxLevel: createDecimal(5),
-      effect: level => createDecimal(1).add(level.mul(0.01)), // Each level adds 1% of current EP as a multiplier
-      formatEffect: formatPercentageEffect,
-      icon: 'i-heroicons-sparkles',
       isUnlocked: () => true,
       category: 'prestige',
     },
