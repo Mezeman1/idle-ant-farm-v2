@@ -7,7 +7,7 @@ import { useAdventureUnlock } from '@/composables/useAdventureUnlock'
 import { useToast } from '@/composables/useToast'
 import { computed, ref } from 'vue'
 import { formatDecimal } from '@/utils/decimalUtils'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 // Get stores
 const gameStore = useGameStore()
@@ -75,6 +75,7 @@ const navItems = computed(() => {
 
 // Initialize dark mode
 const { isDarkMode } = useDarkMode()
+const route = useRoute()
 
 // Animation frame handling for smooth progress updates
 let animationFrameId: number | null = null
@@ -181,7 +182,7 @@ onUnmounted(() => {
             <div class="flex items-center bg-amber-900/20 dark:bg-amber-950/40 rounded-full px-2 py-1">
               <span class="i-heroicons-arrow-trending-up text-amber-300 dark:text-amber-400 mr-1"></span>
               <span class="text-xs md:text-sm font-medium">{{ formatDecimal(generatorStore.foodPerSecond, 1)
-                }}/trip</span>
+              }}/trip</span>
             </div>
 
             <!-- Evolution Count -->
@@ -206,8 +207,8 @@ onUnmounted(() => {
             <div class="relative w-full group nav-item" :title="item.tooltip">
               <router-link v-if="!item.disabled" :to="item.route"
                 class="flex flex-col items-center py-3 px-2 w-full transition-colors duration-200 select-none" :class="{
-                  'text-amber-300 border-t-2 border-amber-300 bg-amber-900/20 dark:bg-amber-950/40': $route.path === item.route,
-                  'hover:bg-amber-900/10 dark:hover:bg-amber-950/30': $route.path !== item.route
+                  'text-amber-300 border-t-2 border-amber-300 bg-amber-900/20 dark:bg-amber-950/40': route.path === item.route,
+                  'hover:bg-amber-900/10 dark:hover:bg-amber-950/30': route.path !== item.route
                 }">
                 <span :class="[item.icon, 'text-xl']"></span>
                 <span class="text-xs mt-1 font-medium">{{ item.name }}</span>

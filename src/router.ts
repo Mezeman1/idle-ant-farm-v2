@@ -106,6 +106,7 @@ router.isReady().then(() => {
   const { trackPageView } = useAnalytics()
 
   router.afterEach(to => {
+    console.log('to', to)
     // Track page view with the route path and title
     trackPageView(to.path, to.meta.title as string | undefined)
   })
