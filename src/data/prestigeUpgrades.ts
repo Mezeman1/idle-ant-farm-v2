@@ -292,9 +292,10 @@ export const createPrestigeUpgrades = (): PrestigeUpgrade[] => {
       id: 'exponentialGrowth',
       name: 'Exponential Growth',
       description: 'All production increases by 2x per level',
-      baseCost: createDecimal(25),
-      cost: createDecimal(25), // Initialize cost to baseCost
-      costMultiplier: (context: any) => createDecimal(context.cost).mul(createDecimal(2).pow(context.level)),
+      baseCost: createDecimal(1000),
+      cost: createDecimal(1000), // Initialize cost to baseCost
+      costMultiplier: (context: any) =>
+        createDecimal(context.cost).mul(createDecimal(2).pow(createDecimal(context.level).mul(1.5))),
       level: createDecimal(0),
       maxLevel: createDecimal(10),
       effect: level => createDecimal(2).pow(level), // 2^level (2, 4, 8, 16, etc.)
