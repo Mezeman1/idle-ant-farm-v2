@@ -15,8 +15,9 @@ export const useGameStore = defineStore('game', () => {
   const tickDuration = computed(() => {
     const prestigeStore = usePrestigeStore()
     const reduction = prestigeStore.getUpgradeMultiplier('cycleTimeReduction').toNumber()
+    const reductionAdvanced = prestigeStore.getUpgradeMultiplier('cycleTimeReductionAdvanced').toNumber()
     // Apply game speed multiplier and ensure tick duration doesn't go below 0.1 seconds
-    return Math.max(0.1, (baseTickDuration.value - reduction) / gameSpeed.value)
+    return Math.max(0.1, (baseTickDuration.value - reduction - reductionAdvanced) / gameSpeed.value)
   })
   const tickProgress = ref(0) // Current progress (0 to 1)
   const adventureTickProgress = ref(0) // Adventure progress (0 to 1)
